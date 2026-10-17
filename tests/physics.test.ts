@@ -121,3 +121,10 @@ describe('termination detection', () => {
     expect(escapeCandidates([a, b], DEFAULT_PHYSICS)).not.toContain('traveler');
   });
 });
+it('defers marginal parabolic escape instead of interpreting rounding noise as unbound motion', () => {
+  const bodies = [body('host', 0), body('traveler', 200, 1e-6)];
+  bodies[1]!.velocity = [Math.sqrt((2 * (1 + 1e-6)) / 200) * (1 + 1e-9), 0, 0];
+  expect(escapeCandidates(bodies, { ...DEFAULT_PHYSICS, softening: 0 })).not.toContain('traveler');
+  bodies[1]!.velocity[0] *= 1.01;
+  expect(escapeCandidates(bodies, { ...DEFAULT_PHYSICS, softening: 0 })).toContain('traveler');
+});

@@ -1,0 +1,1397 @@
+{
+  "schema": 1,
+  "baselineCommit": "83acfeb12d3405855226e29040ca2ce4994ada16",
+  "node": "v24.19.0",
+  "platform": "linux",
+  "cpu": "AMD EPYC 9V45 96-Core Processor",
+  "count": 24,
+  "horizonYears": 20,
+  "seeds": [
+    "benchmark-v2-0",
+    "benchmark-v2-1",
+    "benchmark-v2-2",
+    "benchmark-v2-3",
+    "benchmark-v2-4",
+    "benchmark-v2-5",
+    "benchmark-v2-6",
+    "benchmark-v2-7",
+    "benchmark-v2-8",
+    "benchmark-v2-9",
+    "benchmark-v2-10",
+    "benchmark-v2-11",
+    "benchmark-v2-12",
+    "benchmark-v2-13",
+    "benchmark-v2-14",
+    "benchmark-v2-15",
+    "benchmark-v2-16",
+    "benchmark-v2-17",
+    "benchmark-v2-18",
+    "benchmark-v2-19",
+    "benchmark-v2-20",
+    "benchmark-v2-21",
+    "benchmark-v2-22",
+    "benchmark-v2-23"
+  ],
+  "algorithms": [
+    {
+      "name": "v01-verlet-dt.002",
+      "cpuMs": 137.47305500000675,
+      "steps": 94248,
+      "rejected": 0,
+      "maxEnergy": 0.0007895784869215018,
+      "maxAngular": 9.551816881477027e-15,
+      "trajectories": [
+        {
+          "seed": "benchmark-v2-0",
+          "energy": 0.00000847818954653765,
+          "angular": 8.091003507081414e-15,
+          "steps": 15708
+        },
+        {
+          "seed": "benchmark-v2-1",
+          "energy": 0.0007895784869215018,
+          "angular": 6.771874011180983e-15,
+          "steps": 15708
+        },
+        {
+          "seed": "benchmark-v2-2",
+          "energy": 0.000008741616189685815,
+          "angular": 4.5602440669944835e-15,
+          "steps": 15708
+        },
+        {
+          "seed": "benchmark-v2-3",
+          "energy": 0.00032690167359619753,
+          "angular": 9.453259112703326e-15,
+          "steps": 15708
+        },
+        {
+          "seed": "benchmark-v2-4",
+          "energy": 0.0000024596451394011147,
+          "angular": 9.551816881477027e-15,
+          "steps": 15708
+        },
+        {
+          "seed": "benchmark-v2-5",
+          "energy": 0.000006449086954950155,
+          "angular": 6.6410859095974395e-15,
+          "steps": 15708
+        }
+      ],
+      "cpuMsRange": [132.78496099998665, 161.6303789999738],
+      "repetitions": 3
+    },
+    {
+      "name": "cached-verlet-dt.002",
+      "cpuMs": 38.477401999968606,
+      "steps": 94248,
+      "rejected": 0,
+      "maxEnergy": 0.0007895784869215018,
+      "maxAngular": 9.551816881477027e-15,
+      "trajectories": [
+        {
+          "seed": "benchmark-v2-0",
+          "energy": 0.00000847818954653765,
+          "angular": 8.091003507081414e-15,
+          "steps": 15708
+        },
+        {
+          "seed": "benchmark-v2-1",
+          "energy": 0.0007895784869215018,
+          "angular": 6.771874011180983e-15,
+          "steps": 15708
+        },
+        {
+          "seed": "benchmark-v2-2",
+          "energy": 0.000008741616189685815,
+          "angular": 4.5602440669944835e-15,
+          "steps": 15708
+        },
+        {
+          "seed": "benchmark-v2-3",
+          "energy": 0.0003269016736022064,
+          "angular": 9.486261980617068e-15,
+          "steps": 15708
+        },
+        {
+          "seed": "benchmark-v2-4",
+          "energy": 0.0000024596451394011147,
+          "angular": 9.551816881477027e-15,
+          "steps": 15708
+        },
+        {
+          "seed": "benchmark-v2-5",
+          "energy": 0.000006449086954950155,
+          "angular": 6.6410859095974395e-15,
+          "steps": 15708
+        }
+      ],
+      "cpuMsRange": [37.54858100001593, 40.20065099996032],
+      "repetitions": 3
+    },
+    {
+      "name": "cached-verlet-dt.0002",
+      "cpuMs": 383.3464210002744,
+      "steps": 942480,
+      "rejected": 0,
+      "maxEnergy": 0.000008260180378588926,
+      "maxAngular": 4.512575575670821e-14,
+      "trajectories": [
+        {
+          "seed": "benchmark-v2-0",
+          "energy": 8.480461904004447e-8,
+          "angular": 1.0692582504080211e-14,
+          "steps": 157080
+        },
+        {
+          "seed": "benchmark-v2-1",
+          "energy": 0.000008260180378588926,
+          "angular": 1.680870014426407e-14,
+          "steps": 157080
+        },
+        {
+          "seed": "benchmark-v2-2",
+          "energy": 8.741941343898971e-8,
+          "angular": 2.7519002068035216e-14,
+          "steps": 157080
+        },
+        {
+          "seed": "benchmark-v2-3",
+          "energy": 0.000003282075788662153,
+          "angular": 4.512575575670821e-14,
+          "steps": 157080
+        },
+        {
+          "seed": "benchmark-v2-4",
+          "energy": 2.4596637017470116e-8,
+          "angular": 4.020449355883267e-14,
+          "steps": 157080
+        },
+        {
+          "seed": "benchmark-v2-5",
+          "energy": 6.450556887241874e-8,
+          "angular": 2.5822571202560837e-14,
+          "steps": 157080
+        }
+      ],
+      "cpuMsRange": [382.6458700000044, 392.7160819998412],
+      "repetitions": 3
+    },
+    {
+      "name": "yoshida4-dt.002",
+      "cpuMs": 89.2802889999898,
+      "steps": 94248,
+      "rejected": 0,
+      "maxEnergy": 5.216614842004984e-7,
+      "maxAngular": 1.623879899494341e-14,
+      "trajectories": [
+        {
+          "seed": "benchmark-v2-0",
+          "energy": 2.1606809500113086e-10,
+          "angular": 1.0111261498234675e-14,
+          "steps": 15708
+        },
+        {
+          "seed": "benchmark-v2-1",
+          "energy": 5.216614842004984e-7,
+          "angular": 1.235937710704173e-14,
+          "steps": 15708
+        },
+        {
+          "seed": "benchmark-v2-2",
+          "energy": 1.6332772171030533e-10,
+          "angular": 6.363071462170073e-15,
+          "steps": 15708
+        },
+        {
+          "seed": "benchmark-v2-3",
+          "energy": 1.0998943061947114e-7,
+          "angular": 9.091468325099477e-15,
+          "steps": 15708
+        },
+        {
+          "seed": "benchmark-v2-4",
+          "energy": 1.9314793408197145e-9,
+          "angular": 1.1820012122474289e-14,
+          "steps": 15708
+        },
+        {
+          "seed": "benchmark-v2-5",
+          "energy": 1.1262589839647253e-10,
+          "angular": 1.623879899494341e-14,
+          "steps": 15708
+        }
+      ],
+      "cpuMsRange": [88.8404280000077, 89.29983499982154],
+      "repetitions": 3
+    },
+    {
+      "name": "adaptive-dopri5-rtol1e-7",
+      "cpuMs": 9.304494999989856,
+      "steps": 3722,
+      "rejected": 148,
+      "maxEnergy": 2.1950416769678254e-7,
+      "maxAngular": 3.2045738476554325e-9,
+      "trajectories": [
+        {
+          "seed": "benchmark-v2-0",
+          "energy": 2.756734807798299e-9,
+          "angular": 5.174513462557793e-10,
+          "steps": 600
+        },
+        {
+          "seed": "benchmark-v2-1",
+          "energy": 2.1950416769678254e-7,
+          "angular": 3.2045738476554325e-9,
+          "steps": 699
+        },
+        {
+          "seed": "benchmark-v2-2",
+          "energy": 3.1083298677503714e-8,
+          "angular": 1.364658964873017e-9,
+          "steps": 689
+        },
+        {
+          "seed": "benchmark-v2-3",
+          "energy": 1.0163201754754801e-7,
+          "angular": 1.90208066869499e-9,
+          "steps": 594
+        },
+        {
+          "seed": "benchmark-v2-4",
+          "energy": 3.179140186291268e-8,
+          "angular": 1.6055427435260952e-9,
+          "steps": 607
+        },
+        {
+          "seed": "benchmark-v2-5",
+          "energy": 2.8819712270819297e-8,
+          "angular": 1.64403483966239e-9,
+          "steps": 533
+        }
+      ],
+      "cpuMsRange": [8.872113999994326, 9.579501999984132],
+      "repetitions": 3
+    },
+    {
+      "name": "adaptive-dopri5-rtol1e-9",
+      "cpuMs": 16.635899999995218,
+      "steps": 6703,
+      "rejected": 379,
+      "maxEnergy": 1.919526074738749e-9,
+      "maxAngular": 1.3390086069471896e-10,
+      "trajectories": [
+        {
+          "seed": "benchmark-v2-0",
+          "energy": 8.555378119623035e-11,
+          "angular": 5.01666035603408e-12,
+          "steps": 1249
+        },
+        {
+          "seed": "benchmark-v2-1",
+          "energy": 1.2342442121422326e-9,
+          "angular": 1.893860859128542e-11,
+          "steps": 1197
+        },
+        {
+          "seed": "benchmark-v2-2",
+          "energy": 2.741742169581871e-10,
+          "angular": 9.743762445672009e-12,
+          "steps": 1475
+        },
+        {
+          "seed": "benchmark-v2-3",
+          "energy": 1.919526074738749e-9,
+          "angular": 4.897712733082675e-11,
+          "steps": 911
+        },
+        {
+          "seed": "benchmark-v2-4",
+          "energy": 1.2393735026325258e-9,
+          "angular": 1.3390086069471896e-10,
+          "steps": 968
+        },
+        {
+          "seed": "benchmark-v2-5",
+          "energy": 8.244448270615637e-10,
+          "angular": 5.4991421784842686e-11,
+          "steps": 903
+        }
+      ],
+      "cpuMsRange": [16.0794719999858, 21.66050100000848],
+      "repetitions": 3
+    },
+    {
+      "name": "adaptive-dopri5-rtol1e-11",
+      "cpuMs": 32.913547999982256,
+      "steps": 14294,
+      "rejected": 1,
+      "maxEnergy": 2.8802201052419027e-11,
+      "maxAngular": 3.3410806761329532e-12,
+      "trajectories": [
+        {
+          "seed": "benchmark-v2-0",
+          "energy": 3.0977085079211475e-12,
+          "angular": 8.813140397889568e-14,
+          "steps": 2838
+        },
+        {
+          "seed": "benchmark-v2-1",
+          "energy": 2.2886387950992428e-11,
+          "angular": 9.511112976220879e-13,
+          "steps": 2402
+        },
+        {
+          "seed": "benchmark-v2-2",
+          "energy": 5.615984151962836e-12,
+          "angular": 1.7536601659645546e-13,
+          "steps": 3355
+        },
+        {
+          "seed": "benchmark-v2-3",
+          "energy": 2.8802201052419027e-11,
+          "angular": 1.1099409855150874e-12,
+          "steps": 1728
+        },
+        {
+          "seed": "benchmark-v2-4",
+          "energy": 1.917838696523323e-11,
+          "angular": 3.3410806761329532e-12,
+          "steps": 1943
+        },
+        {
+          "seed": "benchmark-v2-5",
+          "energy": 1.404120855671718e-11,
+          "angular": 7.945318167824541e-13,
+          "steps": 2028
+        }
+      ],
+      "cpuMsRange": [32.13597199998867, 36.45246100001714],
+      "repetitions": 3
+    }
+  ],
+  "populations": {
+    "v01": {
+      "summary": {
+        "seeds": 24,
+        "horizonYears": 20,
+        "earlyEndsWithin5Years": 0.2916666666666667,
+        "survivedHorizon": 0.4166666666666667,
+        "survivalYears": {
+          "min": 0.5856901905781456,
+          "p25": 3.2158847801147865,
+          "median": 16.41555914037488,
+          "p75": 20
+        },
+        "medianEncounters": 2,
+        "medianExchanges": 12,
+        "maxEnergyError": 0.019430483162167066,
+        "maxAngularError": 5.477583787136077e-14,
+        "maxMomentumError": 1.6437262172743964e-14,
+        "cpuMs": 4675.268025999999,
+        "screenMs": 0.0069430000066859066,
+        "reasons": {
+          "escape": 1,
+          "collision": 13,
+          "censored": 10
+        }
+      },
+      "rows": [
+        {
+          "seed": "benchmark-v2-0",
+          "years": 16.41555914037488,
+          "reason": "escape",
+          "energy": 0.00028003761984619706,
+          "angular": 3.615306520926281e-14,
+          "momentum": 6.9011163396084926e-15,
+          "encounters": 8,
+          "exchanges": 18,
+          "cpuMs": 276.50949200000014,
+          "steps": 51571,
+          "screenMs": 0.0009020000006785267
+        },
+        {
+          "seed": "benchmark-v2-1",
+          "years": 13.502705371913803,
+          "reason": "collision",
+          "energy": 0.0008009471319246477,
+          "angular": 2.6723302561242583e-14,
+          "momentum": 6.678093753562231e-15,
+          "encounters": 1,
+          "exchanges": 11,
+          "cpuMs": 224.50334699999985,
+          "steps": 42420,
+          "screenMs": 0.0005410000003394089
+        },
+        {
+          "seed": "benchmark-v2-2",
+          "years": 16.722091560769158,
+          "reason": "collision",
+          "energy": 0.008380026453595734,
+          "angular": 6.6479217849228745e-15,
+          "momentum": 8.758376728176782e-15,
+          "encounters": 4,
+          "exchanges": 15,
+          "cpuMs": 277.09271199999966,
+          "steps": 52534,
+          "screenMs": 0.0004600000002028537
+        },
+        {
+          "seed": "benchmark-v2-3",
+          "years": 20,
+          "reason": "censored",
+          "energy": 0.000047399622176030956,
+          "angular": 2.4072925021677404e-14,
+          "momentum": 5.9808325313617034e-15,
+          "encounters": 3,
+          "exchanges": 14,
+          "cpuMs": 321.0724689999997,
+          "steps": 62976,
+          "screenMs": 0.0004310000003897585
+        },
+        {
+          "seed": "benchmark-v2-4",
+          "years": 1.3645944820698364,
+          "reason": "collision",
+          "energy": 0.000010406100481125856,
+          "angular": 1.7863571860164155e-15,
+          "momentum": 2.3989094011515325e-15,
+          "encounters": 1,
+          "exchanges": 4,
+          "cpuMs": 21.18408200000067,
+          "steps": 4287,
+          "screenMs": 0.0005010000004403992
+        },
+        {
+          "seed": "benchmark-v2-5",
+          "years": 20,
+          "reason": "censored",
+          "energy": 0.00008218970359692574,
+          "angular": 4.858091951560544e-14,
+          "momentum": 1.0197957579649653e-14,
+          "encounters": 2,
+          "exchanges": 29,
+          "cpuMs": 311.87599000000046,
+          "steps": 62976,
+          "screenMs": 0.00036100000033911783
+        },
+        {
+          "seed": "benchmark-v2-6",
+          "years": 20,
+          "reason": "censored",
+          "energy": 0.0001853871264410081,
+          "angular": 4.4034528293136726e-14,
+          "momentum": 4.965758848533821e-15,
+          "encounters": 6,
+          "exchanges": 12,
+          "cpuMs": 299.91944499999954,
+          "steps": 62976,
+          "screenMs": 0.0005799999998998828
+        },
+        {
+          "seed": "benchmark-v2-7",
+          "years": 7.831696439668242,
+          "reason": "collision",
+          "energy": 0.010312380853243354,
+          "angular": 1.1734815843512021e-14,
+          "momentum": 5.971565620528921e-15,
+          "encounters": 2,
+          "exchanges": 7,
+          "cpuMs": 112.70360099999925,
+          "steps": 24604,
+          "screenMs": 0.0003910000004907488
+        },
+        {
+          "seed": "benchmark-v2-8",
+          "years": 5.883958246107246,
+          "reason": "collision",
+          "energy": 0.00007357328946784387,
+          "angular": 1.0290799789367165e-14,
+          "momentum": 7.302468410506827e-15,
+          "encounters": 2,
+          "exchanges": 13,
+          "cpuMs": 86.42301399999997,
+          "steps": 18485,
+          "screenMs": 0.0005409999994299142
+        },
+        {
+          "seed": "benchmark-v2-9",
+          "years": 20,
+          "reason": "censored",
+          "energy": 0.000013583854044747112,
+          "angular": 5.463127549116295e-14,
+          "momentum": 6.927739794375516e-15,
+          "encounters": 4,
+          "exchanges": 9,
+          "cpuMs": 297.9200099999998,
+          "steps": 62976,
+          "screenMs": 0.0005110000001877779
+        },
+        {
+          "seed": "benchmark-v2-10",
+          "years": 20,
+          "reason": "censored",
+          "energy": 0.000021725617251316675,
+          "angular": 1.823022370886459e-14,
+          "momentum": 1.3599775589540346e-14,
+          "encounters": 7,
+          "exchanges": 19,
+          "cpuMs": 298.63148,
+          "steps": 62976,
+          "screenMs": 0.00046999999995023245
+        },
+        {
+          "seed": "benchmark-v2-11",
+          "years": 0.5856901905781456,
+          "reason": "collision",
+          "energy": 0.019430483162167066,
+          "angular": 1.1331477838780932e-14,
+          "momentum": 2.336905492142611e-15,
+          "encounters": 1,
+          "exchanges": 1,
+          "cpuMs": 8.824703000000227,
+          "steps": 1840,
+          "screenMs": 0.00048100000003614696
+        },
+        {
+          "seed": "benchmark-v2-12",
+          "years": 3.33334112811654,
+          "reason": "collision",
+          "energy": 0.00003056010852462672,
+          "angular": 2.027201170659172e-14,
+          "momentum": 6.525431347802223e-15,
+          "encounters": 2,
+          "exchanges": 7,
+          "cpuMs": 50.753262999999606,
+          "steps": 10472,
+          "screenMs": 0.0001810000003388268
+        },
+        {
+          "seed": "benchmark-v2-13",
+          "years": 15.504237936232814,
+          "reason": "collision",
+          "energy": 0.000010069494235761812,
+          "angular": 1.675050021193306e-14,
+          "momentum": 1.6437262172743964e-14,
+          "encounters": 2,
+          "exchanges": 25,
+          "cpuMs": 233.060246,
+          "steps": 48708,
+          "screenMs": 0.00004999999964638846
+        },
+        {
+          "seed": "benchmark-v2-14",
+          "years": 0.659538084172777,
+          "reason": "collision",
+          "energy": 3.659494553988131e-7,
+          "angular": 8.974700830086577e-16,
+          "momentum": 1.8510890352424947e-15,
+          "encounters": 0,
+          "exchanges": 1,
+          "cpuMs": 9.97678200000064,
+          "steps": 2072,
+          "screenMs": 0.00009000000045489287
+        },
+        {
+          "seed": "benchmark-v2-15",
+          "years": 17.651238118537478,
+          "reason": "collision",
+          "energy": 0.017990961504111527,
+          "angular": 1.0561132175485219e-14,
+          "momentum": 1.0547474552948212e-14,
+          "encounters": 5,
+          "exchanges": 12,
+          "cpuMs": 261.2942920000005,
+          "steps": 55453,
+          "screenMs": 0.00003999999989900971
+        },
+        {
+          "seed": "benchmark-v2-16",
+          "years": 20,
+          "reason": "censored",
+          "energy": 7.954477567264173e-7,
+          "angular": 5.477583787136077e-14,
+          "momentum": 5.782897303065578e-15,
+          "encounters": 0,
+          "exchanges": 11,
+          "cpuMs": 298.92727300000024,
+          "steps": 62976,
+          "screenMs": 0.00004999999964638846
+        },
+        {
+          "seed": "benchmark-v2-17",
+          "years": 3.2158847801147865,
+          "reason": "collision",
+          "energy": 0.00009366272366925156,
+          "angular": 8.24726137411576e-15,
+          "momentum": 5.290373055544067e-15,
+          "encounters": 1,
+          "exchanges": 7,
+          "cpuMs": 47.831099999999424,
+          "steps": 10103,
+          "screenMs": 0.00005000000055588316
+        },
+        {
+          "seed": "benchmark-v2-18",
+          "years": 20,
+          "reason": "censored",
+          "energy": 0.000027515528974870613,
+          "angular": 2.8389236514703173e-14,
+          "momentum": 8.46627864688962e-15,
+          "encounters": 5,
+          "exchanges": 14,
+          "cpuMs": 295.1598670000003,
+          "steps": 62976,
+          "screenMs": 0.00012000000060652383
+        },
+        {
+          "seed": "benchmark-v2-19",
+          "years": 1.869115651671313,
+          "reason": "collision",
+          "energy": 0.00006037026107564557,
+          "angular": 3.724132725445642e-15,
+          "momentum": 3.2107129217841923e-15,
+          "encounters": 3,
+          "exchanges": 6,
+          "cpuMs": 29.694187999999485,
+          "steps": 5872,
+          "screenMs": 0.00004000000080850441
+        },
+        {
+          "seed": "benchmark-v2-20",
+          "years": 20,
+          "reason": "censored",
+          "energy": 0.000611191244906171,
+          "angular": 2.619103166980235e-14,
+          "momentum": 3.3785885663758292e-15,
+          "encounters": 7,
+          "exchanges": 12,
+          "cpuMs": 300.87164200000007,
+          "steps": 62976,
+          "screenMs": 0.00004000000080850441
+        },
+        {
+          "seed": "benchmark-v2-21",
+          "years": 1.6583945070175732,
+          "reason": "collision",
+          "energy": 0.011200050101740675,
+          "angular": 3.448541986267432e-15,
+          "momentum": 1.352067523890646e-15,
+          "encounters": 1,
+          "exchanges": 1,
+          "cpuMs": 24.21765199999936,
+          "steps": 5210,
+          "screenMs": 0.00004000000080850441
+        },
+        {
+          "seed": "benchmark-v2-22",
+          "years": 20,
+          "reason": "censored",
+          "energy": 0.0000035407750311277243,
+          "angular": 1.7035209484840716e-14,
+          "momentum": 9.449461348114049e-15,
+          "encounters": 4,
+          "exchanges": 21,
+          "cpuMs": 295.3571950000005,
+          "steps": 62976,
+          "screenMs": 0.00003099999958067201
+        },
+        {
+          "seed": "benchmark-v2-23",
+          "years": 20,
+          "reason": "censored",
+          "energy": 0.000022281149257698576,
+          "angular": 1.3877013987681949e-14,
+          "momentum": 1.1585947793276556e-14,
+          "encounters": 7,
+          "exchanges": 32,
+          "cpuMs": 291.46418099999937,
+          "steps": 62976,
+          "screenMs": 0.000041000001147040166
+        }
+      ]
+    },
+    "raw-v02": {
+      "summary": {
+        "seeds": 24,
+        "horizonYears": 20,
+        "earlyEndsWithin5Years": 0.041666666666666664,
+        "survivedHorizon": 0.7083333333333334,
+        "survivalYears": {
+          "min": 3.164563203335212,
+          "p25": 15.25022664706562,
+          "median": 20,
+          "p75": 20
+        },
+        "medianEncounters": 7,
+        "medianExchanges": 18,
+        "maxEnergyError": 4.3269821125841675e-8,
+        "maxAngularError": 1.0680318941555602e-9,
+        "maxMomentumError": 6.028611534892934e-15,
+        "cpuMs": 1236.3301519999986,
+        "screenMs": 0.011457999995400314,
+        "reasons": {
+          "escape": 4,
+          "censored": 17,
+          "collision": 2,
+          "tidal": 1
+        }
+      },
+      "rows": [
+        {
+          "seed": "benchmark-v2-0",
+          "years": 15.25022664706562,
+          "reason": "escape",
+          "energy": 2.8381810732233188e-9,
+          "angular": 2.0588438426626767e-10,
+          "momentum": 1.7153202126127276e-15,
+          "encounters": 10,
+          "exchanges": 22,
+          "cpuMs": 58.38877499999944,
+          "steps": 3878,
+          "screenMs": 0.0003210000013496028
+        },
+        {
+          "seed": "benchmark-v2-1",
+          "years": 20,
+          "reason": "censored",
+          "energy": 3.6658460661813184e-9,
+          "angular": 2.204736638351248e-10,
+          "momentum": 2.1673274472901876e-15,
+          "encounters": 12,
+          "exchanges": 18,
+          "cpuMs": 60.45585399999982,
+          "steps": 4629,
+          "screenMs": 0.0005909999999857973
+        },
+        {
+          "seed": "benchmark-v2-2",
+          "years": 20,
+          "reason": "censored",
+          "energy": 2.9898687612578704e-9,
+          "angular": 5.94698894933832e-11,
+          "momentum": 3.688577169394728e-15,
+          "encounters": 9,
+          "exchanges": 17,
+          "cpuMs": 79.2047020000009,
+          "steps": 6680,
+          "screenMs": 0.0006409999987226911
+        },
+        {
+          "seed": "benchmark-v2-3",
+          "years": 20,
+          "reason": "censored",
+          "energy": 5.134248745646168e-9,
+          "angular": 2.533037717917513e-10,
+          "momentum": 2.2208078164124317e-15,
+          "encounters": 6,
+          "exchanges": 22,
+          "cpuMs": 43.56377900000007,
+          "steps": 3717,
+          "screenMs": 0.000490999998874031
+        },
+        {
+          "seed": "benchmark-v2-4",
+          "years": 13.474057482159997,
+          "reason": "escape",
+          "energy": 2.7888069164429095e-9,
+          "angular": 2.8529155646269816e-10,
+          "momentum": 2.608293927927711e-15,
+          "encounters": 10,
+          "exchanges": 18,
+          "cpuMs": 32.54093400000056,
+          "steps": 2731,
+          "screenMs": 0.0005810000002384186
+        },
+        {
+          "seed": "benchmark-v2-5",
+          "years": 20,
+          "reason": "censored",
+          "energy": 4.3269821125841675e-8,
+          "angular": 1.0987917442682e-10,
+          "momentum": 5.131901653106058e-15,
+          "encounters": 12,
+          "exchanges": 18,
+          "cpuMs": 72.3697859999993,
+          "steps": 6499,
+          "screenMs": 0.00046999999904073775
+        },
+        {
+          "seed": "benchmark-v2-6",
+          "years": 20,
+          "reason": "censored",
+          "energy": 2.1239733651898285e-9,
+          "angular": 3.2756188481510334e-11,
+          "momentum": 1.952172749846265e-15,
+          "encounters": 3,
+          "exchanges": 17,
+          "cpuMs": 48.06610499999988,
+          "steps": 4199,
+          "screenMs": 0.0005310000015015248
+        },
+        {
+          "seed": "benchmark-v2-7",
+          "years": 20,
+          "reason": "censored",
+          "energy": 6.996705368645104e-9,
+          "angular": 6.055690253935685e-11,
+          "momentum": 6.028611534892934e-15,
+          "encounters": 7,
+          "exchanges": 20,
+          "cpuMs": 47.48769200000061,
+          "steps": 4116,
+          "screenMs": 0.00044099999831814785
+        },
+        {
+          "seed": "benchmark-v2-8",
+          "years": 20,
+          "reason": "censored",
+          "energy": 3.3644105108955076e-8,
+          "angular": 1.370393904197145e-10,
+          "momentum": 4.983481442272673e-15,
+          "encounters": 13,
+          "exchanges": 21,
+          "cpuMs": 72.98071799999889,
+          "steps": 6450,
+          "screenMs": 0.00046099999963189475
+        },
+        {
+          "seed": "benchmark-v2-9",
+          "years": 20,
+          "reason": "censored",
+          "energy": 5.229345199943114e-9,
+          "angular": 1.904725016171247e-10,
+          "momentum": 1.3766010922381137e-15,
+          "encounters": 10,
+          "exchanges": 22,
+          "cpuMs": 42.01686400000108,
+          "steps": 3646,
+          "screenMs": 0.0004310000003897585
+        },
+        {
+          "seed": "benchmark-v2-10",
+          "years": 3.164563203335212,
+          "reason": "collision",
+          "energy": 2.8720398610290455e-9,
+          "angular": 1.825620289131983e-11,
+          "momentum": 1.091951754100722e-15,
+          "encounters": 2,
+          "exchanges": 5,
+          "cpuMs": 28.31368400000065,
+          "steps": 2265,
+          "screenMs": 0.0003309999992779922
+        },
+        {
+          "seed": "benchmark-v2-11",
+          "years": 11.53147179266609,
+          "reason": "collision",
+          "energy": 3.986450743146887e-8,
+          "angular": 8.512298781197543e-11,
+          "momentum": 2.5653814648909846e-15,
+          "encounters": 5,
+          "exchanges": 12,
+          "cpuMs": 40.17457300000024,
+          "steps": 3241,
+          "screenMs": 0.0001900000006571645
+        },
+        {
+          "seed": "benchmark-v2-12",
+          "years": 20,
+          "reason": "censored",
+          "energy": 4.050962847297173e-9,
+          "angular": 5.751511768183759e-11,
+          "momentum": 2.4900829307503632e-15,
+          "encounters": 9,
+          "exchanges": 15,
+          "cpuMs": 52.10364900000059,
+          "steps": 4375,
+          "screenMs": 0.000249999999141437
+        },
+        {
+          "seed": "benchmark-v2-13",
+          "years": 20,
+          "reason": "censored",
+          "energy": 2.951342349948368e-9,
+          "angular": 1.222213826279888e-10,
+          "momentum": 1.5795615957694045e-15,
+          "encounters": 7,
+          "exchanges": 17,
+          "cpuMs": 62.048007999999754,
+          "steps": 5305,
+          "screenMs": 0.0005810000002384186
+        },
+        {
+          "seed": "benchmark-v2-14",
+          "years": 13.645944820699224,
+          "reason": "escape",
+          "energy": 8.806339661356997e-10,
+          "angular": 1.0391828320942762e-10,
+          "momentum": 2.5372774473155085e-15,
+          "encounters": 4,
+          "exchanges": 16,
+          "cpuMs": 42.544120999998995,
+          "steps": 3631,
+          "screenMs": 0.0006510000002890592
+        },
+        {
+          "seed": "benchmark-v2-15",
+          "years": 8.957240197211945,
+          "reason": "escape",
+          "energy": 1.334205839602639e-9,
+          "angular": 4.286933076562851e-11,
+          "momentum": 2.089374969591781e-15,
+          "encounters": 3,
+          "exchanges": 8,
+          "cpuMs": 21.563995000000432,
+          "steps": 1809,
+          "screenMs": 0.00036999999974796083
+        },
+        {
+          "seed": "benchmark-v2-16",
+          "years": 20,
+          "reason": "censored",
+          "energy": 4.451839476798551e-10,
+          "angular": 4.962853052899411e-11,
+          "momentum": 1.5195089454692601e-15,
+          "encounters": 0,
+          "exchanges": 13,
+          "cpuMs": 45.66163599999891,
+          "steps": 4002,
+          "screenMs": 0.00023999999939405825
+        },
+        {
+          "seed": "benchmark-v2-17",
+          "years": 20,
+          "reason": "censored",
+          "energy": 2.075642281735006e-9,
+          "angular": 1.3607753861144645e-10,
+          "momentum": 4.534129813895364e-15,
+          "encounters": 8,
+          "exchanges": 33,
+          "cpuMs": 63.83106899999984,
+          "steps": 5695,
+          "screenMs": 0.000490999998874031
+        },
+        {
+          "seed": "benchmark-v2-18",
+          "years": 20,
+          "reason": "censored",
+          "energy": 7.5173991743418e-9,
+          "angular": 1.0680318941555602e-9,
+          "momentum": 1.585733293534303e-15,
+          "encounters": 7,
+          "exchanges": 30,
+          "cpuMs": 51.11674900000071,
+          "steps": 4508,
+          "screenMs": 0.0005009999986214098
+        },
+        {
+          "seed": "benchmark-v2-19",
+          "years": 20,
+          "reason": "censored",
+          "energy": 2.7145425525576135e-9,
+          "angular": 5.852653036936072e-11,
+          "momentum": 2.8038735679675773e-15,
+          "encounters": 8,
+          "exchanges": 17,
+          "cpuMs": 69.14150299999892,
+          "steps": 6097,
+          "screenMs": 0.0005099999998492422
+        },
+        {
+          "seed": "benchmark-v2-20",
+          "years": 20,
+          "reason": "censored",
+          "energy": 9.114547138210352e-9,
+          "angular": 1.2692341873251145e-10,
+          "momentum": 2.3968529078300264e-15,
+          "encounters": 11,
+          "exchanges": 21,
+          "cpuMs": 62.555733999999575,
+          "steps": 5444,
+          "screenMs": 0.00042100000064237975
+        },
+        {
+          "seed": "benchmark-v2-21",
+          "years": 20,
+          "reason": "censored",
+          "energy": 1.3874065030983843e-8,
+          "angular": 2.2018780271149124e-10,
+          "momentum": 5.723338375959466e-15,
+          "encounters": 12,
+          "exchanges": 20,
+          "cpuMs": 52.35775199999989,
+          "steps": 4603,
+          "screenMs": 0.0005010000004403992
+        },
+        {
+          "seed": "benchmark-v2-22",
+          "years": 20,
+          "reason": "censored",
+          "energy": 7.468611189957414e-9,
+          "angular": 1.636961679327215e-10,
+          "momentum": 3.995065193639564e-15,
+          "encounters": 6,
+          "exchanges": 51,
+          "cpuMs": 44.77580999999918,
+          "steps": 3981,
+          "screenMs": 0.0007810000006429618
+        },
+        {
+          "seed": "benchmark-v2-23",
+          "years": 16.974980852290884,
+          "reason": "tidal",
+          "energy": 7.55927893791958e-10,
+          "angular": 1.754170991662052e-11,
+          "momentum": 2.3738498129073237e-15,
+          "encounters": 2,
+          "exchanges": 14,
+          "cpuMs": 43.06666000000041,
+          "steps": 3786,
+          "screenMs": 0.0006809999995311955
+        }
+      ]
+    },
+    "screened-v02": {
+      "summary": {
+        "seeds": 24,
+        "horizonYears": 20,
+        "earlyEndsWithin5Years": 0,
+        "survivedHorizon": 0.6666666666666666,
+        "survivalYears": {
+          "min": 9.022716826303053,
+          "p25": 16.078439256740214,
+          "median": 20,
+          "p75": 20
+        },
+        "medianEncounters": 13,
+        "medianExchanges": 23,
+        "maxEnergyError": 1.4841768484946265e-7,
+        "maxAngularError": 7.792632802973438e-10,
+        "maxMomentumError": 1.0061455301488387e-14,
+        "cpuMs": 1418.8734030000014,
+        "screenMs": 2327.733038000002,
+        "reasons": {
+          "censored": 16,
+          "escape": 5,
+          "collision": 2,
+          "tidal": 1
+        }
+      },
+      "rows": [
+        {
+          "seed": "benchmark-v2-0",
+          "years": 20,
+          "reason": "censored",
+          "energy": 4.519448260338234e-9,
+          "angular": 1.2211515662007853e-10,
+          "momentum": 1.5667962092856908e-15,
+          "encounters": 15,
+          "exchanges": 27,
+          "cpuMs": 49.57958999999937,
+          "steps": 4283,
+          "screenMs": 105.44379300000037
+        },
+        {
+          "seed": "benchmark-v2-1",
+          "years": 18.48743818955473,
+          "reason": "escape",
+          "energy": 7.985427297099644e-9,
+          "angular": 4.277643749612377e-11,
+          "momentum": 3.0996901051598604e-15,
+          "encounters": 17,
+          "exchanges": 35,
+          "cpuMs": 79.87363100000039,
+          "steps": 7006,
+          "screenMs": 118.34161000000131
+        },
+        {
+          "seed": "benchmark-v2-2",
+          "years": 10.155158489249677,
+          "reason": "collision",
+          "energy": 1.6518033001768876e-8,
+          "angular": 4.334732945523165e-11,
+          "momentum": 4.276819974689514e-15,
+          "encounters": 6,
+          "exchanges": 11,
+          "cpuMs": 37.44143200000144,
+          "steps": 3184,
+          "screenMs": 101.1595699999998
+        },
+        {
+          "seed": "benchmark-v2-3",
+          "years": 9.022716826303053,
+          "reason": "escape",
+          "energy": 3.962917092548414e-9,
+          "angular": 1.0425490525983101e-10,
+          "momentum": 2.249522273634854e-15,
+          "encounters": 6,
+          "exchanges": 12,
+          "cpuMs": 25.066523999999845,
+          "steps": 2221,
+          "screenMs": 98.30407300000115
+        },
+        {
+          "seed": "benchmark-v2-4",
+          "years": 20,
+          "reason": "censored",
+          "energy": 1.6140478283744986e-9,
+          "angular": 6.804435043121914e-11,
+          "momentum": 3.1076066489779106e-15,
+          "encounters": 7,
+          "exchanges": 21,
+          "cpuMs": 66.45211799999925,
+          "steps": 6047,
+          "screenMs": 126.54388699999981
+        },
+        {
+          "seed": "benchmark-v2-5",
+          "years": 15.947325297808165,
+          "reason": "escape",
+          "energy": 2.5967388601534525e-9,
+          "angular": 7.106225860701607e-11,
+          "momentum": 1.777994366158944e-15,
+          "encounters": 8,
+          "exchanges": 20,
+          "cpuMs": 39.641632999999274,
+          "steps": 3575,
+          "screenMs": 91.86513500000001
+        },
+        {
+          "seed": "benchmark-v2-6",
+          "years": 20,
+          "reason": "censored",
+          "energy": 7.628416676868846e-8,
+          "angular": 2.9820924164249643e-10,
+          "momentum": 1.0061455301488387e-14,
+          "encounters": 19,
+          "exchanges": 31,
+          "cpuMs": 91.95973700000104,
+          "steps": 7841,
+          "screenMs": 118.3411159999996
+        },
+        {
+          "seed": "benchmark-v2-7",
+          "years": 20,
+          "reason": "censored",
+          "energy": 3.733272259530653e-9,
+          "angular": 1.7845610428848784e-10,
+          "momentum": 3.210773284880226e-15,
+          "encounters": 11,
+          "exchanges": 29,
+          "cpuMs": 56.26499200000035,
+          "steps": 5084,
+          "screenMs": 99.73140800000147
+        },
+        {
+          "seed": "benchmark-v2-8",
+          "years": 20,
+          "reason": "censored",
+          "energy": 9.733690221131355e-9,
+          "angular": 2.785977877563974e-10,
+          "momentum": 2.704114699350465e-15,
+          "encounters": 23,
+          "exchanges": 38,
+          "cpuMs": 82.49671500000113,
+          "steps": 6594,
+          "screenMs": 79.41837900000064
+        },
+        {
+          "seed": "benchmark-v2-9",
+          "years": 20,
+          "reason": "censored",
+          "energy": 2.7278545003236402e-9,
+          "angular": 1.2422656568654114e-10,
+          "momentum": 3.2477160597357665e-15,
+          "encounters": 7,
+          "exchanges": 20,
+          "cpuMs": 40.33708200000001,
+          "steps": 3577,
+          "screenMs": 89.85583100000076
+        },
+        {
+          "seed": "benchmark-v2-10",
+          "years": 20,
+          "reason": "censored",
+          "energy": 1.2764973274705282e-8,
+          "angular": 3.2002572313806433e-10,
+          "momentum": 3.0504265085310846e-15,
+          "encounters": 17,
+          "exchanges": 36,
+          "cpuMs": 60.95678399999997,
+          "steps": 5143,
+          "screenMs": 96.89822099999947
+        },
+        {
+          "seed": "benchmark-v2-11",
+          "years": 20,
+          "reason": "censored",
+          "energy": 3.7904825688690266e-9,
+          "angular": 3.1607527521950685e-10,
+          "momentum": 1.8063533502206488e-15,
+          "encounters": 4,
+          "exchanges": 23,
+          "cpuMs": 41.1810260000002,
+          "steps": 3673,
+          "screenMs": 104.16024199999993
+        },
+        {
+          "seed": "benchmark-v2-12",
+          "years": 20,
+          "reason": "censored",
+          "energy": 1.2545942081643856e-8,
+          "angular": 4.559428595530103e-10,
+          "momentum": 1.9439998673283187e-15,
+          "encounters": 15,
+          "exchanges": 31,
+          "cpuMs": 53.12571499999831,
+          "steps": 4828,
+          "screenMs": 101.87017500000002
+        },
+        {
+          "seed": "benchmark-v2-13",
+          "years": 20,
+          "reason": "censored",
+          "energy": 1.4841768484946265e-7,
+          "angular": 7.412842055355363e-11,
+          "momentum": 9.742428199827611e-15,
+          "encounters": 13,
+          "exchanges": 8,
+          "cpuMs": 83.92660400000022,
+          "steps": 7595,
+          "screenMs": 92.32079200000044
+        },
+        {
+          "seed": "benchmark-v2-14",
+          "years": 11.648441236787454,
+          "reason": "escape",
+          "energy": 3.461281528052018e-8,
+          "angular": 2.6608586725318663e-10,
+          "momentum": 4.225377216482162e-15,
+          "encounters": 13,
+          "exchanges": 16,
+          "cpuMs": 49.1613099999995,
+          "steps": 4250,
+          "screenMs": 97.99887200000012
+        },
+        {
+          "seed": "benchmark-v2-15",
+          "years": 20,
+          "reason": "censored",
+          "energy": 8.383111240551008e-9,
+          "angular": 1.3145509569038954e-10,
+          "momentum": 1.8932523678063535e-15,
+          "encounters": 10,
+          "exchanges": 20,
+          "cpuMs": 58.983845999999176,
+          "steps": 5322,
+          "screenMs": 96.94154700000036
+        },
+        {
+          "seed": "benchmark-v2-16",
+          "years": 20,
+          "reason": "censored",
+          "energy": 5.639153592920463e-9,
+          "angular": 7.792632802973438e-10,
+          "momentum": 1.904480702193279e-15,
+          "encounters": 16,
+          "exchanges": 32,
+          "cpuMs": 48.33542500000112,
+          "steps": 4377,
+          "screenMs": 76.87184399999933
+        },
+        {
+          "seed": "benchmark-v2-17",
+          "years": 20,
+          "reason": "censored",
+          "energy": 7.007925623184166e-9,
+          "angular": 2.755469741182496e-10,
+          "momentum": 3.854794499076256e-15,
+          "encounters": 14,
+          "exchanges": 32,
+          "cpuMs": 56.199273000000176,
+          "steps": 4835,
+          "screenMs": 92.36390699999902
+        },
+        {
+          "seed": "benchmark-v2-18",
+          "years": 20,
+          "reason": "censored",
+          "energy": 1.020179344444527e-8,
+          "angular": 4.526162425682033e-10,
+          "momentum": 3.897208634344022e-15,
+          "encounters": 21,
+          "exchanges": 45,
+          "cpuMs": 83.90416800000094,
+          "steps": 7497,
+          "screenMs": 96.64927499999976
+        },
+        {
+          "seed": "benchmark-v2-19",
+          "years": 16.078439256740214,
+          "reason": "collision",
+          "energy": 4.5433195051956114e-8,
+          "angular": 1.8650235678274707e-10,
+          "momentum": 8.874600396752e-15,
+          "encounters": 14,
+          "exchanges": 23,
+          "cpuMs": 59.077808000000005,
+          "steps": 5405,
+          "screenMs": 86.6590070000002
+        },
+        {
+          "seed": "benchmark-v2-20",
+          "years": 20,
+          "reason": "censored",
+          "energy": 3.4159921642209105e-8,
+          "angular": 6.054705915510978e-10,
+          "momentum": 4.384400126638685e-15,
+          "encounters": 24,
+          "exchanges": 26,
+          "cpuMs": 82.73588600000039,
+          "steps": 7378,
+          "screenMs": 91.7988549999991
+        },
+        {
+          "seed": "benchmark-v2-21",
+          "years": 19.174987543711868,
+          "reason": "escape",
+          "energy": 3.726243827133636e-8,
+          "angular": 1.9584974856673234e-10,
+          "momentum": 3.641376450577546e-15,
+          "encounters": 12,
+          "exchanges": 23,
+          "cpuMs": 53.54628799999955,
+          "steps": 4804,
+          "screenMs": 92.20224399999825
+        },
+        {
+          "seed": "benchmark-v2-22",
+          "years": 20,
+          "reason": "censored",
+          "energy": 1.0184289614219716e-8,
+          "angular": 4.9220597825266356e-11,
+          "momentum": 4.4972382853232034e-15,
+          "encounters": 12,
+          "exchanges": 23,
+          "cpuMs": 79.95584000000053,
+          "steps": 7230,
+          "screenMs": 78.93716200000017
+        },
+        {
+          "seed": "benchmark-v2-23",
+          "years": 13.246862799959175,
+          "reason": "tidal",
+          "energy": 2.270462492597601e-9,
+          "angular": 3.0723729466632545e-11,
+          "momentum": 1.4445820532877716e-15,
+          "encounters": 4,
+          "exchanges": 15,
+          "cpuMs": 38.669975999999224,
+          "steps": 3466,
+          "screenMs": 93.05609300000106
+        }
+      ]
+    }
+  }
+}

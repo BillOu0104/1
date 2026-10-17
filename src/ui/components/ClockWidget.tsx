@@ -21,7 +21,6 @@ export function ClockWidget({
       aria-expanded={expanded}
       aria-controls="information-panels"
     >
-      <span className="eyebrow">THREE BODY / OBSERVATORY</span>
       <time className="clock" dateTime={now.toISOString()}>
         {now.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false })}
       </time>

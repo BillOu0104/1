@@ -4,6 +4,8 @@ test('renders live WebGL, responds to controls, stays within viewport and retain
   baseURL,
 }, testInfo) => {
   const errors: string[] = [];
+  const workers: string[] = [];
+  page.on('worker', (worker) => workers.push(worker.url()));
   const assetErrors: string[] = [];
   const assetTypes = new Set<string>();
   const assetPath = `${new URL(baseURL!).pathname}assets/`;
@@ -80,6 +82,10 @@ test('renders live WebGL, responds to controls, stays within viewport and retain
     ),
   ).toBe(true);
   expect(errors).toEqual([]);
+  expect(workers).toHaveLength(1);
+  expect(new URL(workers[0]!).pathname).toContain(
+    `${new URL(baseURL!).pathname}assets/physics.worker-`,
+  );
   expect(assetErrors).toEqual([]);
   expect(assetTypes).toEqual(new Set(['script', 'stylesheet']));
 });

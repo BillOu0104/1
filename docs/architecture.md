@@ -1,56 +1,38 @@
-# 架构与扩展
-
-## 数据流
+# V0.2 架构
 
 ```mermaid
 flowchart LR
-  Persistence[SettingsPersistence] --> Store[SettingsStore]
-  Defaults[DefaultsProvider] --> Store
-  Registry[SettingsRegistry] --> Store
-  UI[React overlays] --> Store
-  Store --> Runtime[SimulationRuntime]
-  Runtime --> Engine[SimulationEngine]
-  Generator[InitialConditionGenerator] --> Engine
-  Integrator[Integrator] --> Engine
-  Engine --> Events[Typed EventBus]
-  Engine --> Renderer[SceneRenderer]
-  Runtime --> Snapshot[Immutable UI snapshot at 10 Hz]
-  Snapshot --> UI
-  Host[Future Wallpaper adapter] --> Runtime
+  Store[Settings Store / Registry / Persistence] --> Runtime[Main thread Runtime]
+  Runtime -->|controls / one tick in flight| Worker[Module Worker]
+  Worker --> Engine[SimulationEngine]
+  Worker --> Screen[Chunked ScreeningJob / next seed cache]
+  Screen -->|original t=0 conditions| Engine
+  Engine --> Adaptive[DOPRI5 / Verlet / Yoshida4]
+  Engine --> Checks[Conservation / collision / escape / tides]
+  Worker -->|30 Hz bounded snapshots| Runtime
+  Runtime -->|10 Hz| UI[React UI]
+  Runtime -->|interpolated position only| Scene[Three.js renderer]
 ```
 
-`SimulationEngine.advance()` 只接受已激活的现实秒，不访问 DOM。它累积固定物理步、维护结束状态、重启冷却、Seed 链和事件。物理状态只有引擎和积分器可写，渲染器通过只读视图取位置，不修改任何天体。React 使用深拷贝后的天体快照，避免渲染中读到正在积分的数组。事件历史有界，快照控制状态单独复制。
+`physics/` 与 `SimulationEngine` 仍为纯 TypeScript，Node 中可直接测试。`SimulationRuntime` 只用一个轻量引擎生成首次静态快照，生产 RAF 不调用其 advance；权威积分和筛选都在 Worker 中。同步适配器只能显式通过 `synchronous:true` 注入，供原有单元测试使用；浏览器不静默回退到阻塞 UI 的全量积分。
 
-`SimulationRuntime` 管理 RAF、可见性和设置订阅；UI 只在约 10 Hz 发布快照。每次重置递增 generation，渲染器清空轨迹。不会重新创建 WebGL Renderer；只有画面组件销毁或用户主动重试渲染才释放/重建。渲染器清理 OrbitControls、ResizeObserver、geometry、material、texture 和 canvas。轨迹每 0.025 T₀ 采样一次，最多 512 点，使用镜像环形缓冲而非无限增长数组。恒星背景只有 1800 点，像素比上限 1.75。
+Worker 协议分别定义 init、reset、controls、tick、visibility 及 snapshot/screening/error。主线程最多一条物理请求未确认，积压只保留0.25秒活跃时间；隐藏/宿主暂停丢弃积压。前台 Worker 时间预算1–4ms、最多256次尝试；筛选以32尝试为批次，1.5ms软预算后让出，间隔12ms，暂停和关闭自动重启时停止不必要的下一轮预生成。预算不是硬实时保证，一次完整积分尝试或筛选批次可以略微超时。
 
-默认渲染当前固定步状态，尚未做帧间插值。轨迹在渲染帧采样，因此其采样密度不承担物理结果的复现保证；同 Seed、同累计固定步数才对应同物理状态。真实钟面是独立组件，使用系统 Date。
+筛选的候选数、预模拟年限、接受步和尝试批次有确定性上限；时间分片仅影响何时完成，不决定取哪些候选，保证不同切片预算同 Seed / 同质量设置结果一致。选中原始状态深拷贝，正式模拟从零年开始。手动重置、参数变动重置和销毁会撤销旧筛选任务；prefetch 只有一组，不无限排队。
 
-## 积分器和初始条件
+普通重启复用 Engine 会话历史并切换预备状态，不更换 Renderer 或 Worker。Worker 自身故障才终止并重建 Worker，最多30秒内两次自动恢复，第三次需手动解除；继续携带事件/次数，并用 epoch 忽略旧 Worker 回调。页面隐藏或暂停期间到期的恢复会等待重新激活。Renderer 只在图形错误重试时重建，轨迹按 generation 清空。
 
-- 新积分器实现 `Integrator` 的 `step(bodies, dt, config)`，在创建引擎时注入。Yoshida4 只是配置模式预留，不能在 UI 中选择。
-- 新生成器实现 `InitialConditionGenerator`，在 `GENERATORS` 中登记实现情况；以后可增加预筛选候选初值、准稳定构型和配置参数。未实现模式不会退化为 Random 并伪装为长期稳定。
-- 本阶段质量、引力、步长等固定配置仅在引擎构造时注入，不对用户开放高级控件。未来编辑时应校验并开启新一轮，以避免在步中改变哈密顿量。
-- 碰撞/异常先终止物理推进；下一轮从新初值开始。自动 Seed 为 `hashSeed(currentSeed + ':next')`，整个自动序列可复现。
+未改变的事件历史不重复跨线程复制，主线程保留上次列表；新事件/重置则发送完整的有界历史。UI快照与渲染最新快照分开，React约10Hz发布；渲染只做位置插值，不将插值反馈到物理，也不外推轨道。默认壁纸绘制30Hz，镜头交互期间60Hz，高负载时20Hz；没有位置、相机或反馈变化时跳过 GPU 绘制。像素比上限1.75、1800背景星、每体512点轨迹、一个有限生命周期的潮汐反馈环。事件历史有界200条。
 
-## 设置与模块
+## 配置与扩展
 
-1. 当前设置在 `AppSettings` 中定义，在 `SettingsRegistry` 登记标签、类型、分类和运行时校验。
-2. 默认值只来自 `DefaultsProvider`，持久化只负责 `load/save`，Store 负责从未知 JSON 中逐字段校验；不直接信任存储内容。保存封装含版本号；不支持的版本安全回落默认值。
-3. 设置 UI 遍历 Registry 分类和字段，不需要为每个设置重建整个面板。V0.1 支持 boolean / number / seed 三种控件；未来新控件需增加相应 renderer 和 schema。
-4. `FutureFeatureConfig` 覆盖 16 个扩展领域；它们不是已经启用的设置，不会写入当前持久化。实现新模块时再加入实际设置定义、默认值、校验和版本迁移。
-5. `FeatureRegistry.register/enable/disable/dispose` 支持逐步注册和幂等启用，模块可在 activate 时订阅事件并返回 cleanup。V0.1 内建物理/渲染直接由应用组合根装配，模块目录用于开发状态和未来可选模块；未实现模块不能启用。
-6. `EventBus<AppEvents>` 为 simulation / termination / visibility / notification 提供类型契约。UI 的事件列表是实际物理事件，不是文明日志。
+- `AppSettings`、`SettingsRegistry`、`DefaultsProvider`、`SettingsPersistence` 分离；V0.1版本1存储格式兼容，新增质量键取默认值，非法值逐项忽略。
+- 三个质量控件为下一次初值参考值，不在积分中突然改变质量。预筛选参数与数值容差目前由代码定义，不提供无效高级控件。
+- `FeatureRegistry` 的 register/enable/disable/dispose 与类型化 EventBus 保留。16类模块仍有明确配置边界：Quick、Physics、Initial、Camera、Orbit、Background、Dust、PostProcessing、Temperature、Civilization、Log/Ranking、Widgets、Audio、Notifications、Wallpaper、Loading。
+- 已实现模块与未来契约见 UI 设置中的开发状态；文明/温度/音频分析/粒子/HDR仍未实现。默认音频窗口为静态占位，不申请设备权限。
+- `WallpaperHostAdapter` 只映射外部属性并调用 Store / runtime.setHostPaused；桌面通知仍需独立 `NotificationHostAdapter`，不假设 Web wallpaper 有系统通知能力。
+- 替换算法实现 `Integrator`（固定步）或自适应Stepper；`InitialConditionGenerator` 的 Random、StructuredChaos 可用，LongLived 等更强策略仍为未来入口。
 
-## 宿主边界
+## 复现
 
-未来 Wallpaper Engine 适配器负责外部属性名到 `AppSettings` 的映射、转换、校验和生命周期。调用 `SettingsStore.set` 更新已实现属性，调用 `SimulationRuntime.setHostPaused` 暂停宿主调度中的物理推进。默认浏览器路径不安装任何 WE 全局变量。
-
-应用内通知来自事件总线。桌面通知必须另行实现 `NotificationHostAdapter`，显式报告 capability，并由真正具备该能力的宿主处理。音频来源同样由 `AudioSourceAdapter` 提供；V0.1 不申请任何设备权限。
-
-## 边界
-
-- 自动重启累计数在当前页面会话内保留，不跨页面持久化；所有结束/重置事件最多保留 60 条。
-- 页面隐藏时暂停全部动画调度，返回时不追赶隐藏时间。暂停设置也冻结自动重启倒计时。
-- 当前镜头跟随恒星质心，不自动强制拉远以容纳逃逸天体；用户可以滚轮缩放到更远处。
-- 应用优先面向桌面；窄窗口双栏面板可各自滚动。设置面板作为浮层暂时覆盖右侧信息区域，主画面仍可见。
-- WebGL 不可用时展示恢复提示，物理不会在无画面的后台持续消耗资源。
+`benchmarks/baseline/` 是提交83acfeb的原始物理与引擎快照，不用于生产，不随V0.2重构改写。数值基准可离线执行；浏览器基准需要该提交的Git历史，从临时目录构建原版并在两个本地端口测量，结束后释放进程与临时文件。基准数据不是跨硬件性能保证。

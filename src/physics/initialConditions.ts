@@ -1,3 +1,5 @@
+import { EARTH_MASS, EARTH_RADIUS, stellarProperties } from './parameters';
+import { StructuredChaosInitializer } from './structuredChaos';
 import type { Body, GeneratorMode, InitialConditionGenerator, PhysicsConfig } from './types';
 import { seededRandom } from './random';
 import { add, centerOfMass, dot, length, scale, sub } from './vector';
@@ -7,19 +9,18 @@ export class RandomInitializer implements InitialConditionGenerator {
   generate(seed: string, config: PhysicsConfig): Body[] {
     const random = seededRandom(seed);
     const range = (a: number, b: number) => a + random() * (b - a);
-    const colors = ['#ffbe7c', '#c7e9ff', '#ff765c'];
     const bodies: Body[] = [];
     for (let i = 0; i < 3; i++) {
       // Separate angular sectors with bounded jitter avoid overlapping initial stars.
       const angle = (i * 2 * Math.PI) / 3 + range(-0.32, 0.32),
         r = range(2.2, 3.8);
+      const mass = range(0.7, 1.5);
       bodies.push({
         id: `star-${i}`,
-        name: ['恒星 A · HELIOS', '恒星 B · SIRIUS', '恒星 C · EMBER'][i]!,
+        name: ['恒星 A', '恒星 B', '恒星 C'][i]!,
         kind: 'star',
-        mass: range(0.7, 1.5),
-        radius: 0.065,
-        color: colors[i]!,
+        mass,
+        ...stellarProperties(mass),
         position: [r * Math.cos(angle), range(-0.8, 0.8), r * Math.sin(angle)],
         velocity: [range(-0.45, 0.45), range(-0.16, 0.16), range(-0.45, 0.45)],
       });
@@ -50,8 +51,8 @@ export class RandomInitializer implements InitialConditionGenerator {
       id: 'planet',
       name: '行星 01 · PEREGRINE',
       kind: 'planet',
-      mass: 3e-6,
-      radius: 0.018,
+      mass: EARTH_MASS,
+      radius: EARTH_RADIUS,
       color: '#76c9d5',
       position: add(host.position, offset),
       velocity: add(host.velocity, [
@@ -75,6 +76,7 @@ export interface GeneratorDescriptor {
   create?: () => InitialConditionGenerator;
 }
 export const GENERATORS: readonly GeneratorDescriptor[] = [
+  { mode: 'structuredChaos', implemented: true, create: () => new StructuredChaosInitializer() },
   { mode: 'random', implemented: true, create: () => new RandomInitializer() },
   { mode: 'longLived', implemented: false },
   { mode: 'structuredRandom', implemented: false },

@@ -41,7 +41,7 @@ export function SettingsPanel({
         <div>
           <span className="eyebrow">CONTROL CENTER</span>
           <h2>
-            模拟设置 <small>V0.1</small>
+            模拟设置 <small>V0.2</small>
           </h2>
         </div>
         <button onClick={onClose} aria-label="关闭设置">
@@ -91,12 +91,21 @@ export function SettingsPanel({
                         </small>
                       </div>
                     );
-                  if (definition.kind === 'number' && definition.key === 'speed')
+                  if (
+                    definition.kind === 'number' &&
+                    (definition.key === 'speed' ||
+                      definition.key === 'massA' ||
+                      definition.key === 'massB' ||
+                      definition.key === 'massC')
+                  )
                     return (
                       <div className="range-field" key={id}>
                         <label htmlFor={id}>
                           {definition.label}
-                          <output>{settings.speed.toFixed(1)}×</output>
+                          <output>
+                            {settings[definition.key].toFixed(definition.key === 'speed' ? 1 : 2)}
+                            {definition.key === 'speed' ? '×' : ' M☉'}
+                          </output>
                         </label>
                         <input
                           id={id}
@@ -104,10 +113,19 @@ export function SettingsPanel({
                           min={definition.min}
                           max={definition.max}
                           step={definition.step}
-                          value={settings.speed}
-                          onChange={(event) => store.set('speed', Number(event.target.value))}
+                          value={settings[definition.key]}
+                          onChange={(event) =>
+                            store.set(
+                              definition.key as 'speed' | 'massA' | 'massB' | 'massC',
+                              Number(event.target.value),
+                            )
+                          }
                         />
-                        <small>1× = 每秒约 0.095 模拟年；性能不足时限制步数。</small>
+                        <small>
+                          {definition.key === 'speed'
+                            ? '1× ≈ 0.095 模拟年/秒；高负载时放慢推进。'
+                            : '质量会在参考值附近随机 ±3%；重置后生效。'}
+                        </small>
                       </div>
                     );
                   if (
@@ -131,6 +149,25 @@ export function SettingsPanel({
                   }
                   return null;
                 })}
+              {category === '天体参数' && (
+                <>
+                  <button className="reset-button" onClick={onReset}>
+                    应用质量并重置
+                  </button>
+                  <button
+                    className="reset-button"
+                    onClick={() => {
+                      store.set('massA', 1.1);
+                      store.set('massB', 0.94);
+                      store.set('massC', 0.12);
+                      onReset();
+                    }}
+                  >
+                    采用 α Cen 参考质量
+                  </button>
+                  <small>仅参考质量；不会使用现实中的层级轨道。地球质量与半径为模拟假设。</small>
+                </>
+              )}
               {category === '运行控制' && (
                 <button className="reset-button" onClick={onReset}>
                   ↻ 手动重置 <span>使用已保存 Seed</span>

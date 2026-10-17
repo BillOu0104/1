@@ -1,4 +1,4 @@
-name: Validate V0.1
+name: Validate V0.2
 on:
   push:
   pull_request:
@@ -20,6 +20,12 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run typecheck
+      - name: Reproducible benchmark smoke run
+        run: npm run benchmark
+        env:
+          BENCH_SEEDS: 6
+          BENCH_YEARS: 8
+          BENCH_OUTPUT: test-results/benchmark-smoke.json
       - run: npm run build
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e

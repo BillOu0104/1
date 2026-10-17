@@ -1,5 +1,8 @@
 import type { GeneratorMode, Vec3 } from '../physics/types';
 export interface AppSettings {
+  massA: number;
+  massB: number;
+  massC: number;
   paused: boolean;
   speed: number;
   seed: string;
@@ -13,7 +16,7 @@ export interface FutureFeatureConfig {
     masses: number[];
     gravitationalConstant: number;
     timeStep: number;
-    integrator: 'velocity-verlet' | 'yoshida4';
+    integrator: 'dopri5-adaptive' | 'velocity-verlet' | 'yoshida4';
     softening: number;
     constraints: boolean;
     escapeDistance: number;

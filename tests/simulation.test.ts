@@ -43,7 +43,10 @@ describe('fixed step simulation lifecycle', () => {
     expect(low.snapshot().bodies).toEqual(high.snapshot().bodies);
   });
   it('caps work and records dropped time instead of creating a catch-up spiral', () => {
-    const engine = new SimulationEngine('cap', { config: { maxStepsPerFrame: 5 } });
+    const engine = new SimulationEngine('cap', {
+      adaptive: false,
+      config: { maxStepsPerFrame: 5 },
+    });
     engine.setControls({ speed: 20 });
     engine.advance(100);
     expect(engine.snapshot().steps).toBe(5);

@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { SettingsStore } from '../src/settings/SettingsStore';
 import { SimulationRuntime } from '../src/simulation/SimulationRuntime';
@@ -14,7 +14,7 @@ afterEach(() => {
 });
 describe('observatory UI', () => {
   it('hides both info panels initially, toggles them together without changing physics', async () => {
-    const runtime = new SimulationRuntime(new SettingsStore()),
+    const runtime = new SimulationRuntime(new SettingsStore(), { synchronous: true }),
       user = userEvent.setup();
     render(<App runtime={runtime} />);
     expect(screen.getByLabelText('行星与事件信息')).not.toBeVisible();
@@ -28,7 +28,7 @@ describe('observatory UI', () => {
   });
   it('opens settings, changes controls, applies seed, resets and closes on Escape', async () => {
     const settings = new SettingsStore(),
-      runtime = new SimulationRuntime(settings),
+      runtime = new SimulationRuntime(settings, { synchronous: true }),
       user = userEvent.setup();
     render(<App runtime={runtime} />);
     expect(screen.queryByLabelText('模拟设置')).not.toBeInTheDocument();
@@ -47,6 +47,13 @@ describe('observatory UI', () => {
     const before = runtime.engine.snapshot().restartCount;
     await user.click(screen.getByRole('button', { name: /手动重置/ }));
     expect(runtime.engine.snapshot().restartCount).toBe(before + 1);
+    fireEvent.change(screen.getByRole('slider', { name: /恒星 A 参考质量/ }), {
+      target: { value: '1.25' },
+    });
+    await user.click(screen.getByRole('button', { name: '应用质量并重置' }));
+    expect(settings.getSnapshot().massA).toBe(1.25);
+    expect(runtime.engine.getBodies()[0]!.mass).toBeGreaterThan(1.21);
+    expect(runtime.engine.getBodies()[0]!.mass).toBeLessThan(1.29);
     expect(screen.getByText('扩展模块与开发状态')).toBeInTheDocument();
     await user.keyboard('{Escape}');
     expect(screen.queryByLabelText('模拟设置')).not.toBeInTheDocument();

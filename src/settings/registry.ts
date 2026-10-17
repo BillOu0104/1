@@ -65,3 +65,21 @@ export const settingsRegistry = new SettingsRegistry()
     kind: 'boolean',
     validate: (v): v is boolean => typeof v === 'boolean',
   });
+
+for (const [key, name] of [
+  ['massA', 'A'],
+  ['massB', 'B'],
+  ['massC', 'C'],
+] as const) {
+  settingsRegistry.register({
+    key,
+    label: `恒星 ${name} 参考质量 M☉`,
+    category: '天体参数',
+    kind: 'number',
+    min: 0.08,
+    max: 3,
+    step: 0.01,
+    validate: (v): v is number =>
+      typeof v === 'number' && Number.isFinite(v) && v >= 0.08 && v <= 3,
+  });
+}

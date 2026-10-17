@@ -7,6 +7,8 @@ export interface Body {
   /** Collision radius in normalized distance units, independent of visual radius. */
   radius: number;
   color: string;
+  luminosity?: number;
+  temperatureK?: number;
   position: Vec3;
   velocity: Vec3;
 }
@@ -22,7 +24,7 @@ export interface PhysicsConfig {
 export const DEFAULT_PHYSICS: Readonly<PhysicsConfig> = Object.freeze({
   gravitationalConstant: 1,
   timeStep: 0.002,
-  softening: 0.008,
+  softening: 1e-6,
   escapeDistance: 100,
   escapeConfirmationTime: 1,
   maxStepsPerFrame: 256,
@@ -33,8 +35,9 @@ export const UNITS_PER_YEAR = 2 * Math.PI;
 export interface Integrator {
   readonly id: string;
   step(bodies: Body[], dt: number, config: PhysicsConfig): void;
+  reset?(): void;
 }
-export type GeneratorMode = 'random' | 'longLived' | 'structuredRandom';
+export type GeneratorMode = 'random' | 'structuredChaos' | 'longLived' | 'structuredRandom';
 export interface InitialConditionGenerator {
   readonly mode: GeneratorMode;
   generate(seed: string, config: PhysicsConfig): Body[];

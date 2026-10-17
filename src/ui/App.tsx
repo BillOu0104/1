@@ -18,21 +18,6 @@ export function App({ runtime }: { runtime: SimulationRuntime }) {
     <main className="observatory">
       <SimulationScene runtime={runtime} />
       <div className="scene-vignette" aria-hidden="true" />
-      <div className="brand-mark" aria-hidden="true">
-        <span className="brand-symbol">∴</span>
-        <div>
-          三 体<span>THREE BODY PROJECT</span>
-        </div>
-      </div>
-      <div className="top-status">
-        <i className={settings.paused ? 'status-dot paused' : 'status-dot'} />
-        {snapshot.phase === 'ended'
-          ? 'SYSTEM ENDED'
-          : settings.paused
-            ? 'SIMULATION PAUSED'
-            : 'SIMULATION ACTIVE'}
-        <span>V 0.1</span>
-      </div>
       <ClockWidget
         years={snapshot.years}
         expanded={panelsVisible}
@@ -40,7 +25,9 @@ export function App({ runtime }: { runtime: SimulationRuntime }) {
       />
       <InformationPanels snapshot={snapshot} visible={panelsVisible} />
       <div className="status-notice" role="status" aria-live="polite">
-        {snapshot.phase === 'ended' ? (
+        {snapshot.phase === 'screening' ? (
+          <strong>正在后台筛选混沌初始条件…</strong>
+        ) : snapshot.phase === 'ended' ? (
           <>
             <strong>{snapshot.reason?.message}</strong>
             <span>
@@ -49,7 +36,9 @@ export function App({ runtime }: { runtime: SimulationRuntime }) {
                 : settings.paused
                   ? '已暂停，重启倒计时冻结'
                   : settings.autoRestart
-                    ? `下一轮将在 ${Math.ceil(snapshot.restartIn)} 秒后开始`
+                    ? snapshot.waitingForInitial
+                      ? '正在等待后台初值筛选完成…'
+                      : `下一轮将在 ${Math.ceil(snapshot.restartIn)} 秒后开始`
                     : '自动重启已关闭，请手动重置'}
             </span>
           </>
@@ -58,14 +47,6 @@ export function App({ runtime }: { runtime: SimulationRuntime }) {
         ) : null}
       </div>
       <AudioVisualizer />
-      <footer className="scene-footer">
-        <span>
-          NEWTONIAN GRAVITY <i /> 3 STARS · 1 PLANET
-        </span>
-        <span>
-          拖动旋转 <b>·</b> 滚轮缩放
-        </span>
-      </footer>
       {settingsVisible && (
         <SettingsPanel
           store={runtime.settings}
