@@ -1,3 +1,4 @@
+import { MAX_TRAIL_YEARS } from '../physics/trajectory';
 import type { AppSettings } from './types';
 export type SettingDefinition = {
   [K in keyof AppSettings]: {
@@ -57,6 +58,17 @@ export const settingsRegistry = new SettingsRegistry()
     category: '初始条件',
     kind: 'seed',
     validate: (v): v is string => typeof v === 'string' && v.trim().length > 0 && v.length <= 80,
+  })
+  .register({
+    key: 'trailLengthYears',
+    label: '尾迹长度 Trail Length',
+    category: '轨道外观',
+    kind: 'number',
+    min: 0.1,
+    max: MAX_TRAIL_YEARS,
+    step: 0.1,
+    validate: (v): v is number =>
+      typeof v === 'number' && Number.isFinite(v) && v >= 0.1 && v <= MAX_TRAIL_YEARS,
   })
   .register({
     key: 'trails',

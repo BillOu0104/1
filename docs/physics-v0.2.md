@@ -1,5 +1,7 @@
 # V0.2 物理研究与模型边界
 
+> 历史 V0.2 研究记录。V0.2.1 已停用 Structured Chaos / 预筛选，逃逸改为两级机制；当前行为见 [V0.2.1 修复说明](v0.2.1.md)。
+
 ## 原著、观测与假设分开
 
 作者本人在 [Nature 访谈](https://blogs.nature.com/futureconditional/2016/08/19/the-three-body-problem-and-beyond-a-qa-with-liu-cixin/)解释了以三颗太阳和不可预测运动构思小说，并区分科学与科幻推演。本项目据此保留无轨道锁定的三恒星互相扰动。公开的 [Tor / Reactor 合法小说节选](https://reactormag.com/the-three-body-problem-silent-spring-excerpt-chapters-1-3/)只覆盖开篇三章，不能提供所需的三恒星参数表；本次研究不声称从该节选核实了所有天体细节。

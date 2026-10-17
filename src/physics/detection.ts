@@ -1,4 +1,5 @@
-import type { Body, PhysicsConfig, Vec3 } from './types';
+import { DEFAULT_ESCAPE_POLICY, type Body, type PhysicsConfig, type Vec3 } from './types';
+import { auToLightDays } from './parameters';
 import { centerOfMass, dot, length, scale, sub, add } from './vector';
 export type EndReason = {
   type: 'collision' | 'escape' | 'numerical' | 'tidal';
@@ -8,6 +9,8 @@ export type EndReason = {
   year?: number;
   dominantStarId?: string;
   tidalRatio?: number;
+  escapeKind?: Body['kind'];
+  escape?: EscapeEvidence;
 };
 export function isValidSystem(bodies: readonly Body[]): boolean {
   return (
@@ -49,28 +52,114 @@ export function detectCollision(
     }
   return null;
 }
-/** Relative to all OTHER bodies: distance + outward motion + positive specific orbital energy. */
+export interface EscapeEvidence {
+  bodyId: string;
+  tier: 'early' | 'regular';
+  distanceAU: number;
+  distanceLightDays: number;
+  relativeSpeed: number; // AU / T₀
+  radialSpeed: number;
+  specificEnergy: number; // AU² / T₀², relative cluster kinetic energy per escaping mass
+  energyMargin: number;
+  isolation: number;
+}
+/** Both tiers require multi-body potential, outward separation and a resolved far field.
+ * This is a conservative finite-time escape criterion, not a proof about all future N-body motion.
+ */
+export function readEscapeCandidates(
+  bodies: readonly Body[],
+  config: PhysicsConfig,
+): EscapeEvidence[] {
+  const policy = { ...DEFAULT_ESCAPE_POLICY, ...config.escapePolicy };
+  const results: EscapeEvidence[] = [];
+  for (const body of bodies) {
+    const others = bodies.filter((b) => b !== body);
+    const mass = others.reduce((sum, b) => sum + b.mass, 0);
+    if (!(mass > 0)) continue;
+    const center = centerOfMass(others),
+      drift = centerOfMass(others, 'velocity');
+    const r = sub(body.position, center),
+      v = sub(body.velocity, drift);
+    const distance = length(r),
+      speed = length(v);
+    if (!(distance > Math.min(policy.earlyDistance, config.escapeDistance)) || speed === 0)
+      continue;
+    const radial = dot(r, v) / distance;
+    if (!(radial > 0)) continue;
+    let potential = 0,
+      extent = 0,
+      moment = 0,
+      separating = true;
+    for (const other of others) {
+      const offset = length(sub(other.position, center));
+      moment += other.mass * offset ** 2;
+      // A co-moving Earth-mass companion must not mask a stellar escape.
+      if (other.mass >= mass * 0.01) {
+        extent = Math.max(extent, offset);
+        if (dot(sub(body.position, other.position), sub(body.velocity, other.velocity)) <= 0)
+          separating = false;
+      }
+      potential -=
+        (config.gravitationalConstant * other.mass) /
+        Math.sqrt(length(sub(body.position, other.position)) ** 2 + config.softening ** 2);
+    }
+    const kinetic = (0.5 * speed ** 2 * mass) / (mass + body.mass);
+    const energy = kinetic + potential;
+    const margin = energy / Math.max(Math.abs(potential), 1e-30);
+    const isolation = distance / Math.max(extent, Math.sqrt(moment / mass), 1e-12);
+    // Estimate a conservative non-monopole allowance, not a bound on future energy exchange.
+    const multipoleAllowance =
+      (4 * config.gravitationalConstant * moment) /
+      Math.max(distance - extent, distance * 0.01) ** 3;
+    if (!separating || !(energy > multipoleAllowance)) continue;
+    const early =
+      distance > policy.earlyDistance &&
+      isolation >= policy.earlyIsolation &&
+      margin >= policy.earlyEnergyMargin &&
+      radial / speed >= policy.earlyRadialFraction;
+    const regular =
+      distance > config.escapeDistance &&
+      isolation >= policy.regularIsolation &&
+      margin >= policy.regularEnergyMargin;
+    if (early || regular)
+      results.push({
+        bodyId: body.id,
+        tier: early ? 'early' : 'regular',
+        distanceAU: distance,
+        distanceLightDays: auToLightDays(distance),
+        relativeSpeed: speed,
+        radialSpeed: radial,
+        specificEnergy: energy,
+        energyMargin: margin,
+        isolation,
+      });
+  }
+  return results;
+}
+/** Compatibility helper for diagnostics and historical benchmarks. */
 export function escapeCandidates(bodies: readonly Body[], config: PhysicsConfig): string[] {
-  return bodies
-    .filter((body) => {
-      const others = bodies.filter((b) => b !== body),
-        mass = others.reduce((s, b) => s + b.mass, 0);
-      const r = sub(body.position, centerOfMass(others)),
-        v = sub(body.velocity, centerOfMass(others, 'velocity'));
-      const potential = others.reduce(
-        (s, b) =>
-          s -
-          (config.gravitationalConstant * b.mass) /
-            Math.sqrt(length(sub(body.position, b.position)) ** 2 + config.softening ** 2),
-        0,
-      );
-      // Include relative two-cluster kinetic energy correction for a massive escaping star.
-      const energy = (0.5 * dot(v, v) * mass) / (mass + body.mass) + potential;
-      return (
-        length(r) > config.escapeDistance &&
-        dot(r, v) > 0 &&
-        energy > 1e-6 * ((0.5 * dot(v, v) * mass) / (mass + body.mass) + Math.abs(potential))
-      );
-    })
-    .map((b) => b.id);
+  return readEscapeCandidates(bodies, config).map((e) => e.bodyId);
+}
+/** Confirmation is in physical time, resets on lost evidence, inward motion or tier change. */
+export class EscapeMonitor {
+  private observations = new Map<string, { since: number; distance: number; tier: string }>();
+  reset(): void {
+    this.observations.clear();
+  }
+  sample(
+    evidence: readonly EscapeEvidence[],
+    time: number,
+    confirmationTime: number,
+  ): EscapeEvidence | null {
+    const active = new Set(evidence.map((e) => e.bodyId));
+    for (const id of this.observations.keys()) if (!active.has(id)) this.observations.delete(id);
+    for (const e of evidence) {
+      let old = this.observations.get(e.bodyId);
+      if (!old || e.distanceAU < old.distance || old.tier !== e.tier)
+        old = { since: time, distance: e.distanceAU, tier: e.tier };
+      this.observations.set(e.bodyId, { ...old, distance: e.distanceAU });
+      if (time - old.since >= confirmationTime) return e;
+    }
+    return null;
+  }
 }

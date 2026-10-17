@@ -12,12 +12,30 @@ export interface Body {
   position: Vec3;
   velocity: Vec3;
 }
+export interface EscapePolicy {
+  earlyDistance: number;
+  earlyIsolation: number;
+  regularIsolation: number;
+  earlyEnergyMargin: number;
+  regularEnergyMargin: number;
+  earlyRadialFraction: number;
+}
+export const DEFAULT_ESCAPE_POLICY: Readonly<EscapePolicy> = Object.freeze({
+  earlyDistance: 20,
+  earlyIsolation: 6,
+  regularIsolation: 3,
+  earlyEnergyMargin: 0.25,
+  regularEnergyMargin: 1e-4,
+  earlyRadialFraction: 0.6,
+});
 export interface PhysicsConfig {
   gravitationalConstant: number;
   timeStep: number;
   softening: number;
   escapeDistance: number;
   escapeConfirmationTime: number;
+  /** Optional AU / T₀ policy; absent fields use conservative defaults. */
+  escapePolicy?: Partial<EscapePolicy>;
   maxStepsPerFrame: number;
   unitsPerSecond: number;
 }

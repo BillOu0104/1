@@ -39,6 +39,12 @@ describe('observatory UI', () => {
     expect(settings.getSnapshot().autoRestart).toBe(false);
     await user.click(screen.getByLabelText('显示轨迹'));
     expect(settings.getSnapshot().trails).toBe(false);
+    const generation = runtime.engine.getGeneration();
+    fireEvent.change(screen.getByRole('slider', { name: /尾迹长度 Trail Length/ }), {
+      target: { value: '0.4' },
+    });
+    expect(settings.getSnapshot().trailLengthYears).toBe(0.4);
+    expect(runtime.engine.getGeneration()).toBe(generation);
     const seed = screen.getByLabelText('随机种子 Seed');
     await user.clear(seed);
     await user.type(seed, 'kepler-test');

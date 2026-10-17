@@ -1,4 +1,4 @@
-name: Validate V0.2
+name: Validate V0.2.1
 on:
   push:
   pull_request:
@@ -13,6 +13,8 @@ jobs:
       PLAYWRIGHT_BASE_URL: http://127.0.0.1:4173/${{ github.event.repository.name }}/
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -21,7 +23,7 @@ jobs:
       - run: npm test
       - run: npm run typecheck
       - name: Reproducible benchmark smoke run
-        run: npm run benchmark
+        run: npm run benchmark:fixes
         env:
           BENCH_SEEDS: 6
           BENCH_YEARS: 8

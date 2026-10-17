@@ -8,6 +8,7 @@ export interface AppSettings {
   seed: string;
   autoRestart: boolean;
   trails: boolean;
+  trailLengthYears: number;
 }
 /** Optional future modules own these configs and their validation/migrations. Not active controls. */
 export interface FutureFeatureConfig {

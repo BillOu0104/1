@@ -71,7 +71,7 @@ const definitions: FeatureModule[] = [
     id: 'initial',
     label: '初始条件',
     status: 'partial',
-    description: 'Structured Chaos + Seed + 后台预筛选已启用；永久稳定无保证',
+    description: 'Random + Seed 已启用；高级生成与预筛选暂时停用',
   },
   {
     id: 'camera',

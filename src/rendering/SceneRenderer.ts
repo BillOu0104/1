@@ -1,3 +1,4 @@
+import type { TrailBatch } from '../physics/trajectory';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import type { Body } from '../physics/types';
@@ -18,7 +19,7 @@ export class SceneRenderer {
   private readonly visuals = new Map<string, BodyVisual>();
   private readonly glowTexture: THREE.CanvasTexture;
   private generation = -1;
-  private lastTrailTime = -Infinity;
+  private lastTrailYears = 2;
   private disposed = false;
   private dirty = true;
   private interactionUntil = 0;
@@ -173,24 +174,44 @@ export class SceneRenderer {
     this.visuals.set(body.id, visual);
     return visual;
   }
+  private setGeneration(generation: number): void {
+    if (generation === this.generation) return;
+    this.generation = generation;
+    this.dirty = true;
+    this.visuals.forEach((v) => {
+      v.trail.clear();
+      v.group.visible = true;
+    });
+  }
+  appendTrails(batch: TrailBatch, bodies: readonly Body[]): void {
+    if (this.disposed || batch.generation < this.generation) return;
+    this.setGeneration(batch.generation);
+    const trails = batch.bodyIds.map((id) => {
+      const body = bodies.find((b) => b.id === id);
+      return body ? (this.visuals.get(id) ?? this.createBody(body)).trail : null;
+    });
+    for (let i = 0; i < batch.points.length; i += 5)
+      trails[batch.points[i]!]!.pushXYZ(
+        batch.points[i + 1]!,
+        batch.points[i + 2]!,
+        batch.points[i + 3]!,
+        batch.points[i + 4]!,
+      );
+    if (batch.points.length) this.dirty = true;
+  }
   render(
     bodies: readonly Body[],
     generation: number,
     time: number,
     showTrails: boolean,
     elapsed: number,
+    trailYears = 2,
   ): void {
     if (this.disposed) return;
-    if (this.generation !== generation) {
-      this.generation = generation;
-      this.dirty = true;
-      this.lastTrailTime = -Infinity;
-      this.visuals.forEach((v) => {
-        v.trail.clear();
-        v.group.visible = true;
-      });
-    }
-    const sample = time - this.lastTrailTime >= 0.025;
+    if (generation < this.generation) return;
+    this.setGeneration(generation);
+    if (trailYears !== this.lastTrailYears) this.dirty = true;
+    this.lastTrailYears = trailYears;
     for (const body of bodies) {
       if (!body.position.every(Number.isFinite)) continue;
       const visual = this.visuals.get(body.id) ?? this.createBody(body);
@@ -220,9 +241,8 @@ export class SceneRenderer {
         visual.group.scale.setScalar(Math.cbrt(body.mass / Number(visual.group.userData.baseMass)));
       (visual.trail.line.material as THREE.LineBasicMaterial).color.set(body.color);
       visual.trail.line.visible = showTrails;
-      if (sample) visual.trail.push(body.position);
+      visual.trail.setWindow(time, trailYears);
     }
-    if (sample) this.lastTrailTime = time;
     const center = centerOfMass(bodies.filter((b) => b.kind === 'star'));
     if (center.every(Number.isFinite)) {
       const target = new THREE.Vector3(...center),

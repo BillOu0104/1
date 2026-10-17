@@ -8,7 +8,10 @@ const root = resolve(fileURLToPath(new URL('..', import.meta.url))),
   baseline = mkdtempSync(join(tmpdir(), 'threebody-v01-'));
 const vite = join(root, 'node_modules/vite/bin/vite.js'),
   servers = [];
-const baselineCommit = '83acfeb12d3405855226e29040ca2ce4994ada16';
+const baselineCommit =
+  process.env.BROWSER_BASELINE_COMMIT ?? '83acfeb12d3405855226e29040ca2ce4994ada16';
+const baselineLabel = process.env.BROWSER_BASELINE_LABEL ?? 'v01';
+const candidateLabel = process.env.BROWSER_CANDIDATE_LABEL ?? 'current';
 async function waitFor(url) {
   const end = Date.now() + 20000;
   while (Date.now() < end) {
@@ -20,12 +23,10 @@ async function waitFor(url) {
   throw new Error(`Preview failed: ${url}`);
 }
 try {
-  execFileSync('tar', ['-x', '-C', baseline], {
-    input: execFileSync('git', ['archive', baselineCommit], {
-      cwd: root,
-      maxBuffer: 16 * 1024 * 1024,
-    }),
-  });
+  const archive = join(baseline, 'source.tar');
+  execFileSync('git', ['archive', '--output', archive, baselineCommit], { cwd: root });
+  execFileSync('tar', ['-xf', archive, '-C', baseline]);
+  rmSync(archive);
   symlinkSync(join(root, 'node_modules'), join(baseline, 'node_modules'), 'dir');
   execFileSync(process.execPath, [vite, 'build'], {
     cwd: baseline,
@@ -57,7 +58,9 @@ try {
   const rows = [];
   try {
     for (let repetition = 0; repetition < 3; repetition++)
-      for (const version of repetition % 2 ? ['v02', 'v01'] : ['v01', 'v02'])
+      for (const version of repetition % 2
+        ? [candidateLabel, baselineLabel]
+        : [baselineLabel, candidateLabel])
         for (const speed of [1, 20]) {
           const context = await browser.newContext({ viewport: { width: 2520, height: 1080 } }),
             page = await context.newPage();
@@ -111,7 +114,7 @@ try {
             { speed },
           );
           await page.goto(
-            version === 'v01' ? 'http://127.0.0.1:4181/' : 'http://127.0.0.1:4182/1/',
+            version === baselineLabel ? 'http://127.0.0.1:4181/' : 'http://127.0.0.1:4182/1/',
           );
           await page.waitForFunction(
             () => Number(document.querySelector('.clock-meta strong')?.textContent) > 0,
@@ -173,7 +176,7 @@ try {
   }
   mkdirSync(join(root, 'docs/benchmarks'), { recursive: true });
   writeFileSync(
-    join(root, 'docs/benchmarks/browser.json'),
+    join(root, process.env.BROWSER_OUTPUT ?? 'test-results/browser-current.json'),
     JSON.stringify(
       {
         baselineCommit,

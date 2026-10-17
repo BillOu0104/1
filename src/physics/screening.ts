@@ -1,3 +1,4 @@
+/** Historical V0.2 experiment. Not imported by the V0.2.1 app/Worker; retained for offline comparisons. */
 import { SimulationEngine, type ScreeningSummary } from '../simulation/SimulationEngine';
 import { StructuredChaosInitializer, acceptableChaos } from './structuredChaos';
 import { copyBodies, DEFAULT_PHYSICS, UNITS_PER_YEAR, type Body } from './types';

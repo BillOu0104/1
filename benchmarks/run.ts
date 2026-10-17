@@ -39,7 +39,10 @@ function population(mode: 'v01' | 'raw-v02' | 'screened-v02'): Row[] {
     const engine =
       mode === 'v01'
         ? new BaselineEngine(seed)
-        : new SimulationEngine(seed, screened ? { initialBodies: screened.bodies } : {});
+        : new SimulationEngine(seed, {
+            generator: new StructuredChaosInitializer(),
+            ...(screened ? { initialBodies: screened.bodies } : {}),
+          });
     engine.setControls({ autoRestart: false, speed: 20 });
     const config = mode === 'v01' ? BASE_CONFIG : DEFAULT_PHYSICS,
       initial = invariants(engine.getBodies(), config),
@@ -212,6 +215,6 @@ const report = {
   algorithms: algorithmResults,
   populations,
 };
-const output = process.env.BENCH_OUTPUT ?? 'docs/benchmarks/results.json';
+const output = process.env.BENCH_OUTPUT ?? 'test-results/experimental-current.json';
 mkdirSync(dirname(output), { recursive: true });
 writeFileSync(output, JSON.stringify(report, null, 2) + '\n');
