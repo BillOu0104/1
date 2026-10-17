@@ -19,10 +19,11 @@ it('keeps long accelerated multi-seed sessions finite with bounded event history
   }
 }, 60000);
 it('bounds trail allocation and orders wrapped points without stale restart geometry', () => {
-  const trail = new Trail('#fff'),
+  const trail = new Trail('#fff', 512),
     attribute = trail.line.geometry.getAttribute('position');
   const array = attribute.array;
-  for (let i = 0; i < 2000; i++) trail.push([i, i + 1, i + 2]);
+  for (let i = 0; i < 2000; i++) trail.push([i, i + 1, i + 2], i * 0.001);
+  trail.setWindow(2, 10);
   expect(attribute.array).toBe(array);
   expect(attribute.count).toBe(1024);
   const { start, count } = trail.line.geometry.drawRange;
@@ -31,7 +32,8 @@ it('bounds trail allocation and orders wrapped points without stale restart geom
   expect(attribute.getX(start + count - 1)).toBe(1999);
   trail.clear();
   expect(trail.line.geometry.drawRange.count).toBe(0);
-  trail.push([7, 8, 9]);
+  trail.push([7, 8, 9], 0);
+  trail.setWindow(0, 2);
   expect(trail.line.geometry.drawRange.count).toBe(1);
   expect(attribute.getX(0)).toBe(7);
   trail.dispose();

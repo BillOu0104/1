@@ -1,3 +1,4 @@
+/** Historical V0.2 experiment. Not imported by the V0.2.1 app/Worker; retained for offline comparisons. */
 import type { Body, InitialConditionGenerator, PhysicsConfig, Vec3 } from './types';
 import { DEFAULT_MASSES, EARTH_MASS, EARTH_RADIUS, stellarProperties } from './parameters';
 import { seededRandom } from './random';

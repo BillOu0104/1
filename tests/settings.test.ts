@@ -15,6 +15,10 @@ describe('settings state and persistence', () => {
     const store = new SettingsStore(persistence),
       listener = vi.fn(),
       unsubscribe = store.subscribe(listener);
+    store.set('trailLengthYears', 4.5);
+    expect(new SettingsStore(persistence).getSnapshot().trailLengthYears).toBe(4.5);
+    expect(() => store.set('trailLengthYears', 100)).toThrow();
+    listener.mockClear();
     store.set('speed', 4);
     store.set('autoRestart', false);
     expect(listener).toHaveBeenCalledTimes(2);
@@ -42,7 +46,7 @@ describe('settings state and persistence', () => {
         }),
         save: () => true,
       }).getSnapshot(),
-    ).toMatchObject({ speed: 1, autoRestart: true, trails: false });
+    ).toMatchObject({ speed: 1, autoRestart: true, trails: false, trailLengthYears: 2 });
     expect(
       new SettingsStore({
         load: () => ({ version: 999, settings: { speed: 5 } }),

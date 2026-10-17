@@ -1,11 +1,11 @@
 import { EARTH_MASS, EARTH_RADIUS, stellarProperties } from './parameters';
-import { StructuredChaosInitializer } from './structuredChaos';
 import type { Body, GeneratorMode, InitialConditionGenerator, PhysicsConfig } from './types';
 import { seededRandom } from './random';
 import { add, centerOfMass, dot, length, scale, sub } from './vector';
 import { totalEnergy } from './gravity';
 export class RandomInitializer implements InitialConditionGenerator {
   readonly mode = 'random';
+  constructor(private readonly referenceMasses?: readonly number[]) {}
   generate(seed: string, config: PhysicsConfig): Body[] {
     const random = seededRandom(seed);
     const range = (a: number, b: number) => a + random() * (b - a);
@@ -14,7 +14,9 @@ export class RandomInitializer implements InitialConditionGenerator {
       // Separate angular sectors with bounded jitter avoid overlapping initial stars.
       const angle = (i * 2 * Math.PI) / 3 + range(-0.32, 0.32),
         r = range(2.2, 3.8);
-      const mass = range(0.7, 1.5);
+      const mass = this.referenceMasses
+        ? this.referenceMasses[i]! * range(0.97, 1.03)
+        : range(0.7, 1.5);
       bodies.push({
         id: `star-${i}`,
         name: ['恒星 A', '恒星 B', '恒星 C'][i]!,
@@ -76,7 +78,8 @@ export interface GeneratorDescriptor {
   create?: () => InitialConditionGenerator;
 }
 export const GENERATORS: readonly GeneratorDescriptor[] = [
-  { mode: 'structuredChaos', implemented: true, create: () => new StructuredChaosInitializer() },
+  // Historical V0.2 experiments remain outside the production dependency graph.
+  { mode: 'structuredChaos', implemented: false },
   { mode: 'random', implemented: true, create: () => new RandomInitializer() },
   { mode: 'longLived', implemented: false },
   { mode: 'structuredRandom', implemented: false },

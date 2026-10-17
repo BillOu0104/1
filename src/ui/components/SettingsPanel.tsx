@@ -41,7 +41,7 @@ export function SettingsPanel({
         <div>
           <span className="eyebrow">CONTROL CENTER</span>
           <h2>
-            模拟设置 <small>V0.2</small>
+            模拟设置 <small>V0.2.1</small>
           </h2>
         </div>
         <button onClick={onClose} aria-label="关闭设置">
@@ -94,6 +94,7 @@ export function SettingsPanel({
                   if (
                     definition.kind === 'number' &&
                     (definition.key === 'speed' ||
+                      definition.key === 'trailLengthYears' ||
                       definition.key === 'massA' ||
                       definition.key === 'massB' ||
                       definition.key === 'massC')
@@ -103,8 +104,16 @@ export function SettingsPanel({
                         <label htmlFor={id}>
                           {definition.label}
                           <output>
-                            {settings[definition.key].toFixed(definition.key === 'speed' ? 1 : 2)}
-                            {definition.key === 'speed' ? '×' : ' M☉'}
+                            {settings[definition.key].toFixed(
+                              definition.key === 'speed' || definition.key === 'trailLengthYears'
+                                ? 1
+                                : 2,
+                            )}
+                            {definition.key === 'speed'
+                              ? '×'
+                              : definition.key === 'trailLengthYears'
+                                ? ' 模拟年'
+                                : ' M☉'}
                           </output>
                         </label>
                         <input
@@ -116,7 +125,12 @@ export function SettingsPanel({
                           value={settings[definition.key]}
                           onChange={(event) =>
                             store.set(
-                              definition.key as 'speed' | 'massA' | 'massB' | 'massC',
+                              definition.key as
+                                | 'speed'
+                                | 'trailLengthYears'
+                                | 'massA'
+                                | 'massB'
+                                | 'massC',
                               Number(event.target.value),
                             )
                           }
@@ -124,7 +138,9 @@ export function SettingsPanel({
                         <small>
                           {definition.key === 'speed'
                             ? '1× ≈ 0.095 模拟年/秒；高负载时放慢推进。'
-                            : '质量会在参考值附近随机 ±3%；重置后生效。'}
+                            : definition.key === 'trailLengthYears'
+                              ? '按模拟时间保留，立即生效；每颗天体最多 8192 点。'
+                              : '质量会在参考值附近随机 ±3%；重置后生效。'}
                         </small>
                       </div>
                     );

@@ -2,7 +2,7 @@ import { SimulationEngine, type SimulationSnapshot, type SessionHistory } from '
 import type { SettingsStore } from '../settings/SettingsStore';
 import type { SceneRenderer } from '../rendering/SceneRenderer';
 import type { PhysicsPort, PhysicsRequest, PhysicsResponse } from '../worker/protocol';
-import { StructuredChaosInitializer } from '../physics/structuredChaos';
+import { RandomInitializer } from '../physics/initialConditions';
 import { hashSeed } from '../physics/random';
 export interface RuntimeOptions {
   workerFactory?: () => PhysicsPort;
@@ -30,13 +30,14 @@ export class SimulationRuntime {
   private workerCpuMs = 0;
   private workerLatencyMs = 0;
   private sentAt = 0;
+  private renderer: SceneRenderer | null = null;
   constructor(
     readonly settings: SettingsStore,
     private readonly options: RuntimeOptions = {},
   ) {
     const config = settings.getSnapshot();
     this.engine = new SimulationEngine(config.seed, {
-      generator: new StructuredChaosInitializer(this.masses()),
+      generator: new RandomInitializer(this.masses()),
     });
     this.engine.setControls(config);
     this.current = this.engine.snapshot();
@@ -69,14 +70,14 @@ export class SimulationRuntime {
     if (this.options.synchronous) {
       this.engine.reset(
         seed,
-        new StructuredChaosInitializer(this.masses()).generate(seed, this.engine.config),
+        new RandomInitializer(this.masses()).generate(seed, this.engine.config),
       );
       this.publish();
       return;
     }
     this.current = {
       ...this.current,
-      phase: 'screening',
+      phase: 'initializing',
       controls: { ...this.settings.getSnapshot() },
       autoRestartBlocked: false,
     };
@@ -121,7 +122,7 @@ export class SimulationRuntime {
         event.preventDefault?.();
         if (epoch === this.epoch) this.failed('物理 Worker 异常，已停止本轮');
       };
-      this.current = { ...this.current, phase: 'screening' };
+      this.current = { ...this.current, phase: 'initializing' };
       this.publish();
       this.send({
         type: 'init',
@@ -140,23 +141,16 @@ export class SimulationRuntime {
       this.failed(message.message);
       return;
     }
-    if (message.type === 'screening') {
-      if (message.initial) {
-        this.current = { ...this.current, phase: 'screening' };
-        this.publish();
-      }
-      return;
-    }
     if (message.sequence !== undefined) {
       if (message.sequence < this.lastSequence) return;
       this.lastSequence = message.sequence;
       this.inFlight = false;
       this.workerLatencyMs = performance.now() - this.sentAt;
     }
-    this.inFlight = false;
     this.previous = this.current;
     if (message.eventsUnchanged) message.snapshot.events = this.current.events;
     this.current = message.snapshot;
+    if (message.trails) this.renderer?.appendTrails?.(message.trails, message.snapshot.bodies);
     this.receivedAt = performance.now();
     this.workerCpuMs = message.workerCpuMs;
     if (
@@ -228,6 +222,7 @@ export class SimulationRuntime {
       lastPublished = 0,
       lastRendered = 0;
     this.attached = true;
+    this.renderer = renderer;
     if (!this.options.synchronous) this.startWorker(this.current.seed);
     const syncSettings = () => {
       const settings = this.settings.getSnapshot();
@@ -271,15 +266,18 @@ export class SimulationRuntime {
       if (now - lastRendered >= interval - 1) {
         const snapshot = this.options.synchronous ? this.engine.snapshot() : this.current;
         let bodies = snapshot.bodies;
+        let displayTime = snapshot.time;
         if (
           this.previous &&
           this.previous.generation === snapshot.generation &&
-          snapshot.phase === 'running'
+          snapshot.phase === 'running' &&
+          !snapshot.controls.paused
         ) {
           const alpha = Math.max(
             0,
             Math.min(1, (performance.now() - this.receivedAt) / (1000 / 30)),
           );
+          displayTime = this.previous.time * (1 - alpha) + snapshot.time * alpha;
           bodies = bodies.map((b, i) => ({
             ...b,
             position: b.position.map(
@@ -291,9 +289,10 @@ export class SimulationRuntime {
         renderer.render(
           bodies,
           snapshot.generation,
-          snapshot.time,
+          displayTime,
           this.settings.getSnapshot().trails,
           Math.min((now - lastRendered) / 1000, 0.1),
+          this.settings.getSnapshot().trailLengthYears,
         );
         lastRendered = now;
       }
@@ -315,6 +314,7 @@ export class SimulationRuntime {
     visibility();
     return () => {
       this.attached = false;
+      this.renderer = null;
       cancelAnimationFrame(frameId);
       document.removeEventListener('visibilitychange', visibility);
       unsubscribe();

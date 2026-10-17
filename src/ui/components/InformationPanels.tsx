@@ -142,12 +142,8 @@ export function InformationPanels({
             </dd>
           </div>
           <div>
-            <dt>初值筛选</dt>
-            <dd>
-              {snapshot.screening
-                ? `${snapshot.screening.qualified}/${snapshot.screening.candidates}${snapshot.screening.fallback ? ' · 降级' : ''}`
-                : '—'}
-            </dd>
+            <dt>初始条件</dt>
+            <dd>Random · Seed</dd>
           </div>
           <div>
             <dt>累计重启</dt>

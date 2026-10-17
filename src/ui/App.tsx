@@ -25,8 +25,8 @@ export function App({ runtime }: { runtime: SimulationRuntime }) {
       />
       <InformationPanels snapshot={snapshot} visible={panelsVisible} />
       <div className="status-notice" role="status" aria-live="polite">
-        {snapshot.phase === 'screening' ? (
-          <strong>正在后台筛选混沌初始条件…</strong>
+        {snapshot.phase === 'initializing' ? (
+          <strong>正在初始化物理系统…</strong>
         ) : snapshot.phase === 'ended' ? (
           <>
             <strong>{snapshot.reason?.message}</strong>
@@ -37,7 +37,7 @@ export function App({ runtime }: { runtime: SimulationRuntime }) {
                   ? '已暂停，重启倒计时冻结'
                   : settings.autoRestart
                     ? snapshot.waitingForInitial
-                      ? '正在等待后台初值筛选完成…'
+                      ? '正在等待初始条件…'
                       : `下一轮将在 ${Math.ceil(snapshot.restartIn)} 秒后开始`
                     : '自动重启已关闭，请手动重置'}
             </span>

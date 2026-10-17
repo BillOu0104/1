@@ -44,7 +44,7 @@ const setup = () => {
       },
     });
   const advance = vi.spyOn(runtime.engine, 'advance'),
-    renderer = { render: vi.fn(), setTermination: vi.fn() },
+    renderer = { render: vi.fn(), setTermination: vi.fn(), appendTrails: vi.fn() },
     detach = runtime.attach(renderer as unknown as SceneRenderer);
   return {
     ports,
@@ -67,7 +67,9 @@ const setup = () => {
 it('keeps physics off the UI thread, bounds in-flight requests, resets through the same port and drops hidden time', () => {
   const s = setup(),
     p = s.ports[0]!;
-  p.emit({ type: 'snapshot', snapshot: s.runtime.engine.snapshot(), workerCpuMs: 0.1 });
+  const trails = { generation: 1, bodyIds: ['planet'], points: new Float64Array([0, 0, 1, 2, 3]) };
+  p.emit({ type: 'snapshot', snapshot: s.runtime.engine.snapshot(), workerCpuMs: 0.1, trails });
+  expect(s.renderer.appendTrails).toHaveBeenCalledWith(trails, expect.any(Array));
   s.frame(0);
   s.frame(40);
   s.frame(80);
@@ -104,6 +106,19 @@ it('keeps physics off the UI thread, bounds in-flight requests, resets through t
   expect(s.renderer.render).toHaveBeenCalled();
   s.detach();
   expect(p.terminate).toHaveBeenCalled();
+});
+it('does not let an unsequenced controls acknowledgment release an in-flight physics tick', () => {
+  const s = setup(),
+    p = s.ports[0]!;
+  p.emit({ type: 'snapshot', snapshot: s.runtime.engine.snapshot(), workerCpuMs: 0 });
+  s.frame(0);
+  s.frame(40);
+  s.store.set('trailLengthYears', 1);
+  p.emit({ type: 'snapshot', snapshot: s.runtime.engine.snapshot(), workerCpuMs: 0 });
+  s.frame(80);
+  s.frame(120);
+  expect(p.sent.filter((m) => m.type === 'tick')).toHaveLength(1);
+  s.detach();
 });
 it('recovers Worker faults with history, ignores stale messages, and circuit-breaks repeated failures', () => {
   vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'Date'] });

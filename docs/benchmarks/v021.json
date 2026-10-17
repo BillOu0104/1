@@ -1,0 +1,2194 @@
+{
+  "baselineCommit": "39d830bdcbf13bc0c4c7e0e799115c42b6303265",
+  "node": "v24.19.0",
+  "cpu": "AMD EPYC 9V45 96-Core Processor",
+  "count": 24,
+  "years": 10,
+  "repetitions": 3,
+  "method": "Same Random bodies, no escape for precision runs; existing real collision/tide/numerical stopping retained. V0.2.1 includes accepted-state recorder and batch preparation. Alternating paired runs after warmup.",
+  "summary": {
+    "identicalPhysicalTrajectories": true,
+    "medianCpuMs": {
+      "v02": 39.89404599999989,
+      "v021": 39.614208999999846
+    },
+    "totalCpuSamplesMs": {
+      "v02": 3386.6838860000007,
+      "v021": 3491.4175929999983
+    },
+    "maxEnergy": 5.49635020045413e-8,
+    "maxAngular": 1.3486319225828192e-10,
+    "largestBatchPoints": 558
+  },
+  "escape": {
+    "v02": {
+      "cpuMs": 12.522389000000658,
+      "time": 40.80000000000003,
+      "years": 6.493521678149335,
+      "steps": 683,
+      "maxEnergy": 2.313846099816625e-15,
+      "maxAngular": 0,
+      "reason": "escape",
+      "encounters": 0,
+      "bodies": [
+        {
+          "id": "out",
+          "name": "planet",
+          "kind": "planet",
+          "mass": 0.000003,
+          "radius": 1e-7,
+          "color": "#fff",
+          "position": [102.02385309547438, 0, 0],
+          "velocity": [1.9810010506938924, 0, 0]
+        },
+        {
+          "id": "host",
+          "name": "star",
+          "kind": "star",
+          "mass": 1,
+          "radius": 0.00465,
+          "color": "#fff",
+          "position": [0.0000017284407135766537, 0, 0],
+          "velocity": [5.699684791832445e-8, 0, 0]
+        }
+      ],
+      "points": 0,
+      "maxBatch": 0
+    },
+    "v021": {
+      "cpuMs": 2.4435100000000602,
+      "time": 1.0200000000000005,
+      "years": 0.16233804195373333,
+      "steps": 20,
+      "maxEnergy": 0,
+      "maxAngular": 0,
+      "reason": "escape",
+      "encounters": 0,
+      "bodies": [
+        {
+          "id": "out",
+          "name": "planet",
+          "kind": "planet",
+          "mass": 0.000003,
+          "radius": 1e-7,
+          "color": "#fff",
+          "position": [23.038891617246957, 0, 0],
+          "velocity": [1.9978917979867925, 0, 0]
+        },
+        {
+          "id": "host",
+          "name": "star",
+          "kind": "star",
+          "mass": 1,
+          "radius": 0.00465,
+          "color": "#fff",
+          "position": [3.3251482591390336e-9, 0, 0],
+          "velocity": [6.32460603962305e-9, 0, 0]
+        }
+      ],
+      "evidence": {
+        "bodyId": "out",
+        "tier": "early",
+        "distanceAU": 23.03889161392181,
+        "distanceLightDays": 0.13306154085219546,
+        "relativeSpeed": 1.9978917916621866,
+        "radialSpeed": 1.9978917916621863,
+        "specificEnergy": 1.9523749523989529,
+        "energyMargin": 44.98055491805526,
+        "isolation": 23038891613921.81
+      },
+      "points": 25,
+      "maxBatch": 17
+    }
+  },
+  "rows": [
+    {
+      "seed": "fix-bench-0",
+      "repetition": 0,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 45.379886,
+        "time": 63.000000000000355,
+        "years": 10.026761414789464,
+        "steps": 2532,
+        "maxEnergy": 8.355984057403738e-11,
+        "maxAngular": 3.934527001839724e-12,
+        "reason": "censored",
+        "encounters": 0,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 51.219843999999966,
+        "time": 63.000000000000355,
+        "years": 10.026761414789464,
+        "steps": 2532,
+        "maxEnergy": 8.355984057403738e-11,
+        "maxAngular": 3.934527001839724e-12,
+        "reason": "censored",
+        "encounters": 0,
+        "points": 4587,
+        "maxBatch": 95
+      }
+    },
+    {
+      "seed": "fix-bench-1",
+      "repetition": 0,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 23.160162000000014,
+        "time": 63.000000000000796,
+        "years": 10.026761414789533,
+        "steps": 1530,
+        "maxEnergy": 4.2289456046958544e-10,
+        "maxAngular": 1.0725570675728875e-11,
+        "reason": "censored",
+        "encounters": 2,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 23.71416499999998,
+        "time": 63.000000000000796,
+        "years": 10.026761414789533,
+        "steps": 1530,
+        "maxEnergy": 4.2289456046958544e-10,
+        "maxAngular": 1.0725570675728875e-11,
+        "reason": "censored",
+        "encounters": 2,
+        "points": 3002,
+        "maxBatch": 137
+      }
+    },
+    {
+      "seed": "fix-bench-2",
+      "repetition": 0,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 44.51119099999994,
+        "time": 63,
+        "years": 10.026761414789407,
+        "steps": 2867,
+        "maxEnergy": 6.232153492025383e-13,
+        "maxAngular": 1.2498383113441545e-13,
+        "reason": "censored",
+        "encounters": 0,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 56.671976000000086,
+        "time": 63,
+        "years": 10.026761414789407,
+        "steps": 2867,
+        "maxEnergy": 6.232153492025383e-13,
+        "maxAngular": 1.2498383113441545e-13,
+        "reason": "censored",
+        "encounters": 0,
+        "points": 4456,
+        "maxBatch": 54
+      }
+    },
+    {
+      "seed": "fix-bench-3",
+      "repetition": 0,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 52.56406400000003,
+        "time": 63.000000000000064,
+        "years": 10.026761414789418,
+        "steps": 3728,
+        "maxEnergy": 5.442057026581005e-13,
+        "maxAngular": 2.1143072896979755e-14,
+        "reason": "censored",
+        "encounters": 0,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 49.07487500000002,
+        "time": 63.000000000000064,
+        "years": 10.026761414789418,
+        "steps": 3728,
+        "maxEnergy": 5.442057026581005e-13,
+        "maxAngular": 2.1143072896979755e-14,
+        "reason": "censored",
+        "encounters": 0,
+        "points": 4736,
+        "maxBatch": 52
+      }
+    },
+    {
+      "seed": "fix-bench-4",
+      "repetition": 0,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 50.37290600000006,
+        "time": 62.99999999999991,
+        "years": 10.026761414789393,
+        "steps": 3784,
+        "maxEnergy": 3.593376434074114e-9,
+        "maxAngular": 1.223825659381013e-11,
+        "reason": "censored",
+        "encounters": 3,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 46.98682299999996,
+        "time": 62.99999999999991,
+        "years": 10.026761414789393,
+        "steps": 3784,
+        "maxEnergy": 3.593376434074114e-9,
+        "maxAngular": 1.223825659381013e-11,
+        "reason": "censored",
+        "encounters": 3,
+        "points": 6144,
+        "maxBatch": 524
+      }
+    },
+    {
+      "seed": "fix-bench-5",
+      "repetition": 0,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 54.13099999999997,
+        "time": 62.99999999999997,
+        "years": 10.026761414789402,
+        "steps": 3456,
+        "maxEnergy": 5.046923657992587e-9,
+        "maxAngular": 3.2837040980524825e-11,
+        "reason": "censored",
+        "encounters": 3,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 56.98884500000008,
+        "time": 62.99999999999997,
+        "years": 10.026761414789402,
+        "steps": 3456,
+        "maxEnergy": 5.046923657992587e-9,
+        "maxAngular": 3.2837040980524825e-11,
+        "reason": "censored",
+        "encounters": 3,
+        "points": 6200,
+        "maxBatch": 295
+      }
+    },
+    {
+      "seed": "fix-bench-6",
+      "repetition": 0,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 130.98641899999996,
+        "time": 63.35999999999982,
+        "years": 10.08405719430246,
+        "steps": 10686,
+        "maxEnergy": 3.484864558355131e-8,
+        "maxAngular": 7.70742349227691e-11,
+        "reason": "censored",
+        "encounters": 3,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 134.96606700000007,
+        "time": 63.35999999999982,
+        "years": 10.08405719430246,
+        "steps": 10686,
+        "maxEnergy": 3.484864558355131e-8,
+        "maxAngular": 7.70742349227691e-11,
+        "reason": "censored",
+        "encounters": 3,
+        "points": 13680,
+        "maxBatch": 558
+      }
+    },
+    {
+      "seed": "fix-bench-7",
+      "repetition": 0,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 23.720604000000094,
+        "time": 63.000000000000725,
+        "years": 10.026761414789522,
+        "steps": 1821,
+        "maxEnergy": 5.461420942902852e-9,
+        "maxAngular": 3.594842128095929e-11,
+        "reason": "censored",
+        "encounters": 2,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 22.41931999999997,
+        "time": 63.000000000000725,
+        "years": 10.026761414789522,
+        "steps": 1821,
+        "maxEnergy": 5.461420942902852e-9,
+        "maxAngular": 3.594842128095929e-11,
+        "reason": "censored",
+        "encounters": 2,
+        "points": 3318,
+        "maxBatch": 296
+      }
+    },
+    {
+      "seed": "fix-bench-8",
+      "repetition": 0,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 34.94438100000002,
+        "time": 62.999999999999844,
+        "years": 10.026761414789382,
+        "steps": 2779,
+        "maxEnergy": 6.472442817693531e-9,
+        "maxAngular": 4.978363900215219e-11,
+        "reason": "censored",
+        "encounters": 1,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 41.56060000000002,
+        "time": 62.999999999999844,
+        "years": 10.026761414789382,
+        "steps": 2779,
+        "maxEnergy": 6.472442817693531e-9,
+        "maxAngular": 4.978363900215219e-11,
+        "reason": "censored",
+        "encounters": 1,
+        "points": 4257,
+        "maxBatch": 251
+      }
+    },
+    {
+      "seed": "fix-bench-9",
+      "repetition": 0,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 41.16139700000008,
+        "time": 62.99999999999993,
+        "years": 10.026761414789394,
+        "steps": 3101,
+        "maxEnergy": 5.674246006013356e-12,
+        "maxAngular": 6.160867047522367e-13,
+        "reason": "censored",
+        "encounters": 0,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 38.576995000000124,
+        "time": 62.99999999999993,
+        "years": 10.026761414789394,
+        "steps": 3101,
+        "maxEnergy": 5.674246006013356e-12,
+        "maxAngular": 6.160867047522367e-13,
+        "reason": "censored",
+        "encounters": 0,
+        "points": 4590,
+        "maxBatch": 63
+      }
+    },
+    {
+      "seed": "fix-bench-10",
+      "repetition": 0,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 67.20445799999993,
+        "time": 63.360000000000035,
+        "years": 10.084057194302494,
+        "steps": 5142,
+        "maxEnergy": 3.668902650590922e-8,
+        "maxAngular": 5.821811761278486e-11,
+        "reason": "censored",
+        "encounters": 4,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 64.94965300000013,
+        "time": 63.360000000000035,
+        "years": 10.084057194302494,
+        "steps": 5142,
+        "maxEnergy": 3.668902650590922e-8,
+        "maxAngular": 5.821811761278486e-11,
+        "reason": "censored",
+        "encounters": 4,
+        "points": 7948,
+        "maxBatch": 516
+      }
+    },
+    {
+      "seed": "fix-bench-11",
+      "repetition": 0,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 47.43343099999993,
+        "time": 63.000000000000135,
+        "years": 10.026761414789428,
+        "steps": 3303,
+        "maxEnergy": 2.2987747189082195e-9,
+        "maxAngular": 3.501914122811387e-11,
+        "reason": "censored",
+        "encounters": 3,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 39.477051000000074,
+        "time": 63.000000000000135,
+        "years": 10.026761414789428,
+        "steps": 3303,
+        "maxEnergy": 2.2987747189082195e-9,
+        "maxAngular": 3.501914122811387e-11,
+        "reason": "censored",
+        "encounters": 3,
+        "points": 6095,
+        "maxBatch": 240
+      }
+    },
+    {
+      "seed": "fix-bench-12",
+      "repetition": 0,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 118.43816700000002,
+        "time": 63.000000000000114,
+        "years": 10.026761414789425,
+        "steps": 9588,
+        "maxEnergy": 7.643804139830548e-10,
+        "maxAngular": 5.437037297821159e-11,
+        "reason": "censored",
+        "encounters": 2,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 117.35033300000009,
+        "time": 63.000000000000114,
+        "years": 10.026761414789425,
+        "steps": 9588,
+        "maxEnergy": 7.643804139830548e-10,
+        "maxAngular": 5.437037297821159e-11,
+        "reason": "censored",
+        "encounters": 2,
+        "points": 11691,
+        "maxBatch": 231
+      }
+    },
+    {
+      "seed": "fix-bench-13",
+      "repetition": 0,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 56.81012600000008,
+        "time": 63.42000000000017,
+        "years": 10.09360649088803,
+        "steps": 5128,
+        "maxEnergy": 5.49635020045413e-8,
+        "maxAngular": 1.3486319225828192e-10,
+        "reason": "censored",
+        "encounters": 3,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 61.46713799999998,
+        "time": 63.42000000000017,
+        "years": 10.09360649088803,
+        "steps": 5128,
+        "maxEnergy": 5.49635020045413e-8,
+        "maxAngular": 1.3486319225828192e-10,
+        "reason": "censored",
+        "encounters": 3,
+        "points": 9347,
+        "maxBatch": 529
+      }
+    },
+    {
+      "seed": "fix-bench-14",
+      "repetition": 0,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 27.560758000000078,
+        "time": 63.000000000000085,
+        "years": 10.02676141478942,
+        "steps": 2483,
+        "maxEnergy": 2.7044310016914126e-9,
+        "maxAngular": 5.0718589130451624e-11,
+        "reason": "censored",
+        "encounters": 3,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 27.62426400000004,
+        "time": 63.000000000000085,
+        "years": 10.02676141478942,
+        "steps": 2483,
+        "maxEnergy": 2.7044310016914126e-9,
+        "maxAngular": 5.0718589130451624e-11,
+        "reason": "censored",
+        "encounters": 3,
+        "points": 4811,
+        "maxBatch": 122
+      }
+    },
+    {
+      "seed": "fix-bench-15",
+      "repetition": 0,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 27.88950399999976,
+        "time": 62.99999999999993,
+        "years": 10.026761414789394,
+        "steps": 2594,
+        "maxEnergy": 3.9864029903477585e-11,
+        "maxAngular": 1.443608119520464e-12,
+        "reason": "censored",
+        "encounters": 0,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 29.10513899999978,
+        "time": 62.99999999999993,
+        "years": 10.026761414789394,
+        "steps": 2594,
+        "maxEnergy": 3.9864029903477585e-11,
+        "maxAngular": 1.443608119520464e-12,
+        "reason": "censored",
+        "encounters": 0,
+        "points": 4087,
+        "maxBatch": 87
+      }
+    },
+    {
+      "seed": "fix-bench-16",
+      "repetition": 0,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 24.384181000000353,
+        "time": 63.00000000000081,
+        "years": 10.026761414789535,
+        "steps": 2161,
+        "maxEnergy": 8.265330703248151e-10,
+        "maxAngular": 3.924486337641006e-11,
+        "reason": "censored",
+        "encounters": 2,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 24.410381000000143,
+        "time": 63.00000000000081,
+        "years": 10.026761414789535,
+        "steps": 2161,
+        "maxEnergy": 8.265330703248151e-10,
+        "maxAngular": 3.924486337641006e-11,
+        "reason": "censored",
+        "encounters": 2,
+        "points": 3287,
+        "maxBatch": 157
+      }
+    },
+    {
+      "seed": "fix-bench-17",
+      "repetition": 0,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 61.32873800000016,
+        "time": 63.000000000000306,
+        "years": 10.026761414789455,
+        "steps": 5682,
+        "maxEnergy": 2.4416824102463965e-10,
+        "maxAngular": 3.8910928950251934e-11,
+        "reason": "censored",
+        "encounters": 4,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 61.669143000000076,
+        "time": 63.000000000000306,
+        "years": 10.026761414789455,
+        "steps": 5682,
+        "maxEnergy": 2.4416824102463965e-10,
+        "maxAngular": 3.8910928950251934e-11,
+        "reason": "censored",
+        "encounters": 4,
+        "points": 7843,
+        "maxBatch": 169
+      }
+    },
+    {
+      "seed": "fix-bench-18",
+      "repetition": 0,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 29.404802000000018,
+        "time": 63.00000000000065,
+        "years": 10.02676141478951,
+        "steps": 2676,
+        "maxEnergy": 2.750444937591216e-9,
+        "maxAngular": 3.6317437509468944e-11,
+        "reason": "censored",
+        "encounters": 4,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 29.963144999999713,
+        "time": 63.00000000000065,
+        "years": 10.02676141478951,
+        "steps": 2676,
+        "maxEnergy": 2.750444937591216e-9,
+        "maxAngular": 3.6317437509468944e-11,
+        "reason": "censored",
+        "encounters": 4,
+        "points": 4832,
+        "maxBatch": 290
+      }
+    },
+    {
+      "seed": "fix-bench-19",
+      "repetition": 0,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 54.64243299999998,
+        "time": 63.00000000000007,
+        "years": 10.026761414789418,
+        "steps": 5081,
+        "maxEnergy": 1.837282362577644e-8,
+        "maxAngular": 7.419784639509816e-11,
+        "reason": "censored",
+        "encounters": 2,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 54.751426999999694,
+        "time": 63.00000000000007,
+        "years": 10.026761414789418,
+        "steps": 5081,
+        "maxEnergy": 1.837282362577644e-8,
+        "maxAngular": 7.419784639509816e-11,
+        "reason": "censored",
+        "encounters": 2,
+        "points": 6984,
+        "maxBatch": 432
+      }
+    },
+    {
+      "seed": "fix-bench-20",
+      "repetition": 0,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 57.2292480000001,
+        "time": 62.879999999999896,
+        "years": 10.007662821618363,
+        "steps": 5352,
+        "maxEnergy": 9.692958503299762e-12,
+        "maxAngular": 1.5518319048170763e-12,
+        "reason": "censored",
+        "encounters": 0,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 57.94291499999963,
+        "time": 62.879999999999896,
+        "years": 10.007662821618363,
+        "steps": 5352,
+        "maxEnergy": 9.692958503299762e-12,
+        "maxAngular": 1.5518319048170763e-12,
+        "reason": "censored",
+        "encounters": 0,
+        "points": 6936,
+        "maxBatch": 255
+      }
+    },
+    {
+      "seed": "fix-bench-21",
+      "repetition": 0,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 24.87939899999992,
+        "time": 63.00000000000067,
+        "years": 10.026761414789513,
+        "steps": 2275,
+        "maxEnergy": 3.86545057175226e-10,
+        "maxAngular": 1.3495601026097765e-11,
+        "reason": "censored",
+        "encounters": 2,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 25.206041999999798,
+        "time": 63.00000000000067,
+        "years": 10.026761414789513,
+        "steps": 2275,
+        "maxEnergy": 3.86545057175226e-10,
+        "maxAngular": 1.3495601026097765e-11,
+        "reason": "censored",
+        "encounters": 2,
+        "points": 4640,
+        "maxBatch": 140
+      }
+    },
+    {
+      "seed": "fix-bench-22",
+      "repetition": 0,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 50.97958100000005,
+        "time": 62.99999999999982,
+        "years": 10.026761414789378,
+        "steps": 4676,
+        "maxEnergy": 8.36172804160502e-9,
+        "maxAngular": 4.839947398184551e-11,
+        "reason": "censored",
+        "encounters": 2,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 51.187535000000025,
+        "time": 62.99999999999982,
+        "years": 10.026761414789378,
+        "steps": 4676,
+        "maxEnergy": 8.36172804160502e-9,
+        "maxAngular": 4.839947398184551e-11,
+        "reason": "censored",
+        "encounters": 2,
+        "points": 7300,
+        "maxBatch": 422
+      }
+    },
+    {
+      "seed": "fix-bench-23",
+      "repetition": 0,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 37.78041099999973,
+        "time": 62.99999999999997,
+        "years": 10.026761414789402,
+        "steps": 3201,
+        "maxEnergy": 1.6175130033032914e-9,
+        "maxAngular": 2.749225026299578e-11,
+        "reason": "censored",
+        "encounters": 3,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 37.00528899999972,
+        "time": 62.99999999999997,
+        "years": 10.026761414789402,
+        "steps": 3201,
+        "maxEnergy": 1.6175130033032914e-9,
+        "maxAngular": 2.749225026299578e-11,
+        "reason": "censored",
+        "encounters": 3,
+        "points": 5174,
+        "maxBatch": 284
+      }
+    },
+    {
+      "seed": "fix-bench-0",
+      "repetition": 1,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 28.097297000000253,
+        "time": 63.000000000000355,
+        "years": 10.026761414789464,
+        "steps": 2532,
+        "maxEnergy": 8.355984057403738e-11,
+        "maxAngular": 3.934527001839724e-12,
+        "reason": "censored",
+        "encounters": 0,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 28.364411999999902,
+        "time": 63.000000000000355,
+        "years": 10.026761414789464,
+        "steps": 2532,
+        "maxEnergy": 8.355984057403738e-11,
+        "maxAngular": 3.934527001839724e-12,
+        "reason": "censored",
+        "encounters": 0,
+        "points": 4587,
+        "maxBatch": 95
+      }
+    },
+    {
+      "seed": "fix-bench-1",
+      "repetition": 1,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 17.236157999999705,
+        "time": 63.000000000000796,
+        "years": 10.026761414789533,
+        "steps": 1530,
+        "maxEnergy": 4.2289456046958544e-10,
+        "maxAngular": 1.0725570675728875e-11,
+        "reason": "censored",
+        "encounters": 2,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 20.735732000000098,
+        "time": 63.000000000000796,
+        "years": 10.026761414789533,
+        "steps": 1530,
+        "maxEnergy": 4.2289456046958544e-10,
+        "maxAngular": 1.0725570675728875e-11,
+        "reason": "censored",
+        "encounters": 2,
+        "points": 3002,
+        "maxBatch": 137
+      }
+    },
+    {
+      "seed": "fix-bench-2",
+      "repetition": 1,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 32.14078399999971,
+        "time": 63,
+        "years": 10.026761414789407,
+        "steps": 2867,
+        "maxEnergy": 6.232153492025383e-13,
+        "maxAngular": 1.2498383113441545e-13,
+        "reason": "censored",
+        "encounters": 0,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 32.70706900000005,
+        "time": 63,
+        "years": 10.026761414789407,
+        "steps": 2867,
+        "maxEnergy": 6.232153492025383e-13,
+        "maxAngular": 1.2498383113441545e-13,
+        "reason": "censored",
+        "encounters": 0,
+        "points": 4456,
+        "maxBatch": 54
+      }
+    },
+    {
+      "seed": "fix-bench-3",
+      "repetition": 1,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 41.31015000000025,
+        "time": 63.000000000000064,
+        "years": 10.026761414789418,
+        "steps": 3728,
+        "maxEnergy": 5.442057026581005e-13,
+        "maxAngular": 2.1143072896979755e-14,
+        "reason": "censored",
+        "encounters": 0,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 44.497959000000264,
+        "time": 63.000000000000064,
+        "years": 10.026761414789418,
+        "steps": 3728,
+        "maxEnergy": 5.442057026581005e-13,
+        "maxAngular": 2.1143072896979755e-14,
+        "reason": "censored",
+        "encounters": 0,
+        "points": 4736,
+        "maxBatch": 52
+      }
+    },
+    {
+      "seed": "fix-bench-4",
+      "repetition": 1,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 42.48523400000022,
+        "time": 62.99999999999991,
+        "years": 10.026761414789393,
+        "steps": 3784,
+        "maxEnergy": 3.593376434074114e-9,
+        "maxAngular": 1.223825659381013e-11,
+        "reason": "censored",
+        "encounters": 3,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 44.45625999999993,
+        "time": 62.99999999999991,
+        "years": 10.026761414789393,
+        "steps": 3784,
+        "maxEnergy": 3.593376434074114e-9,
+        "maxAngular": 1.223825659381013e-11,
+        "reason": "censored",
+        "encounters": 3,
+        "points": 6144,
+        "maxBatch": 524
+      }
+    },
+    {
+      "seed": "fix-bench-5",
+      "repetition": 1,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 38.40725599999996,
+        "time": 62.99999999999997,
+        "years": 10.026761414789402,
+        "steps": 3456,
+        "maxEnergy": 5.046923657992587e-9,
+        "maxAngular": 3.2837040980524825e-11,
+        "reason": "censored",
+        "encounters": 3,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 39.614208999999846,
+        "time": 62.99999999999997,
+        "years": 10.026761414789402,
+        "steps": 3456,
+        "maxEnergy": 5.046923657992587e-9,
+        "maxAngular": 3.2837040980524825e-11,
+        "reason": "censored",
+        "encounters": 3,
+        "points": 6200,
+        "maxBatch": 295
+      }
+    },
+    {
+      "seed": "fix-bench-6",
+      "repetition": 1,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 119.15495800000008,
+        "time": 63.35999999999982,
+        "years": 10.08405719430246,
+        "steps": 10686,
+        "maxEnergy": 3.484864558355131e-8,
+        "maxAngular": 7.70742349227691e-11,
+        "reason": "censored",
+        "encounters": 3,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 142.06155799999988,
+        "time": 63.35999999999982,
+        "years": 10.08405719430246,
+        "steps": 10686,
+        "maxEnergy": 3.484864558355131e-8,
+        "maxAngular": 7.70742349227691e-11,
+        "reason": "censored",
+        "encounters": 3,
+        "points": 13680,
+        "maxBatch": 558
+      }
+    },
+    {
+      "seed": "fix-bench-7",
+      "repetition": 1,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 20.25956300000007,
+        "time": 63.000000000000725,
+        "years": 10.026761414789522,
+        "steps": 1821,
+        "maxEnergy": 5.461420942902852e-9,
+        "maxAngular": 3.594842128095929e-11,
+        "reason": "censored",
+        "encounters": 2,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 21.243429000000106,
+        "time": 63.000000000000725,
+        "years": 10.026761414789522,
+        "steps": 1821,
+        "maxEnergy": 5.461420942902852e-9,
+        "maxAngular": 3.594842128095929e-11,
+        "reason": "censored",
+        "encounters": 2,
+        "points": 3318,
+        "maxBatch": 296
+      }
+    },
+    {
+      "seed": "fix-bench-8",
+      "repetition": 1,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 30.692007000000103,
+        "time": 62.999999999999844,
+        "years": 10.026761414789382,
+        "steps": 2779,
+        "maxEnergy": 6.472442817693531e-9,
+        "maxAngular": 4.978363900215219e-11,
+        "reason": "censored",
+        "encounters": 1,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 31.919208999999682,
+        "time": 62.999999999999844,
+        "years": 10.026761414789382,
+        "steps": 2779,
+        "maxEnergy": 6.472442817693531e-9,
+        "maxAngular": 4.978363900215219e-11,
+        "reason": "censored",
+        "encounters": 1,
+        "points": 4257,
+        "maxBatch": 251
+      }
+    },
+    {
+      "seed": "fix-bench-9",
+      "repetition": 1,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 34.94048100000009,
+        "time": 62.99999999999993,
+        "years": 10.026761414789394,
+        "steps": 3101,
+        "maxEnergy": 5.674246006013356e-12,
+        "maxAngular": 6.160867047522367e-13,
+        "reason": "censored",
+        "encounters": 0,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 35.36025500000005,
+        "time": 62.99999999999993,
+        "years": 10.026761414789394,
+        "steps": 3101,
+        "maxEnergy": 5.674246006013356e-12,
+        "maxAngular": 6.160867047522367e-13,
+        "reason": "censored",
+        "encounters": 0,
+        "points": 4590,
+        "maxBatch": 63
+      }
+    },
+    {
+      "seed": "fix-bench-10",
+      "repetition": 1,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 57.26380100000006,
+        "time": 63.360000000000035,
+        "years": 10.084057194302494,
+        "steps": 5142,
+        "maxEnergy": 3.668902650590922e-8,
+        "maxAngular": 5.821811761278486e-11,
+        "reason": "censored",
+        "encounters": 4,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 58.10673300000008,
+        "time": 63.360000000000035,
+        "years": 10.084057194302494,
+        "steps": 5142,
+        "maxEnergy": 3.668902650590922e-8,
+        "maxAngular": 5.821811761278486e-11,
+        "reason": "censored",
+        "encounters": 4,
+        "points": 7948,
+        "maxBatch": 516
+      }
+    },
+    {
+      "seed": "fix-bench-11",
+      "repetition": 1,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 39.89404599999989,
+        "time": 63.000000000000135,
+        "years": 10.026761414789428,
+        "steps": 3303,
+        "maxEnergy": 2.2987747189082195e-9,
+        "maxAngular": 3.501914122811387e-11,
+        "reason": "censored",
+        "encounters": 3,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 38.97381200000018,
+        "time": 63.000000000000135,
+        "years": 10.026761414789428,
+        "steps": 3303,
+        "maxEnergy": 2.2987747189082195e-9,
+        "maxAngular": 3.501914122811387e-11,
+        "reason": "censored",
+        "encounters": 3,
+        "points": 6095,
+        "maxBatch": 240
+      }
+    },
+    {
+      "seed": "fix-bench-12",
+      "repetition": 1,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 106.56616800000029,
+        "time": 63.000000000000114,
+        "years": 10.026761414789425,
+        "steps": 9588,
+        "maxEnergy": 7.643804139830548e-10,
+        "maxAngular": 5.437037297821159e-11,
+        "reason": "censored",
+        "encounters": 2,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 112.41120499999988,
+        "time": 63.000000000000114,
+        "years": 10.026761414789425,
+        "steps": 9588,
+        "maxEnergy": 7.643804139830548e-10,
+        "maxAngular": 5.437037297821159e-11,
+        "reason": "censored",
+        "encounters": 2,
+        "points": 11691,
+        "maxBatch": 231
+      }
+    },
+    {
+      "seed": "fix-bench-13",
+      "repetition": 1,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 57.34884900000088,
+        "time": 63.42000000000017,
+        "years": 10.09360649088803,
+        "steps": 5128,
+        "maxEnergy": 5.49635020045413e-8,
+        "maxAngular": 1.3486319225828192e-10,
+        "reason": "censored",
+        "encounters": 3,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 60.936392000000524,
+        "time": 63.42000000000017,
+        "years": 10.09360649088803,
+        "steps": 5128,
+        "maxEnergy": 5.49635020045413e-8,
+        "maxAngular": 1.3486319225828192e-10,
+        "reason": "censored",
+        "encounters": 3,
+        "points": 9347,
+        "maxBatch": 529
+      }
+    },
+    {
+      "seed": "fix-bench-14",
+      "repetition": 1,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 27.600717999999688,
+        "time": 63.000000000000085,
+        "years": 10.02676141478942,
+        "steps": 2483,
+        "maxEnergy": 2.7044310016914126e-9,
+        "maxAngular": 5.0718589130451624e-11,
+        "reason": "censored",
+        "encounters": 3,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 28.43335500000012,
+        "time": 63.000000000000085,
+        "years": 10.02676141478942,
+        "steps": 2483,
+        "maxEnergy": 2.7044310016914126e-9,
+        "maxAngular": 5.0718589130451624e-11,
+        "reason": "censored",
+        "encounters": 3,
+        "points": 4811,
+        "maxBatch": 122
+      }
+    },
+    {
+      "seed": "fix-bench-15",
+      "repetition": 1,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 29.5290100000002,
+        "time": 62.99999999999993,
+        "years": 10.026761414789394,
+        "steps": 2594,
+        "maxEnergy": 3.9864029903477585e-11,
+        "maxAngular": 1.443608119520464e-12,
+        "reason": "censored",
+        "encounters": 0,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 30.065670999999384,
+        "time": 62.99999999999993,
+        "years": 10.026761414789394,
+        "steps": 2594,
+        "maxEnergy": 3.9864029903477585e-11,
+        "maxAngular": 1.443608119520464e-12,
+        "reason": "censored",
+        "encounters": 0,
+        "points": 4087,
+        "maxBatch": 87
+      }
+    },
+    {
+      "seed": "fix-bench-16",
+      "repetition": 1,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 24.473455999999715,
+        "time": 63.00000000000081,
+        "years": 10.026761414789535,
+        "steps": 2161,
+        "maxEnergy": 8.265330703248151e-10,
+        "maxAngular": 3.924486337641006e-11,
+        "reason": "censored",
+        "encounters": 2,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 25.911337999999887,
+        "time": 63.00000000000081,
+        "years": 10.026761414789535,
+        "steps": 2161,
+        "maxEnergy": 8.265330703248151e-10,
+        "maxAngular": 3.924486337641006e-11,
+        "reason": "censored",
+        "encounters": 2,
+        "points": 3287,
+        "maxBatch": 157
+      }
+    },
+    {
+      "seed": "fix-bench-17",
+      "repetition": 1,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 62.54967199999919,
+        "time": 63.000000000000306,
+        "years": 10.026761414789455,
+        "steps": 5682,
+        "maxEnergy": 2.4416824102463965e-10,
+        "maxAngular": 3.8910928950251934e-11,
+        "reason": "censored",
+        "encounters": 4,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 64.13214299999981,
+        "time": 63.000000000000306,
+        "years": 10.026761414789455,
+        "steps": 5682,
+        "maxEnergy": 2.4416824102463965e-10,
+        "maxAngular": 3.8910928950251934e-11,
+        "reason": "censored",
+        "encounters": 4,
+        "points": 7843,
+        "maxBatch": 169
+      }
+    },
+    {
+      "seed": "fix-bench-18",
+      "repetition": 1,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 32.318262000000686,
+        "time": 63.00000000000065,
+        "years": 10.02676141478951,
+        "steps": 2676,
+        "maxEnergy": 2.750444937591216e-9,
+        "maxAngular": 3.6317437509468944e-11,
+        "reason": "censored",
+        "encounters": 4,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 30.628740000000107,
+        "time": 63.00000000000065,
+        "years": 10.02676141478951,
+        "steps": 2676,
+        "maxEnergy": 2.750444937591216e-9,
+        "maxAngular": 3.6317437509468944e-11,
+        "reason": "censored",
+        "encounters": 4,
+        "points": 4832,
+        "maxBatch": 290
+      }
+    },
+    {
+      "seed": "fix-bench-19",
+      "repetition": 1,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 56.26142699999946,
+        "time": 63.00000000000007,
+        "years": 10.026761414789418,
+        "steps": 5081,
+        "maxEnergy": 1.837282362577644e-8,
+        "maxAngular": 7.419784639509816e-11,
+        "reason": "censored",
+        "encounters": 2,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 59.40486400000009,
+        "time": 63.00000000000007,
+        "years": 10.026761414789418,
+        "steps": 5081,
+        "maxEnergy": 1.837282362577644e-8,
+        "maxAngular": 7.419784639509816e-11,
+        "reason": "censored",
+        "encounters": 2,
+        "points": 6984,
+        "maxBatch": 432
+      }
+    },
+    {
+      "seed": "fix-bench-20",
+      "repetition": 1,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 59.44387199999983,
+        "time": 62.879999999999896,
+        "years": 10.007662821618363,
+        "steps": 5352,
+        "maxEnergy": 9.692958503299762e-12,
+        "maxAngular": 1.5518319048170763e-12,
+        "reason": "censored",
+        "encounters": 0,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 61.88816299999962,
+        "time": 62.879999999999896,
+        "years": 10.007662821618363,
+        "steps": 5352,
+        "maxEnergy": 9.692958503299762e-12,
+        "maxAngular": 1.5518319048170763e-12,
+        "reason": "censored",
+        "encounters": 0,
+        "points": 6936,
+        "maxBatch": 255
+      }
+    },
+    {
+      "seed": "fix-bench-21",
+      "repetition": 1,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 27.41357599999992,
+        "time": 63.00000000000067,
+        "years": 10.026761414789513,
+        "steps": 2275,
+        "maxEnergy": 3.86545057175226e-10,
+        "maxAngular": 1.3495601026097765e-11,
+        "reason": "censored",
+        "encounters": 2,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 26.379773999999998,
+        "time": 63.00000000000067,
+        "years": 10.026761414789513,
+        "steps": 2275,
+        "maxEnergy": 3.86545057175226e-10,
+        "maxAngular": 1.3495601026097765e-11,
+        "reason": "censored",
+        "encounters": 2,
+        "points": 4640,
+        "maxBatch": 140
+      }
+    },
+    {
+      "seed": "fix-bench-22",
+      "repetition": 1,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 53.27788200000032,
+        "time": 62.99999999999982,
+        "years": 10.026761414789378,
+        "steps": 4676,
+        "maxEnergy": 8.36172804160502e-9,
+        "maxAngular": 4.839947398184551e-11,
+        "reason": "censored",
+        "encounters": 2,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 54.53117400000065,
+        "time": 62.99999999999982,
+        "years": 10.026761414789378,
+        "steps": 4676,
+        "maxEnergy": 8.36172804160502e-9,
+        "maxAngular": 4.839947398184551e-11,
+        "reason": "censored",
+        "encounters": 2,
+        "points": 7300,
+        "maxBatch": 422
+      }
+    },
+    {
+      "seed": "fix-bench-23",
+      "repetition": 1,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 35.775141999999505,
+        "time": 62.99999999999997,
+        "years": 10.026761414789402,
+        "steps": 3201,
+        "maxEnergy": 1.6175130033032914e-9,
+        "maxAngular": 2.749225026299578e-11,
+        "reason": "censored",
+        "encounters": 3,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 36.777634999999464,
+        "time": 62.99999999999997,
+        "years": 10.026761414789402,
+        "steps": 3201,
+        "maxEnergy": 1.6175130033032914e-9,
+        "maxAngular": 2.749225026299578e-11,
+        "reason": "censored",
+        "encounters": 3,
+        "points": 5174,
+        "maxBatch": 284
+      }
+    },
+    {
+      "seed": "fix-bench-0",
+      "repetition": 2,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 29.45968499999981,
+        "time": 63.000000000000355,
+        "years": 10.026761414789464,
+        "steps": 2532,
+        "maxEnergy": 8.355984057403738e-11,
+        "maxAngular": 3.934527001839724e-12,
+        "reason": "censored",
+        "encounters": 0,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 29.961542999999438,
+        "time": 63.000000000000355,
+        "years": 10.026761414789464,
+        "steps": 2532,
+        "maxEnergy": 8.355984057403738e-11,
+        "maxAngular": 3.934527001839724e-12,
+        "reason": "censored",
+        "encounters": 0,
+        "points": 4587,
+        "maxBatch": 95
+      }
+    },
+    {
+      "seed": "fix-bench-1",
+      "repetition": 2,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 17.48495399999956,
+        "time": 63.000000000000796,
+        "years": 10.026761414789533,
+        "steps": 1530,
+        "maxEnergy": 4.2289456046958544e-10,
+        "maxAngular": 1.0725570675728875e-11,
+        "reason": "censored",
+        "encounters": 2,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 17.917867000000115,
+        "time": 63.000000000000796,
+        "years": 10.026761414789533,
+        "steps": 1530,
+        "maxEnergy": 4.2289456046958544e-10,
+        "maxAngular": 1.0725570675728875e-11,
+        "reason": "censored",
+        "encounters": 2,
+        "points": 3002,
+        "maxBatch": 137
+      }
+    },
+    {
+      "seed": "fix-bench-2",
+      "repetition": 2,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 33.108415000000605,
+        "time": 63,
+        "years": 10.026761414789407,
+        "steps": 2867,
+        "maxEnergy": 6.232153492025383e-13,
+        "maxAngular": 1.2498383113441545e-13,
+        "reason": "censored",
+        "encounters": 0,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 33.61270700000023,
+        "time": 63,
+        "years": 10.026761414789407,
+        "steps": 2867,
+        "maxEnergy": 6.232153492025383e-13,
+        "maxAngular": 1.2498383113441545e-13,
+        "reason": "censored",
+        "encounters": 0,
+        "points": 4456,
+        "maxBatch": 54
+      }
+    },
+    {
+      "seed": "fix-bench-3",
+      "repetition": 2,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 43.05567499999961,
+        "time": 63.000000000000064,
+        "years": 10.026761414789418,
+        "steps": 3728,
+        "maxEnergy": 5.442057026581005e-13,
+        "maxAngular": 2.1143072896979755e-14,
+        "reason": "censored",
+        "encounters": 0,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 44.01327199999923,
+        "time": 63.000000000000064,
+        "years": 10.026761414789418,
+        "steps": 3728,
+        "maxEnergy": 5.442057026581005e-13,
+        "maxAngular": 2.1143072896979755e-14,
+        "reason": "censored",
+        "encounters": 0,
+        "points": 4736,
+        "maxBatch": 52
+      }
+    },
+    {
+      "seed": "fix-bench-4",
+      "repetition": 2,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 43.673869000000195,
+        "time": 62.99999999999991,
+        "years": 10.026761414789393,
+        "steps": 3784,
+        "maxEnergy": 3.593376434074114e-9,
+        "maxAngular": 1.223825659381013e-11,
+        "reason": "censored",
+        "encounters": 3,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 46.29418600000008,
+        "time": 62.99999999999991,
+        "years": 10.026761414789393,
+        "steps": 3784,
+        "maxEnergy": 3.593376434074114e-9,
+        "maxAngular": 1.223825659381013e-11,
+        "reason": "censored",
+        "encounters": 3,
+        "points": 6144,
+        "maxBatch": 524
+      }
+    },
+    {
+      "seed": "fix-bench-5",
+      "repetition": 2,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 38.78216400000019,
+        "time": 62.99999999999997,
+        "years": 10.026761414789402,
+        "steps": 3456,
+        "maxEnergy": 5.046923657992587e-9,
+        "maxAngular": 3.2837040980524825e-11,
+        "reason": "censored",
+        "encounters": 3,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 39.614918999999645,
+        "time": 62.99999999999997,
+        "years": 10.026761414789402,
+        "steps": 3456,
+        "maxEnergy": 5.046923657992587e-9,
+        "maxAngular": 3.2837040980524825e-11,
+        "reason": "censored",
+        "encounters": 3,
+        "points": 6200,
+        "maxBatch": 295
+      }
+    },
+    {
+      "seed": "fix-bench-6",
+      "repetition": 2,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 120.92385999999988,
+        "time": 63.35999999999982,
+        "years": 10.08405719430246,
+        "steps": 10686,
+        "maxEnergy": 3.484864558355131e-8,
+        "maxAngular": 7.70742349227691e-11,
+        "reason": "censored",
+        "encounters": 3,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 124.05131099999926,
+        "time": 63.35999999999982,
+        "years": 10.08405719430246,
+        "steps": 10686,
+        "maxEnergy": 3.484864558355131e-8,
+        "maxAngular": 7.70742349227691e-11,
+        "reason": "censored",
+        "encounters": 3,
+        "points": 13680,
+        "maxBatch": 558
+      }
+    },
+    {
+      "seed": "fix-bench-7",
+      "repetition": 2,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 20.46784800000023,
+        "time": 63.000000000000725,
+        "years": 10.026761414789522,
+        "steps": 1821,
+        "maxEnergy": 5.461420942902852e-9,
+        "maxAngular": 3.594842128095929e-11,
+        "reason": "censored",
+        "encounters": 2,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 30.021874000000025,
+        "time": 63.000000000000725,
+        "years": 10.026761414789522,
+        "steps": 1821,
+        "maxEnergy": 5.461420942902852e-9,
+        "maxAngular": 3.594842128095929e-11,
+        "reason": "censored",
+        "encounters": 2,
+        "points": 3318,
+        "maxBatch": 296
+      }
+    },
+    {
+      "seed": "fix-bench-8",
+      "repetition": 2,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 35.00234499999988,
+        "time": 62.999999999999844,
+        "years": 10.026761414789382,
+        "steps": 2779,
+        "maxEnergy": 6.472442817693531e-9,
+        "maxAngular": 4.978363900215219e-11,
+        "reason": "censored",
+        "encounters": 1,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 35.47984499999984,
+        "time": 62.999999999999844,
+        "years": 10.026761414789382,
+        "steps": 2779,
+        "maxEnergy": 6.472442817693531e-9,
+        "maxAngular": 4.978363900215219e-11,
+        "reason": "censored",
+        "encounters": 1,
+        "points": 4257,
+        "maxBatch": 251
+      }
+    },
+    {
+      "seed": "fix-bench-9",
+      "repetition": 2,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 36.825648,
+        "time": 62.99999999999993,
+        "years": 10.026761414789394,
+        "steps": 3101,
+        "maxEnergy": 5.674246006013356e-12,
+        "maxAngular": 6.160867047522367e-13,
+        "reason": "censored",
+        "encounters": 0,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 36.43277500000022,
+        "time": 62.99999999999993,
+        "years": 10.026761414789394,
+        "steps": 3101,
+        "maxEnergy": 5.674246006013356e-12,
+        "maxAngular": 6.160867047522367e-13,
+        "reason": "censored",
+        "encounters": 0,
+        "points": 4590,
+        "maxBatch": 63
+      }
+    },
+    {
+      "seed": "fix-bench-10",
+      "repetition": 2,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 57.319924999999785,
+        "time": 63.360000000000035,
+        "years": 10.084057194302494,
+        "steps": 5142,
+        "maxEnergy": 3.668902650590922e-8,
+        "maxAngular": 5.821811761278486e-11,
+        "reason": "censored",
+        "encounters": 4,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 58.41009099999974,
+        "time": 63.360000000000035,
+        "years": 10.084057194302494,
+        "steps": 5142,
+        "maxEnergy": 3.668902650590922e-8,
+        "maxAngular": 5.821811761278486e-11,
+        "reason": "censored",
+        "encounters": 4,
+        "points": 7948,
+        "maxBatch": 516
+      }
+    },
+    {
+      "seed": "fix-bench-11",
+      "repetition": 2,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 37.3499010000005,
+        "time": 63.000000000000135,
+        "years": 10.026761414789428,
+        "steps": 3303,
+        "maxEnergy": 2.2987747189082195e-9,
+        "maxAngular": 3.501914122811387e-11,
+        "reason": "censored",
+        "encounters": 3,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 37.89619399999992,
+        "time": 63.000000000000135,
+        "years": 10.026761414789428,
+        "steps": 3303,
+        "maxEnergy": 2.2987747189082195e-9,
+        "maxAngular": 3.501914122811387e-11,
+        "reason": "censored",
+        "encounters": 3,
+        "points": 6095,
+        "maxBatch": 240
+      }
+    },
+    {
+      "seed": "fix-bench-12",
+      "repetition": 2,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 106.64269500000046,
+        "time": 63.000000000000114,
+        "years": 10.026761414789425,
+        "steps": 9588,
+        "maxEnergy": 7.643804139830548e-10,
+        "maxAngular": 5.437037297821159e-11,
+        "reason": "censored",
+        "encounters": 2,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 109.14688500000011,
+        "time": 63.000000000000114,
+        "years": 10.026761414789425,
+        "steps": 9588,
+        "maxEnergy": 7.643804139830548e-10,
+        "maxAngular": 5.437037297821159e-11,
+        "reason": "censored",
+        "encounters": 2,
+        "points": 11691,
+        "maxBatch": 231
+      }
+    },
+    {
+      "seed": "fix-bench-13",
+      "repetition": 2,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 58.55638299999919,
+        "time": 63.42000000000017,
+        "years": 10.09360649088803,
+        "steps": 5128,
+        "maxEnergy": 5.49635020045413e-8,
+        "maxAngular": 1.3486319225828192e-10,
+        "reason": "censored",
+        "encounters": 3,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 61.380286000000524,
+        "time": 63.42000000000017,
+        "years": 10.09360649088803,
+        "steps": 5128,
+        "maxEnergy": 5.49635020045413e-8,
+        "maxAngular": 1.3486319225828192e-10,
+        "reason": "censored",
+        "encounters": 3,
+        "points": 9347,
+        "maxBatch": 529
+      }
+    },
+    {
+      "seed": "fix-bench-14",
+      "repetition": 2,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 28.80256300000019,
+        "time": 63.000000000000085,
+        "years": 10.02676141478942,
+        "steps": 2483,
+        "maxEnergy": 2.7044310016914126e-9,
+        "maxAngular": 5.0718589130451624e-11,
+        "reason": "censored",
+        "encounters": 3,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 30.582312000000456,
+        "time": 63.000000000000085,
+        "years": 10.02676141478942,
+        "steps": 2483,
+        "maxEnergy": 2.7044310016914126e-9,
+        "maxAngular": 5.0718589130451624e-11,
+        "reason": "censored",
+        "encounters": 3,
+        "points": 4811,
+        "maxBatch": 122
+      }
+    },
+    {
+      "seed": "fix-bench-15",
+      "repetition": 2,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 31.134925000000294,
+        "time": 62.99999999999993,
+        "years": 10.026761414789394,
+        "steps": 2594,
+        "maxEnergy": 3.9864029903477585e-11,
+        "maxAngular": 1.443608119520464e-12,
+        "reason": "censored",
+        "encounters": 0,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 31.171400000000176,
+        "time": 62.99999999999993,
+        "years": 10.026761414789394,
+        "steps": 2594,
+        "maxEnergy": 3.9864029903477585e-11,
+        "maxAngular": 1.443608119520464e-12,
+        "reason": "censored",
+        "encounters": 0,
+        "points": 4087,
+        "maxBatch": 87
+      }
+    },
+    {
+      "seed": "fix-bench-16",
+      "repetition": 2,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 24.42290899999989,
+        "time": 63.00000000000081,
+        "years": 10.026761414789535,
+        "steps": 2161,
+        "maxEnergy": 8.265330703248151e-10,
+        "maxAngular": 3.924486337641006e-11,
+        "reason": "censored",
+        "encounters": 2,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 25.251940999999533,
+        "time": 63.00000000000081,
+        "years": 10.026761414789535,
+        "steps": 2161,
+        "maxEnergy": 8.265330703248151e-10,
+        "maxAngular": 3.924486337641006e-11,
+        "reason": "censored",
+        "encounters": 2,
+        "points": 3287,
+        "maxBatch": 157
+      }
+    },
+    {
+      "seed": "fix-bench-17",
+      "repetition": 2,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 66.26244899999983,
+        "time": 63.000000000000306,
+        "years": 10.026761414789455,
+        "steps": 5682,
+        "maxEnergy": 2.4416824102463965e-10,
+        "maxAngular": 3.8910928950251934e-11,
+        "reason": "censored",
+        "encounters": 4,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 69.67046400000072,
+        "time": 63.000000000000306,
+        "years": 10.026761414789455,
+        "steps": 5682,
+        "maxEnergy": 2.4416824102463965e-10,
+        "maxAngular": 3.8910928950251934e-11,
+        "reason": "censored",
+        "encounters": 4,
+        "points": 7843,
+        "maxBatch": 169
+      }
+    },
+    {
+      "seed": "fix-bench-18",
+      "repetition": 2,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 32.91864799999985,
+        "time": 63.00000000000065,
+        "years": 10.02676141478951,
+        "steps": 2676,
+        "maxEnergy": 2.750444937591216e-9,
+        "maxAngular": 3.6317437509468944e-11,
+        "reason": "censored",
+        "encounters": 4,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 38.547419000000446,
+        "time": 63.00000000000065,
+        "years": 10.02676141478951,
+        "steps": 2676,
+        "maxEnergy": 2.750444937591216e-9,
+        "maxAngular": 3.6317437509468944e-11,
+        "reason": "censored",
+        "encounters": 4,
+        "points": 4832,
+        "maxBatch": 290
+      }
+    },
+    {
+      "seed": "fix-bench-19",
+      "repetition": 2,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 60.58617200000026,
+        "time": 63.00000000000007,
+        "years": 10.026761414789418,
+        "steps": 5081,
+        "maxEnergy": 1.837282362577644e-8,
+        "maxAngular": 7.419784639509816e-11,
+        "reason": "censored",
+        "encounters": 2,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 59.2503999999999,
+        "time": 63.00000000000007,
+        "years": 10.026761414789418,
+        "steps": 5081,
+        "maxEnergy": 1.837282362577644e-8,
+        "maxAngular": 7.419784639509816e-11,
+        "reason": "censored",
+        "encounters": 2,
+        "points": 6984,
+        "maxBatch": 432
+      }
+    },
+    {
+      "seed": "fix-bench-20",
+      "repetition": 2,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 59.76827300000059,
+        "time": 62.879999999999896,
+        "years": 10.007662821618363,
+        "steps": 5352,
+        "maxEnergy": 9.692958503299762e-12,
+        "maxAngular": 1.5518319048170763e-12,
+        "reason": "censored",
+        "encounters": 0,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 74.02306700000008,
+        "time": 62.879999999999896,
+        "years": 10.007662821618363,
+        "steps": 5352,
+        "maxEnergy": 9.692958503299762e-12,
+        "maxAngular": 1.5518319048170763e-12,
+        "reason": "censored",
+        "encounters": 0,
+        "points": 6936,
+        "maxBatch": 255
+      }
+    },
+    {
+      "seed": "fix-bench-21",
+      "repetition": 2,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 29.104419000000235,
+        "time": 63.00000000000067,
+        "years": 10.026761414789513,
+        "steps": 2275,
+        "maxEnergy": 3.86545057175226e-10,
+        "maxAngular": 1.3495601026097765e-11,
+        "reason": "censored",
+        "encounters": 2,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 28.57863499999985,
+        "time": 63.00000000000067,
+        "years": 10.026761414789513,
+        "steps": 2275,
+        "maxEnergy": 3.86545057175226e-10,
+        "maxAngular": 1.3495601026097765e-11,
+        "reason": "censored",
+        "encounters": 2,
+        "points": 4640,
+        "maxBatch": 140
+      }
+    },
+    {
+      "seed": "fix-bench-22",
+      "repetition": 2,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 72.27668499999982,
+        "time": 62.99999999999982,
+        "years": 10.026761414789378,
+        "steps": 4676,
+        "maxEnergy": 8.36172804160502e-9,
+        "maxAngular": 4.839947398184551e-11,
+        "reason": "censored",
+        "encounters": 2,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 55.346496000000116,
+        "time": 62.99999999999982,
+        "years": 10.026761414789378,
+        "steps": 4676,
+        "maxEnergy": 8.36172804160502e-9,
+        "maxAngular": 4.839947398184551e-11,
+        "reason": "censored",
+        "encounters": 2,
+        "points": 7300,
+        "maxBatch": 422
+      }
+    },
+    {
+      "seed": "fix-bench-23",
+      "repetition": 2,
+      "identicalPhysicalState": true,
+      "v02": {
+        "cpuMs": 41.41645999999946,
+        "time": 62.99999999999997,
+        "years": 10.026761414789402,
+        "steps": 3201,
+        "maxEnergy": 1.6175130033032914e-9,
+        "maxAngular": 2.749225026299578e-11,
+        "reason": "censored",
+        "encounters": 3,
+        "points": 0,
+        "maxBatch": 0
+      },
+      "v021": {
+        "cpuMs": 40.93164799999977,
+        "time": 62.99999999999997,
+        "years": 10.026761414789402,
+        "steps": 3201,
+        "maxEnergy": 1.6175130033032914e-9,
+        "maxAngular": 2.749225026299578e-11,
+        "reason": "censored",
+        "encounters": 3,
+        "points": 5174,
+        "maxBatch": 284
+      }
+    }
+  ]
+}

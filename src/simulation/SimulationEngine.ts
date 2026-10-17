@@ -1,12 +1,14 @@
 import { EventBus, type AppEvents, type SimulationEvent } from '../events/EventBus';
 import {
   detectCollision,
-  escapeCandidates,
+  readEscapeCandidates,
+  EscapeMonitor,
   isValidSystem,
   type EndReason,
 } from '../physics/detection';
 import { totalEnergy } from '../physics/gravity';
-import { StructuredChaosInitializer } from '../physics/structuredChaos';
+import { RandomInitializer } from '../physics/initialConditions';
+import { DEFAULT_MASSES } from '../physics/parameters';
 import { hashSeed } from '../physics/random';
 import {
   copyBodies,
@@ -55,7 +57,7 @@ export interface SimulationSnapshot {
   time: number;
   years: number;
   generation: number;
-  phase: 'running' | 'ended' | 'screening';
+  phase: 'running' | 'ended' | 'initializing';
   reason: EndReason | null;
   restartIn: number;
   restartCount: number;
@@ -84,6 +86,8 @@ export interface SimulationSnapshot {
 }
 export interface EngineOptions {
   config?: Partial<PhysicsConfig>;
+  /** Only accepted, conservation-checked states; never rejected stages or display interpolation. */
+  onAcceptedState?: (bodies: readonly Body[], time: number, generation: number) => void;
   generator?: InitialConditionGenerator;
   integrator?: Integrator;
   adaptive?: false | Partial<AdaptiveConfig>;
@@ -112,7 +116,7 @@ export class SimulationEngine {
   private nextRestartAt = 0;
   private recentRestarts: number[] = [];
   private autoRestartBlocked = false;
-  private escaping = new Map<string, number>();
+  private readonly escaping = new EscapeMonitor();
   private history: SimulationEvent[] = [];
   private eventId = 0;
   private controls: SimulationControls = { paused: false, speed: 1, autoRestart: true };
@@ -148,7 +152,9 @@ export class SimulationEngine {
       c.maxStepsPerFrame < 1
     )
       throw new Error('Invalid physics configuration');
-    this.generator = options.generator ?? new StructuredChaosInitializer();
+    if (c.escapePolicy && Object.values(c.escapePolicy).some((v) => !Number.isFinite(v) || v <= 0))
+      throw new Error('Invalid escape policy');
+    this.generator = options.generator ?? new RandomInitializer(DEFAULT_MASSES);
     this.integrator = options.integrator ?? new VelocityVerlet();
     this.adaptive =
       options.adaptive === false || options.integrator
@@ -230,7 +236,7 @@ export class SimulationEngine {
     this.lastStep = 0;
     this.cpuMs = 0;
     this.reason = null;
-    this.escaping.clear();
+    this.escaping.reset();
     this.generation++;
     this.waitingForInitial = false;
     this.bodies = prepared ? copyBodies(prepared) : this.generator.generate(seed, this.config);
@@ -244,6 +250,8 @@ export class SimulationEngine {
       : null;
     this.record(type, type === 'started' ? '新一轮引力模拟已开始' : '已重置初始条件');
     this.checkSystem();
+    if (isValidSystem(this.bodies))
+      this.options.onAcceptedState?.(this.bodies, this.time, this.generation);
   }
   private end(reason: EndReason): void {
     if (this.reason) return;
@@ -361,6 +369,7 @@ export class SimulationEngine {
         this.accumulator = Math.max(0, this.accumulator - dt);
         this.macroRemaining = Math.max(0, this.macroRemaining - dt);
         this.encounters.update(this.bodies);
+        this.options.onAcceptedState?.(this.bodies, this.time, this.generation);
         if (endCollision || (!this.adaptive && swept)) {
           this.end((endCollision ?? swept)!);
           break;
@@ -379,19 +388,20 @@ export class SimulationEngine {
           });
           break;
         }
-        const candidates = new Set(escapeCandidates(this.bodies, this.config));
-        for (const id of this.escaping.keys()) if (!candidates.has(id)) this.escaping.delete(id);
-        for (const id of candidates) {
-          const since = this.escaping.get(id) ?? this.time;
-          this.escaping.set(id, since);
-          if (this.time - since >= this.config.escapeConfirmationTime) {
-            this.end({
-              type: 'escape',
-              message: `${this.bodies.find((b) => b.id === id)?.name ?? id} 已确认远距离逃逸`,
-              bodyIds: [id],
-            });
-            break;
-          }
+        const escape = this.escaping.sample(
+          readEscapeCandidates(this.bodies, this.config),
+          this.time,
+          this.config.escapeConfirmationTime,
+        );
+        if (escape) {
+          const body = this.bodies.find((b) => b.id === escape.bodyId)!;
+          this.end({
+            type: 'escape',
+            escapeKind: body.kind,
+            escape,
+            message: `${body.name} 已确认${escape.tier === 'early' ? '提前' : '远距离'}逃逸：${escape.distanceAU.toFixed(2)} AU (${escape.distanceLightDays.toFixed(3)} 光天)，相对速度 ${escape.relativeSpeed.toFixed(4)} AU/T₀，比能 ${escape.specificEnergy.toExponential(3)} AU²/T₀²`,
+            bodyIds: [body.id],
+          });
         }
         if (this.reason) break;
       }

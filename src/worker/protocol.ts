@@ -1,3 +1,4 @@
+import type { TrailBatch } from '../physics/trajectory';
 import type {
   SimulationControls,
   SimulationSnapshot,
@@ -22,8 +23,8 @@ export type PhysicsResponse =
       sequence?: number;
       workerCpuMs: number;
       eventsUnchanged?: boolean;
+      trails?: TrailBatch;
     }
-  | { type: 'screening'; progress: number; initial: boolean }
   | { type: 'error'; message: string };
 export interface PhysicsPort {
   postMessage(message: PhysicsRequest): void;

@@ -12,5 +12,6 @@ export const settingsDefaults: DefaultsProvider<AppSettings> = {
     seed: 'TRISOLARIS-001',
     autoRestart: true,
     trails: true,
+    trailLengthYears: 2,
   }),
 };

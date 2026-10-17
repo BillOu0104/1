@@ -30,3 +30,8 @@ export function stellarProperties(mass: number): {
       .join('');
   return { radius: SOLAR_RADIUS_AU * mass ** 0.8, luminosity, temperatureK, color };
 }
+
+/** IAU astronomical unit and exact speed of light. */
+export const AU_PER_LIGHT_DAY = (299792458 * 86400) / AU_METERS;
+export const auToLightDays = (au: number): number => au / AU_PER_LIGHT_DAY;
+export const lightDaysToAu = (days: number): number => days * AU_PER_LIGHT_DAY;

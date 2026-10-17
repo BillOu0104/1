@@ -2,5 +2,7 @@
 import { PhysicsWorkerController } from './PhysicsWorkerController';
 import type { PhysicsRequest } from './protocol';
 const host = self as unknown as DedicatedWorkerGlobalScope;
-const controller = new PhysicsWorkerController((message) => host.postMessage(message));
+const controller = new PhysicsWorkerController((message, transfer = []) =>
+  host.postMessage(message, transfer),
+);
 host.onmessage = (event: MessageEvent<PhysicsRequest>) => controller.receive(event.data);
