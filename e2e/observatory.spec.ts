@@ -1,10 +1,22 @@
 import { expect, test } from '@playwright/test';
 test('renders live WebGL, responds to controls, stays within viewport and retains one canvas across resets', async ({
   page,
+  baseURL,
 }, testInfo) => {
   const errors: string[] = [];
+  const assetErrors: string[] = [];
+  const assetTypes = new Set<string>();
+  const assetPath = `${new URL(baseURL!).pathname}assets/`;
   page.on('pageerror', (error) => errors.push(error.message));
-  await page.goto('/');
+  page.on('response', (response) => {
+    const type = response.request().resourceType();
+    if (type !== 'script' && type !== 'stylesheet') return;
+    assetTypes.add(type);
+    if (!response.ok() || !new URL(response.url()).pathname.startsWith(assetPath)) {
+      assetErrors.push(`${response.status()} ${response.url()}`);
+    }
+  });
+  await page.goto('./');
   await expect(page.locator('canvas')).toHaveCount(1);
   await expect(page.getByRole('alert')).toHaveCount(0);
   const time = page.locator('.clock-meta strong');
@@ -68,6 +80,8 @@ test('renders live WebGL, responds to controls, stays within viewport and retain
     ),
   ).toBe(true);
   expect(errors).toEqual([]);
+  expect(assetErrors).toEqual([]);
+  expect(assetTypes).toEqual(new Set(['script', 'stylesheet']));
 });
 test('offers a readable recovery message when WebGL is unavailable', async ({
   browser,
@@ -86,7 +100,7 @@ test('offers a readable recovery message when WebGL is unavailable', async ({
       return Reflect.apply(original, this, [type, ...args]) as ReturnType<typeof original>;
     } as typeof original;
   });
-  await page.goto('/');
+  await page.goto('./');
   await expect(page.getByRole('alert')).toContainText('无法启动 WebGL');
   await expect(page.getByRole('button', { name: '重试渲染' })).toBeVisible();
   await context.close();

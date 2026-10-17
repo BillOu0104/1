@@ -7,6 +7,10 @@ permissions:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    # Exercise a project-site subpath so a root-only build cannot mask broken asset URLs.
+    env:
+      VITE_BASE_PATH: /${{ github.event.repository.name }}/
+      PLAYWRIGHT_BASE_URL: http://127.0.0.1:4173/${{ github.event.repository.name }}/
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

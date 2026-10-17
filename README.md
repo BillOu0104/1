@@ -2,7 +2,20 @@
 
 一个可在桌面浏览器运行的三维牛顿引力模拟。三颗恒星和一颗有质量的行星均参与相互引力计算，没有预设运动动画或锁定轨道。React 只负责透明 UI，物理核心不依赖浏览器、React 或 Three.js。
 
-## 运行
+## 直接在浏览器使用（GitHub Pages）
+
+启用 Pages 并合并 PR #1 后，预期访问地址为 **[https://billou0104.github.io/1/](https://billou0104.github.io/1/)**，实际地址以工作流部署结果或 Settings → Pages 为准。首次部署完成前，该地址可能返回 404。使用网页无需在本机安装 Node.js 或运行程序。
+
+仓库管理员只需在 GitHub 网页上操作：
+
+1. 打开仓库 **Settings → Pages → Build and deployment**，将 **Source** 选为 **GitHub Actions**。本仓库当前为私有；私有仓库使用 Pages 需要支持此功能的套餐（个人账号通常为 GitHub Pro）。如果页面提示升级，可升级套餐或按自己的公开需求将仓库改为 public。
+2. 合并 **[PR #1](https://github.com/BillOu0104/1/pull/1)** 到 `main`。如设置页要求先存在工作流，可先合并，再选择 Source。
+3. 在 **Actions → Deploy GitHub Pages** 等待构建和部署成功；完成后点击部署任务的站点链接。若先合并后才启用 Pages，选择 **Run workflow → Branch: main → Run workflow**，或重新运行失败的部署。
+4. 之后每次 `main` 更新都会自动测试、构建并重新发布。普通 PR 不部署；手动运行同样只允许 `main`。
+
+Pages 工作流使用官方 `configure-pages`、`upload-pages-artifact`、`deploy-pages` Actions 和内置 `GITHUB_TOKEN` / OIDC，不需要手工创建 PAT、上传 `dist/`、创建 `gh-pages` 分支或选择“Deploy from a branch”。如果 `github-pages` 环境设置了人工审批，需在 Actions 中批准该环境的部署；默认无此额外操作。普通 Pages 站点通常公开访问，即使源码仓库为私有。
+
+## 本地开发（可选）
 
 需要 **Node.js 22.12+** 和 npm。Windows、macOS、Linux 命令相同：
 
@@ -20,7 +33,7 @@ npm run build
 npm run preview
 ```
 
-`dist/` 为静态网页产物；Vite 使用相对资源路径。生产包需要通过 HTTP 服务访问。本阶段没有部署，也没有安装或连接 Wallpaper Engine。
+`dist/` 为静态网页产物。默认构建使用相对资源路径，适合本地预览和后续壁纸打包；Pages 工作流通过 `VITE_BASE_PATH` 使用 GitHub 返回的真实站点路径（当前项目站点为 `/1/`；用户站点或根目录自定义域名为 `/`）。生产包需要通过 HTTP 服务访问。没有安装或连接 Wallpaper Engine。
 
 浏览器测试：
 
@@ -37,6 +50,13 @@ CHROMIUM_PATH=/usr/bin/chromium npm run test:e2e
 ```
 
 Windows PowerShell 可用 `$env:CHROMIUM_PATH="C:\path\to\chrome.exe"`，然后执行 `npm run test:e2e`。浏览器测试使用本地生产预览服务，包含 2520×1080（21:9）、1920×1080（16:9）与 640×800；截图在忽略的 `test-results/` 中。CI 安装测试专用 Chromium，不更改应用宿主系统设置。
+
+PR CI 使用仓库子路径进行生产构建和浏览器测试，验证 Pages 的 JavaScript、CSS 和分包可以正常加载。在 Linux/macOS 本地复现该路径（预览时也需传入相同的 `VITE_BASE_PATH`）：
+
+```bash
+VITE_BASE_PATH=/1/ npm run build
+VITE_BASE_PATH=/1/ PLAYWRIGHT_BASE_URL=http://127.0.0.1:4173/1/ npm run test:e2e
+```
 
 ## 使用
 
