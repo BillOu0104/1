@@ -1,5 +1,6 @@
 import type { EndReason } from '../physics/detection';
 export interface SimulationEvent {
+  reason?: EndReason;
   id: number;
   type: 'started' | 'ended' | 'reset' | 'warning';
   seed: string;

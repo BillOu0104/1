@@ -4,7 +4,7 @@ export interface AudioVisualizerProps {
   mode?: 'placeholder' | 'live';
 }
 /** V0.1 is an explicit static placeholder. No audio device access. */
-export function AudioVisualizer({ mode = 'placeholder' }: AudioVisualizerProps) {
+export function AudioVisualizer(_props: AudioVisualizerProps = {}) {
   return (
     <section className="audio-visualizer" aria-label="音乐波形占位窗口">
       <div className="waveform" aria-hidden="true">
@@ -17,9 +17,6 @@ export function AudioVisualizer({ mode = 'placeholder' }: AudioVisualizerProps) 
           />
         ))}
       </div>
-      <span className="micro-label">
-        AUDIO RESPONSE <b>·</b> {mode === 'placeholder' ? '静态占位 / 待开发' : '待接入'}
-      </span>
     </section>
   );
 }

@@ -74,43 +74,7 @@ p {
     radial-gradient(ellipse at center, transparent 30%, rgba(6, 11, 19, 0.35));
   pointer-events: none;
 }
-.brand-mark {
-  position: absolute;
-  left: 2.5vw;
-  top: 32px;
-  display: flex;
-  gap: 14px;
-  align-items: center;
-  color: #8da5b8;
-  font-size: 16px;
-  letter-spacing: 4px;
-}
-.brand-symbol {
-  font-size: 34px;
-  font-weight: 200;
-  letter-spacing: 0;
-}
-.brand-mark div > span {
-  display: block;
-  font-size: 8px;
-  letter-spacing: 2.4px;
-  margin-top: 7px;
-}
-.top-status {
-  position: absolute;
-  right: 2.5vw;
-  top: 43px;
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  font-size: 8px;
-  letter-spacing: 1.8px;
-  color: #8aa2b4;
-}
-.top-status > span {
-  margin-left: 18px;
-  color: #526b7e;
-}
+
 .status-dot {
   display: inline-block;
   width: 4px;
@@ -386,40 +350,7 @@ p {
   width: 1px;
   opacity: 0.6;
 }
-.micro-label {
-  font-size: 7px;
-  letter-spacing: 1.9px;
-  color: #5e7b8f;
-}
-.micro-label b {
-  font-weight: 400;
-  color: #a4c4d2;
-  padding: 0 5px;
-}
-.scene-footer {
-  position: absolute;
-  bottom: 30px;
-  left: 2.8vw;
-  right: 85px;
-  display: flex;
-  justify-content: space-between;
-  pointer-events: none;
-  font-size: 8px;
-  color: #5a758b;
-  letter-spacing: 1.4px;
-}
-.scene-footer i {
-  display: inline-block;
-  height: 9px;
-  width: 1px;
-  background: #365066;
-  margin: 0 10px;
-  vertical-align: middle;
-}
-.scene-footer b {
-  font-weight: 400;
-  padding: 0 8px;
-}
+
 .settings-button {
   position: absolute;
   bottom: 19px;
@@ -708,9 +639,7 @@ p {
   .info-panel {
     width: clamp(260px, 15vw, 360px);
   }
-  .brand-mark {
-    left: 3vw;
-  }
+
   .clock-widget {
     top: 5vh;
   }
@@ -722,24 +651,6 @@ p {
   }
 }
 @media (max-width: 1100px) {
-  .brand-mark {
-    top: 25px;
-    font-size: 13px;
-  }
-  .brand-symbol {
-    font-size: 28px;
-  }
-  .brand-mark div > span {
-    font-size: 6px;
-  }
-  .top-status {
-    top: 35px;
-    font-size: 7px;
-    letter-spacing: 1px;
-  }
-  .top-status > span {
-    display: none;
-  }
   .info-panel {
     width: 250px;
     padding: 16px;
@@ -751,32 +662,8 @@ p {
     left: auto;
     right: 20px;
   }
-  .scene-footer > span:first-child {
-    font-size: 7px;
-    letter-spacing: 0.6px;
-  }
 }
 @media (max-width: 700px) {
-  .brand-mark {
-    left: 16px;
-    top: 18px;
-    gap: 6px;
-  }
-  .brand-mark div > span {
-    display: none;
-  }
-  .brand-mark div {
-    font-size: 10px;
-  }
-  .brand-symbol {
-    font-size: 21px;
-  }
-  .top-status {
-    right: 16px;
-    top: 29px;
-    font-size: 6px;
-    letter-spacing: 0.4px;
-  }
   .clock-widget {
     top: 65px;
     min-width: 280px;
@@ -882,23 +769,12 @@ p {
   .event-list b {
     display: none;
   }
-  .scene-footer {
-    left: 15px;
-    right: 60px;
-    bottom: 18px;
-    font-size: 7px;
-    letter-spacing: 0;
-  }
-  .scene-footer > span:first-child {
-    display: none;
-  }
+
   .audio-visualizer {
     bottom: 42px;
     width: 220px;
   }
-  .micro-label {
-    font-size: 6px;
-  }
+
   .status-notice {
     top: 210px;
     width: 90vw;
@@ -922,12 +798,6 @@ p {
   }
 }
 @media (max-height: 600px) and (min-width: 701px) {
-  .brand-mark {
-    top: 20px;
-  }
-  .top-status {
-    top: 30px;
-  }
   .clock-widget {
     top: 15px;
   }
@@ -944,9 +814,7 @@ p {
   .audio-visualizer {
     bottom: 20px;
   }
-  .scene-footer {
-    bottom: 20px;
-  }
+
   .status-notice {
     top: 135px;
   }

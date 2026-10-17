@@ -17,7 +17,7 @@ it('stops hidden frames, discards hidden elapsed time, syncs settings and detach
   });
   const renderer = { render: vi.fn() },
     settings = new SettingsStore(),
-    runtime = new SimulationRuntime(settings);
+    runtime = new SimulationRuntime(settings, { synchronous: true });
   const detach = runtime.attach(renderer as unknown as SceneRenderer);
   const frame = (time: number) => {
     const callback = scheduled;

@@ -3,6 +3,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import type { Body } from '../physics/types';
 import { centerOfMass } from '../physics/vector';
 import { seededRandom } from '../physics/random';
+import type { EndReason } from '../physics/detection';
 import { Trail } from './Trail';
 interface BodyVisual {
   group: THREE.Group;
@@ -19,6 +20,33 @@ export class SceneRenderer {
   private generation = -1;
   private lastTrailTime = -Infinity;
   private disposed = false;
+  private dirty = true;
+  private interactionUntil = 0;
+  getFrameInterval(): number {
+    return performance.now() < this.interactionUntil ? 1000 / 60 : 1000 / 30;
+  }
+  private terminationKey = '';
+  private disrupted = false;
+  private flashStart = 0;
+  private readonly flash = new THREE.Mesh(
+    new THREE.RingGeometry(0.1, 0.13, 48),
+    new THREE.MeshBasicMaterial({
+      color: '#a9e0e8',
+      transparent: true,
+      opacity: 0,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+    }),
+  );
+  setTermination(reason: EndReason | null): void {
+    const key = reason?.type === 'tidal' ? `${reason.type}:${reason.year}` : '';
+    if (key && key !== this.terminationKey) {
+      this.flashStart = performance.now();
+      this.disrupted = true;
+    }
+    if (!key) this.disrupted = false;
+    this.terminationKey = key;
+  }
   private readonly onLost = (event: Event) => {
     event.preventDefault();
     this.onError('WebGL 上下文已丢失。请点击重试恢复画面。');
@@ -46,8 +74,15 @@ export class SceneRenderer {
     this.controls.maxDistance = 100;
     this.controls.enablePan = false;
     this.controls.rotateSpeed = 0.5;
+    this.controls.addEventListener('start', () => {
+      this.interactionUntil = Infinity;
+    });
+    this.controls.addEventListener('end', () => {
+      this.interactionUntil = performance.now() + 600;
+    });
     this.glowTexture = this.createGlow();
     this.createStars();
+    this.scene.add(this.flash);
     this.scene.add(new THREE.AmbientLight('#b5cce9', 0.7));
     this.observer = new ResizeObserver(() => this.resize());
     this.observer.observe(container);
@@ -60,6 +95,7 @@ export class SceneRenderer {
     this.camera.updateProjectionMatrix();
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
     this.renderer.setSize(width, height, false);
+    this.dirty = true;
   }
   private createGlow(): THREE.CanvasTexture {
     const canvas = document.createElement('canvas');
@@ -147,16 +183,42 @@ export class SceneRenderer {
     if (this.disposed) return;
     if (this.generation !== generation) {
       this.generation = generation;
+      this.dirty = true;
       this.lastTrailTime = -Infinity;
-      this.visuals.forEach((v) => v.trail.clear());
+      this.visuals.forEach((v) => {
+        v.trail.clear();
+        v.group.visible = true;
+      });
     }
     const sample = time - this.lastTrailTime >= 0.025;
     for (const body of bodies) {
       if (!body.position.every(Number.isFinite)) continue;
       const visual = this.visuals.get(body.id) ?? this.createBody(body);
+      if (
+        visual.group.position.distanceToSquared(new THREE.Vector3(...body.position)) > 1e-20 ||
+        visual.trail.line.visible !== showTrails
+      )
+        this.dirty = true;
       visual.group.position.set(...body.position);
+      const mesh = visual.group.children[0] as THREE.Mesh<
+        THREE.SphereGeometry,
+        THREE.MeshBasicMaterial
+      >;
+      mesh.material.color.set(body.color);
+      if (body.kind === 'star') {
+        const glow = visual.group.children[1] as THREE.Sprite;
+        glow.material.color.set(body.color);
+        const light = visual.group.children[2] as THREE.PointLight;
+        light.color.set(body.color);
+        light.intensity = Math.min(8, 2 + 3 * (body.luminosity ?? 1));
+      }
+      if (body.kind === 'planet') {
+        visual.group.visible = !this.disrupted;
+        this.flash.position.copy(visual.group.position);
+      }
       if (body.kind === 'star')
         visual.group.scale.setScalar(Math.cbrt(body.mass / Number(visual.group.userData.baseMass)));
+      (visual.trail.line.material as THREE.LineBasicMaterial).color.set(body.color);
       visual.trail.line.visible = showTrails;
       if (sample) visual.trail.push(body.position);
     }
@@ -168,8 +230,18 @@ export class SceneRenderer {
       this.controls.target.add(delta);
       this.camera.position.add(delta);
     }
-    this.controls.update();
-    this.renderer.render(this.scene, this.camera);
+    if (this.disrupted) {
+      const progress = Math.max(0, Math.min(1, (performance.now() - this.flashStart) / 1300));
+      this.flash.scale.setScalar(1 + progress * 18);
+      this.flash.material.opacity = (1 - progress) * 0.85;
+      this.flash.quaternion.copy(this.camera.quaternion);
+    } else this.flash.material.opacity = 0;
+    const cameraChanged = this.controls.update();
+    if (this.disrupted && performance.now() - this.flashStart < 1400) this.dirty = true;
+    if (this.dirty || cameraChanged) {
+      this.renderer.render(this.scene, this.camera);
+      this.dirty = false;
+    }
   }
   dispose(): void {
     this.disposed = true;

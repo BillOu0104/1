@@ -65,13 +65,13 @@ const definitions: FeatureModule[] = [
     id: 'physics',
     label: '物理引擎',
     status: 'partial',
-    description: '固定步长与 Verlet 已启用；高级参数编辑待开发',
+    description: '自适应 DOPRI5、Verlet、守恒诊断、潮汐判据与 Worker 已启用',
   },
   {
     id: 'initial',
     label: '初始条件',
     status: 'partial',
-    description: 'Random + Seed 已启用；长期稳定策略待开发',
+    description: 'Structured Chaos + Seed + 后台预筛选已启用；永久稳定无保证',
   },
   {
     id: 'camera',

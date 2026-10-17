@@ -29,7 +29,7 @@ export function InformationPanels({
           </div>
           <div>
             <dt>行星质量</dt>
-            <dd>3 × 10⁻⁶ M☉</dd>
+            <dd>{snapshot.bodies.find((b) => b.kind === 'planet')?.mass.toExponential(3)} M☉</dd>
           </div>
           <div>
             <dt>运行轮次</dt>
@@ -88,11 +88,14 @@ export function InformationPanels({
         <dl className="data-list">
           <div>
             <dt>积分器</dt>
-            <dd>Velocity Verlet</dd>
+            <dd>{snapshot.integrator}</dd>
           </div>
           <div>
-            <dt>固定时间步长</dt>
-            <dd>0.002 T₀</dd>
+            <dt>当前 / 最小步长</dt>
+            <dd>
+              {snapshot.diagnostics.lastStep.toExponential(1)} /{' '}
+              {snapshot.diagnostics.minStep.toExponential(1)} T₀
+            </dd>
           </div>
           <div>
             <dt>已计算步数</dt>
@@ -109,6 +112,42 @@ export function InformationPanels({
           <div>
             <dt>丢弃模拟时间</dt>
             <dd>{snapshot.droppedTime.toFixed(3)} T₀</dd>
+          </div>
+          <div>
+            <dt>动量误差</dt>
+            <dd>{snapshot.diagnostics.momentumError.toExponential(2)}</dd>
+          </div>
+          <div>
+            <dt>角动量误差</dt>
+            <dd>{snapshot.diagnostics.angularMomentumError.toExponential(2)}</dd>
+          </div>
+          <div>
+            <dt>近距离交会 / 邻居交换</dt>
+            <dd>
+              {snapshot.diagnostics.encounters} / {snapshot.diagnostics.exchanges}
+            </dd>
+          </div>
+          <div>
+            <dt>潮汐风险 / 阈值</dt>
+            <dd>
+              {snapshot.tidal?.ratio.toExponential(2) ?? '—'} /{' '}
+              {snapshot.tidal?.threshold.toFixed(3) ?? '—'}
+            </dd>
+          </div>
+          <div>
+            <dt>单次物理计算</dt>
+            <dd>
+              {snapshot.diagnostics.cpuMs.toFixed(2)} ms
+              {snapshot.diagnostics.limited ? ' · 已限流' : ''}
+            </dd>
+          </div>
+          <div>
+            <dt>初值筛选</dt>
+            <dd>
+              {snapshot.screening
+                ? `${snapshot.screening.qualified}/${snapshot.screening.candidates}${snapshot.screening.fallback ? ' · 降级' : ''}`
+                : '—'}
+            </dd>
           </div>
           <div>
             <dt>累计重启</dt>

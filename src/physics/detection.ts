@@ -1,9 +1,13 @@
 import type { Body, PhysicsConfig, Vec3 } from './types';
 import { centerOfMass, dot, length, scale, sub, add } from './vector';
 export type EndReason = {
-  type: 'collision' | 'escape' | 'numerical';
+  type: 'collision' | 'escape' | 'numerical' | 'tidal';
   message: string;
   bodyIds: string[];
+  collisionKind?: 'stellar' | 'planetary';
+  year?: number;
+  dominantStarId?: string;
+  tidalRatio?: number;
 };
 export function isValidSystem(bodies: readonly Body[]): boolean {
   return (
@@ -36,7 +40,12 @@ export function detectCollision(
         nearest = add(start, scale(motion, t));
       }
       if (length(nearest) <= a.radius + b.radius)
-        return { type: 'collision', message: `${a.name} 与 ${b.name} 碰撞`, bodyIds: [a.id, b.id] };
+        return {
+          type: 'collision',
+          collisionKind: a.kind === 'planet' || b.kind === 'planet' ? 'planetary' : 'stellar',
+          message: `${a.name} 与 ${b.name} 碰撞`,
+          bodyIds: [a.id, b.id],
+        };
     }
   return null;
 }
@@ -57,7 +66,11 @@ export function escapeCandidates(bodies: readonly Body[], config: PhysicsConfig)
       );
       // Include relative two-cluster kinetic energy correction for a massive escaping star.
       const energy = (0.5 * dot(v, v) * mass) / (mass + body.mass) + potential;
-      return length(r) > config.escapeDistance && dot(r, v) > 0 && energy > 0;
+      return (
+        length(r) > config.escapeDistance &&
+        dot(r, v) > 0 &&
+        energy > 1e-6 * ((0.5 * dot(v, v) * mass) / (mass + body.mass) + Math.abs(potential))
+      );
     })
     .map((b) => b.id);
 }
