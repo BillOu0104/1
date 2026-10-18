@@ -1,3 +1,4 @@
+import { addCageDerivative } from './cage';
 import type { Body, PhysicsConfig, Vec3 } from './types';
 import { add, dot, scale, sub } from './vector';
 /** Pairwise softened Newtonian force. Equal/opposite impulses preserve momentum. */
@@ -13,6 +14,18 @@ export function accelerations(bodies: readonly Body[], config: PhysicsConfig): V
       result[i] = add(result[i]!, scale(force, b.mass));
       result[j] = add(result[j]!, scale(force, -a.mass));
     }
+  if (config.cage?.enabled) {
+    const state = new Float64Array(bodies.length * 6),
+      extra = new Float64Array(state.length);
+    bodies.forEach((b, i) => {
+      state.set(b.position, i * 6);
+      state.set(b.velocity, i * 6 + 3);
+    });
+    addCageDerivative(state, extra, bodies, config);
+    result.forEach((v, i) => {
+      for (let k = 0; k < 3; k++) v[k] = v[k]! + extra[i * 6 + 3 + k]!;
+    });
+  }
   return result;
 }
 export function totalEnergy(bodies: readonly Body[], config: PhysicsConfig): number {

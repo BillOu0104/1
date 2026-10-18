@@ -39,12 +39,23 @@ describe('observatory UI', () => {
     expect(settings.getSnapshot().autoRestart).toBe(false);
     await user.click(screen.getByLabelText('显示轨迹'));
     expect(settings.getSnapshot().trails).toBe(false);
-    const generation = runtime.engine.getGeneration();
+    fireEvent.change(screen.getByRole('slider', { name: /星系尺度 Galaxy Scale/ }), {
+      target: { value: '5' },
+    });
+    expect(settings.getSnapshot().galaxyScale).toBe(5);
+    expect(runtime.engine.snapshot().system?.galaxyScale).toBe(3);
+    await user.click(screen.getByRole('button', { name: '应用尺度并重置' }));
+    expect(runtime.engine.snapshot().system?.galaxyScale).toBe(5);
+    await user.click(screen.getByLabelText('引力牢笼总开关'));
+    expect(settings.getSnapshot().cageEnabled).toBe(false);
+    await user.click(screen.getByLabelText('引力牢笼总开关'));
+    expect(settings.getSnapshot().cageEnabled).toBe(true);
+    const scaledGeneration = runtime.engine.getGeneration();
     fireEvent.change(screen.getByRole('slider', { name: /尾迹长度 Trail Length/ }), {
       target: { value: '0.4' },
     });
     expect(settings.getSnapshot().trailLengthYears).toBe(0.4);
-    expect(runtime.engine.getGeneration()).toBe(generation);
+    expect(runtime.engine.getGeneration()).toBe(scaledGeneration);
     const seed = screen.getByLabelText('随机种子 Seed');
     await user.clear(seed);
     await user.type(seed, 'kepler-test');

@@ -65,13 +65,13 @@ const definitions: FeatureModule[] = [
     id: 'physics',
     label: '物理引擎',
     status: 'partial',
-    description: '自适应 DOPRI5、Verlet、守恒诊断、潮汐判据与 Worker 已启用',
+    description: '自适应 DOPRI5、可开关引力牢笼、外力收支诊断与潮汐判据已启用',
   },
   {
     id: 'initial',
     label: '初始条件',
     status: 'partial',
-    description: 'Random + Seed 已启用；高级生成与预筛选暂时停用',
+    description: '四体 Random + Seed + 星系尺度已启用；不做预模拟筛选',
   },
   {
     id: 'camera',

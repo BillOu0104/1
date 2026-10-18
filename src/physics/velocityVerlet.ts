@@ -1,3 +1,4 @@
+import { addCageDerivative } from './cage';
 import type { Body, Integrator, PhysicsConfig } from './types';
 /** Pairwise kernel shared by the allocation-free integrators; state = xyz,vxyz per body. */
 export function derivative(
@@ -25,6 +26,7 @@ export function derivative(
       out[j * 6 + 4]! -= y * f * mi;
       out[j * 6 + 5]! -= z * f * mi;
     }
+  addCageDerivative(state, out, bodies, config);
 }
 export function pack(bodies: readonly Body[], state: Float64Array): void {
   bodies.forEach((b, i) => {
@@ -54,7 +56,7 @@ export class VelocityVerlet implements Integrator {
   }
   step(bodies: Body[], dt: number, config: PhysicsConfig): void {
     const n = bodies.length * 6,
-      key = `${config.gravitationalConstant}:${config.softening}`;
+      key = `${config.gravitationalConstant}:${config.softening}:${config.galaxyScale ?? 1}:${JSON.stringify(config.cage)}`;
     if (this.cached.length !== n) {
       this.cached = new Float64Array(n);
       this.before = new Float64Array(n);

@@ -154,3 +154,29 @@ it('resumes a deferred Worker recovery after visibility returns', () => {
   expect(s.ports).toHaveLength(2);
   s.detach();
 });
+
+it('publishes a live cage parameter event immediately even when paused without future ticks', () => {
+  const s = setup(),
+    p = s.ports[0]!;
+  const snapshot = s.runtime.engine.snapshot();
+  p.emit({ type: 'snapshot', snapshot, workerCpuMs: 0 });
+  s.store.set('paused', true);
+  p.emit({
+    type: 'snapshot',
+    workerCpuMs: 0,
+    snapshot: {
+      ...snapshot,
+      system: {
+        ...snapshot.system!,
+        cage: { ...snapshot.system!.cage!, enabled: false },
+        diagnosticMode: 'newtonian',
+      },
+      events: [
+        { id: 2, type: 'warning', seed: snapshot.seed, years: 0, message: 'Cage disabled' },
+        ...snapshot.events,
+      ],
+    },
+  });
+  expect(s.runtime.getSnapshot().system?.diagnosticMode).toBe('newtonian');
+  s.detach();
+});

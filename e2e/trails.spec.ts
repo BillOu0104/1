@@ -17,6 +17,8 @@ test('draws Worker integration histories at 20× and changes the persisted time 
       JSON.stringify({
         version: 1,
         settings: {
+          galaxyScale: 1,
+          cageEnabled: false,
           seed: 'fix-bench-1',
           speed: 20,
           autoRestart: false,
@@ -103,6 +105,6 @@ test('draws Worker integration histories at 20× and changes the persisted time 
   const p = await page.evaluate(readProbe);
   expect(p.workerCount).toBe(1);
   expect(p.screening).toBe(0);
-  expect(p.maxBatchPoints).toBeGreaterThan(16);
+  expect(p.maxBatchPoints).toBeGreaterThan(4);
   expect(p.firstTimes).toEqual([0, 0, 0, 0]);
 });

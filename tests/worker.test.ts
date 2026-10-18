@@ -1,3 +1,5 @@
+import { DEFAULT_CAGE } from '../src/physics/cage';
+import { RandomInitializer } from '../src/physics/initialConditions';
 import { expect, it, vi } from 'vitest';
 import { PhysicsWorkerController } from '../src/worker/PhysicsWorkerController';
 import type { PhysicsResponse } from '../src/worker/protocol';
@@ -60,7 +62,17 @@ it('rejects malformed requests and transfers trajectory buffers rather than clon
   controller.receive({ type: 'reset', seed: 'invalid', masses: [NaN] });
   expect(send.mock.calls.at(-1)![0].type).toBe('error');
 });
-it('keeps one controller through repeated natural auto-restarts with clean generation batches and history', () => {
+it('keeps one controller through repeated collision restarts with clean batches and circuit protection', () => {
+  const generate = RandomInitializer.prototype.generate;
+  const spy = vi.spyOn(RandomInitializer.prototype, 'generate').mockImplementation(function (
+    this: RandomInitializer,
+    seed,
+    config,
+  ) {
+    const bodies = generate.call(this, seed, config);
+    bodies[1]!.position = [...bodies[0]!.position];
+    return bodies;
+  });
   const { controller, latest } = setup();
   controller.receive({
     type: 'init',
@@ -70,7 +82,7 @@ it('keeps one controller through repeated natural auto-restarts with clean gener
   });
   let generation = latest().snapshot.generation,
     restarts = 0;
-  for (let i = 0; i < 1200 && restarts < 4; i++) {
+  for (let i = 0; i < 1200 && restarts < 3; i++) {
     controller.receive({ type: 'tick', elapsed: 0.25, sequence: i });
     const { snapshot, trails } = latest();
     expect(trails?.generation).toBe(snapshot.generation);
@@ -83,7 +95,49 @@ it('keeps one controller through repeated natural auto-restarts with clean gener
       generation = snapshot.generation;
     }
   }
-  expect(restarts).toBe(4);
-  expect(latest().snapshot.restartCount).toBe(4);
+  expect(restarts).toBe(3);
+  expect(latest().snapshot.restartCount).toBe(3);
+  spy.mockRestore();
+  controller.dispose();
+});
+
+it('applies scale on reset and cage settings live, preserving years/generation and physical units', () => {
+  const { controller, latest } = setup();
+  controller.receive({
+    type: 'init',
+    seed: 'scale-live',
+    masses: [1, 0.95, 0.9],
+    galaxyScale: 1,
+    cage: { ...DEFAULT_CAGE, enabled: false },
+    controls: { paused: true, speed: 1, autoRestart: true },
+  });
+  const original = latest().snapshot;
+  controller.receive({
+    type: 'configure',
+    galaxyScale: 5,
+    cage: { ...DEFAULT_CAGE, enabled: true },
+  });
+  expect(latest().snapshot.system?.galaxyScale).toBe(1);
+  expect(latest().snapshot.system?.cage?.enabled).toBe(true);
+  expect(latest().snapshot.generation).toBe(original.generation);
+  expect(latest().snapshot.time).toBe(original.time);
+  controller.receive({ type: 'reset', seed: 'scale-live', masses: [1, 0.95, 0.9], galaxyScale: 5 });
+  const scaled = latest().snapshot;
+  expect(scaled.system?.galaxyScale).toBe(5);
+  for (let i = 0; i < 4; i++)
+    for (let k = 0; k < 3; k++) {
+      expect(scaled.bodies[i]!.position[k]).toBeCloseTo(original.bodies[i]!.position[k]! * 5, 12);
+      expect(scaled.bodies[i]!.velocity[k]).toBeCloseTo(
+        original.bodies[i]!.velocity[k]! / Math.sqrt(5),
+        12,
+      );
+    }
+  controller.receive({
+    type: 'configure',
+    galaxyScale: 5,
+    cage: { ...DEFAULT_CAGE, enabled: false },
+  });
+  expect(latest().snapshot.system?.diagnosticMode).toBe('newtonian');
+  expect(latest().snapshot.generation).toBe(scaled.generation);
   controller.dispose();
 });

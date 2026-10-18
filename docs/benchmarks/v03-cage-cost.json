@@ -1,0 +1,30 @@
+{
+  "method": "Five alternating warmed runs of 300000 force evaluations over twelve identical frozen four-body states at 3x. Includes stage COM, cage work and impulse derivatives. Excludes DOPRI assembly/error estimates, scheduling, UI and rendering.",
+  "count": 300000,
+  "samples": [
+    {
+      "newtonMs": 20.75401500000001,
+      "cageMs": 67.42006099999998
+    },
+    {
+      "newtonMs": 23.87846300000001,
+      "cageMs": 67.59893199999999
+    },
+    {
+      "newtonMs": 23.522715000000005,
+      "cageMs": 71.582448
+    },
+    {
+      "newtonMs": 21.42527800000005,
+      "cageMs": 75.97554200000002
+    },
+    {
+      "newtonMs": 21.146661999999992,
+      "cageMs": 67.939616
+    }
+  ],
+  "medianNanosecondsPerEvaluation": {
+    "newton": 71.4175933333335,
+    "cage": 226.46538666666666
+  }
+}

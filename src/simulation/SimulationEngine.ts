@@ -1,3 +1,4 @@
+import { validateCage, type GravityCageConfig } from '../physics/cage';
 import { EventBus, type AppEvents, type SimulationEvent } from '../events/EventBus';
 import {
   detectCollision,
@@ -83,6 +84,13 @@ export interface SimulationSnapshot {
   tidal: TidalReading | null;
   screening?: ScreeningSummary;
   waitingForInitial: boolean;
+  system?: {
+    galaxyScale: number;
+    cage: GravityCageConfig | null;
+    diagnosticMode: 'newtonian' | 'external-work';
+    externalWork: number;
+    rawEnergyChange: number;
+  };
 }
 export interface EngineOptions {
   config?: Partial<PhysicsConfig>;
@@ -154,12 +162,20 @@ export class SimulationEngine {
       throw new Error('Invalid physics configuration');
     if (c.escapePolicy && Object.values(c.escapePolicy).some((v) => !Number.isFinite(v) || v <= 0))
       throw new Error('Invalid escape policy');
+    if (
+      c.galaxyScale !== undefined &&
+      (!Number.isFinite(c.galaxyScale) || c.galaxyScale < 1 || c.galaxyScale > 10)
+    )
+      throw new Error('Invalid galaxy scale');
+    if (c.cage) validateCage(c.cage);
     this.generator = options.generator ?? new RandomInitializer(DEFAULT_MASSES);
     this.integrator = options.integrator ?? new VelocityVerlet();
     this.adaptive =
       options.adaptive === false || options.integrator
         ? null
         : new AdaptiveDopri5(options.adaptive || {});
+    if (c.cage?.enabled && !this.adaptive)
+      throw new Error('Gravity cage diagnostics require DOPRI5');
     this.tideModel = { ...DEFAULT_TIDES, ...options.tides };
     this.events = options.events ?? new EventBus<AppEvents>();
     if (options.session) {
@@ -203,6 +219,25 @@ export class SimulationEngine {
       speed: patch.speed ?? this.controls.speed,
       autoRestart: patch.autoRestart ?? this.controls.autoRestart,
     };
+  }
+  setGalaxyScale(scale: number): void {
+    if (!Number.isFinite(scale) || scale < 1 || scale > 10)
+      throw new Error('Galaxy scale must be 1–10');
+    this.config.galaxyScale = scale;
+  }
+  setCage(cage: GravityCageConfig): void {
+    validateCage(cage);
+    if (cage.enabled && !this.adaptive) throw new Error('Gravity cage diagnostics require DOPRI5');
+    if (JSON.stringify(this.config.cage) === JSON.stringify(cage)) return;
+    this.config.cage = { ...cage };
+    this.adaptive?.reset();
+    this.integrator.reset?.();
+    this.initial = invariants(this.bodies, this.config);
+    this.escaping.reset();
+    this.record(
+      'warning',
+      `引力牢笼${cage.enabled ? '开启：额外约束，非纯牛顿系统' : '关闭：纯牛顿引力'}；诊断基准已更新`,
+    );
   }
   reset(seed = this.seed, bodies?: Body[]): void {
     this.autoRestartBlocked = false;
@@ -274,6 +309,21 @@ export class SimulationEngine {
     }
     return true;
   }
+  private restoreAcceptedState(
+    bodies: Body[],
+    work: number,
+    x: number,
+    y: number,
+    z: number,
+  ): void {
+    this.bodies = bodies;
+    if (this.adaptive) {
+      this.adaptive.externalWork = work;
+      this.adaptive.externalImpulse[0] = x;
+      this.adaptive.externalImpulse[1] = y;
+      this.adaptive.externalImpulse[2] = z;
+    }
+  }
   /** Foreground Worker budget is optional; tests/benchmarks use deterministic step limits. */
   advance(elapsed: number, budgetMs = Infinity): void {
     if (!Number.isFinite(elapsed) || elapsed <= 0 || this.controls.paused) return;
@@ -322,6 +372,10 @@ export class SimulationEngine {
         if (!this.checkSystem()) break;
         const previous = this.bodies.map((b) => [...b.position] as [number, number, number]);
         const saved = this.adaptive ? copyBodies(this.bodies) : null;
+        const savedWork = this.adaptive?.externalWork ?? 0;
+        const savedIx = this.adaptive?.externalImpulse[0] ?? 0;
+        const savedIy = this.adaptive?.externalImpulse[1] ?? 0;
+        const savedIz = this.adaptive?.externalImpulse[2] ?? 0;
         let dt = this.config.timeStep;
         attempts++;
         if (this.adaptive) {
@@ -342,11 +396,17 @@ export class SimulationEngine {
           swept = detectCollision(this.bodies, previous);
         // A curved path's chord can falsely intersect a surface. Refine before making a physical claim.
         if (this.adaptive && swept && !endCollision && dt > this.adaptive.options.minStep * 4) {
-          this.bodies = saved!;
+          this.restoreAcceptedState(saved!, savedWork, savedIx, savedIy, savedIz);
           this.adaptive.refine(dt);
           continue;
         }
-        const error = errors(this.initial, this.bodies, this.config);
+        const error = errors(
+          this.initial,
+          this.bodies,
+          this.config,
+          this.adaptive?.externalWork ?? 0,
+          this.adaptive?.externalImpulse ?? [0, 0, 0],
+        );
         if (
           this.adaptive &&
           (!Number.isFinite(error.energy) ||
@@ -354,7 +414,7 @@ export class SimulationEngine {
             error.angularMomentum > 1e-5 ||
             error.momentum > 1e-8)
         ) {
-          this.bodies = saved!;
+          this.restoreAcceptedState(saved!, savedWork, savedIx, savedIy, savedIz);
           this.end({
             type: 'numerical',
             message: '守恒误差超过可信阈值，停止本轮而不判定物理解体',
@@ -368,7 +428,7 @@ export class SimulationEngine {
         this.lastStep = dt;
         this.accumulator = Math.max(0, this.accumulator - dt);
         this.macroRemaining = Math.max(0, this.macroRemaining - dt);
-        this.encounters.update(this.bodies);
+        this.encounters.update(this.bodies, this.config.galaxyScale ?? 1);
         this.options.onAcceptedState?.(this.bodies, this.time, this.generation);
         if (endCollision || (!this.adaptive && swept)) {
           this.end((endCollision ?? swept)!);
@@ -391,7 +451,7 @@ export class SimulationEngine {
         const escape = this.escaping.sample(
           readEscapeCandidates(this.bodies, this.config),
           this.time,
-          this.config.escapeConfirmationTime,
+          this.config.escapeConfirmationTime * (this.config.galaxyScale ?? 1) ** 1.5,
         );
         if (escape) {
           const body = this.bodies.find((b) => b.id === escape.bodyId)!;
@@ -405,10 +465,10 @@ export class SimulationEngine {
         }
         if (this.reason) break;
       }
-    } catch {
+    } catch (error) {
       this.end({
         type: 'numerical',
-        message: '无法在精度预算内解析近距离交会或积分器异常，已安全停止',
+        message: `无法在精度预算内完成积分，已安全停止${error instanceof Error ? `：${error.message}` : ''}`,
         bodyIds: [],
       });
     }
@@ -423,7 +483,13 @@ export class SimulationEngine {
   }
   snapshot(): SimulationSnapshot {
     const energy = totalEnergy(this.bodies, this.config),
-      error = errors(this.initial, this.bodies, this.config);
+      error = errors(
+        this.initial,
+        this.bodies,
+        this.config,
+        this.adaptive?.externalWork ?? 0,
+        this.adaptive?.externalImpulse ?? [0, 0, 0],
+      );
     return {
       bodies: copyBodies(this.bodies),
       seed: this.seed,
@@ -455,6 +521,14 @@ export class SimulationEngine {
       integrator: this.adaptive?.id ?? this.integrator.id,
       tidal: this.tidal,
       waitingForInitial: this.waitingForInitial,
+      system: {
+        galaxyScale: this.config.galaxyScale ?? 1,
+        cage: this.config.cage ? { ...this.config.cage } : null,
+        diagnosticMode: this.config.cage?.enabled ? 'external-work' : 'newtonian',
+        externalWork: this.adaptive?.externalWork ?? 0,
+        rawEnergyChange:
+          (energy - this.initial.energy) / Math.max(Math.abs(this.initial.energy), 1e-15),
+      },
     };
   }
   getEndedDuration(): number {

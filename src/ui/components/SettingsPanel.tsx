@@ -1,3 +1,5 @@
+import type { NumericSettingKey, BooleanSettingKey } from '../../settings/types';
+import { CAGE_LENGTH_AU, CAGE_MASS_SOLAR } from '../../physics/cage';
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import type { SettingsStore } from '../../settings/SettingsStore';
 import { features } from '../../features/FeatureRegistry';
@@ -27,6 +29,32 @@ export function SettingsPanel({
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
   }, [onClose]);
+  const numeric = (key: keyof typeof settings): key is NumericSettingKey =>
+    typeof settings[key] === 'number';
+  const boolean = (key: keyof typeof settings): key is BooleanSettingKey =>
+    typeof settings[key] === 'boolean';
+  const unit = (key: NumericSettingKey) =>
+    key === 'speed' || key === 'galaxyScale'
+      ? '×'
+      : key === 'trailLengthYears'
+        ? ' 模拟年'
+        : ['massA', 'massB', 'massC'].includes(key)
+          ? ' M☉'
+          : '';
+  const help = (key: NumericSettingKey): string => {
+    if (key === 'speed') return '1× ≈ 0.095 模拟年/秒；高负载时放慢推进。';
+    if (key === 'trailLengthYears') return '按模拟时间保留，立即生效；每颗天体最多 8192 点。';
+    if (key === 'galaxyScale')
+      return `位置×k，速度÷√k；下一次重置生效，当前 ${snapshot.system?.galaxyScale ?? 1}×。物理年份不变。`;
+    if (key === 'cageMass')
+      return `原版质量单位；当前等效 ${(settings.cageMass * CAGE_MASS_SOLAR).toFixed(3)} M☉。`;
+    if (key === 'cageRe' || key === 'cageRc' || key === 'cageHardRadius')
+      return `原版距离单位；本轮 ${(settings[key] * CAGE_LENGTH_AU * (snapshot.system?.galaxyScale ?? settings.galaxyScale)).toFixed(3)} AU。${key === 'cageHardRadius' ? '仅硬模式生效。' : ''}`;
+    if (key === 'cageExponent') return '仅软模式生效；保留原版小数指数。';
+    if (key === 'cageK1') return '相对质心的内区斥力，不是天体间斥力。';
+    if (key === 'cageK2') return '外区拉回强度；0 表示没有外部束缚。';
+    return '质量会在参考值附近随机 ±3%；重置后生效。';
+  };
   const definitions = store.registry.getDefinitions();
   const categories = [...new Set(definitions.map((d) => d.category))];
   return (
@@ -41,7 +69,7 @@ export function SettingsPanel({
         <div>
           <span className="eyebrow">CONTROL CENTER</span>
           <h2>
-            模拟设置 <small>V0.2.1</small>
+            模拟设置 <small>V0.3</small>
           </h2>
         </div>
         <button onClick={onClose} aria-label="关闭设置">
@@ -91,65 +119,47 @@ export function SettingsPanel({
                         </small>
                       </div>
                     );
-                  if (
-                    definition.kind === 'number' &&
-                    (definition.key === 'speed' ||
-                      definition.key === 'trailLengthYears' ||
-                      definition.key === 'massA' ||
-                      definition.key === 'massB' ||
-                      definition.key === 'massC')
-                  )
+                  if (definition.kind === 'number' && numeric(definition.key))
                     return (
                       <div className="range-field" key={id}>
                         <label htmlFor={id}>
                           {definition.label}
                           <output>
                             {settings[definition.key].toFixed(
-                              definition.key === 'speed' || definition.key === 'trailLengthYears'
-                                ? 1
-                                : 2,
+                              definition.key === 'galaxyScale' || definition.key === 'cageMass'
+                                ? 0
+                                : definition.key.startsWith('cage')
+                                  ? 3
+                                  : definition.key === 'speed' ||
+                                      definition.key === 'trailLengthYears'
+                                    ? 1
+                                    : 2,
                             )}
-                            {definition.key === 'speed'
-                              ? '×'
-                              : definition.key === 'trailLengthYears'
-                                ? ' 模拟年'
-                                : ' M☉'}
+                            {unit(definition.key)}
                           </output>
                         </label>
                         <input
                           id={id}
                           type="range"
+                          disabled={
+                            (definition.key === 'cageHardRadius' && !settings.cageHard) ||
+                            (definition.key === 'cageExponent' && settings.cageHard)
+                          }
                           min={definition.min}
                           max={definition.max}
                           step={definition.step}
                           value={settings[definition.key]}
                           onChange={(event) =>
                             store.set(
-                              definition.key as
-                                | 'speed'
-                                | 'trailLengthYears'
-                                | 'massA'
-                                | 'massB'
-                                | 'massC',
+                              definition.key as NumericSettingKey,
                               Number(event.target.value),
                             )
                           }
                         />
-                        <small>
-                          {definition.key === 'speed'
-                            ? '1× ≈ 0.095 模拟年/秒；高负载时放慢推进。'
-                            : definition.key === 'trailLengthYears'
-                              ? '按模拟时间保留，立即生效；每颗天体最多 8192 点。'
-                              : '质量会在参考值附近随机 ±3%；重置后生效。'}
-                        </small>
+                        <small>{help(definition.key)}</small>
                       </div>
                     );
-                  if (
-                    definition.kind === 'boolean' &&
-                    (definition.key === 'paused' ||
-                      definition.key === 'autoRestart' ||
-                      definition.key === 'trails')
-                  ) {
+                  if (definition.kind === 'boolean' && boolean(definition.key)) {
                     const key = definition.key;
                     return (
                       <label className="toggle-row" htmlFor={id} key={id}>
@@ -165,6 +175,19 @@ export function SettingsPanel({
                   }
                   return null;
                 })}
+              {category === '引力牢笼' && (
+                <small>
+                  {settings.cageEnabled
+                    ? '非纯牛顿系统：额外质心约束已开启，能量按外力做功修正。'
+                    : '纯牛顿引力：额外约束已关闭。'}
+                  参数立即生效；不反射或锁定轨道。
+                </small>
+              )}
+              {category === '初始条件' && (
+                <button className="reset-button" onClick={onReset}>
+                  应用尺度并重置
+                </button>
+              )}
               {category === '天体参数' && (
                 <>
                   <button className="reset-button" onClick={onReset}>

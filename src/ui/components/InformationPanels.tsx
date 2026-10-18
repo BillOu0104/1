@@ -102,7 +102,7 @@ export function InformationPanels({
             <dd>{snapshot.steps.toLocaleString()}</dd>
           </div>
           <div>
-            <dt>能量相对偏差</dt>
+            <dt>{snapshot.system?.cage?.enabled ? '能量收支残差' : '能量相对偏差'}</dt>
             <dd>
               {Number.isFinite(snapshot.relativeEnergyError)
                 ? `${(snapshot.relativeEnergyError * 100).toExponential(2)} %`
@@ -114,7 +114,7 @@ export function InformationPanels({
             <dd>{snapshot.droppedTime.toFixed(3)} T₀</dd>
           </div>
           <div>
-            <dt>动量误差</dt>
+            <dt>{snapshot.system?.cage?.enabled ? '动量收支残差' : '动量误差'}</dt>
             <dd>{snapshot.diagnostics.momentumError.toExponential(2)}</dd>
           </div>
           <div>
@@ -142,8 +142,13 @@ export function InformationPanels({
             </dd>
           </div>
           <div>
+            <dt>物理模型 / 尺度</dt>
+            <dd>
+              {snapshot.system?.cage?.enabled ? '牢笼约束 · 非纯牛顿' : '纯牛顿引力'} ·{' '}
+              {snapshot.system?.galaxyScale ?? 1}×
+            </dd>
             <dt>初始条件</dt>
-            <dd>Random · Seed</dd>
+            <dd>四体 Random · Seed</dd>
           </div>
           <div>
             <dt>累计重启</dt>

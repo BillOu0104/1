@@ -1,3 +1,4 @@
+import { cageConfines } from './cage';
 import { DEFAULT_ESCAPE_POLICY, type Body, type PhysicsConfig, type Vec3 } from './types';
 import { auToLightDays } from './parameters';
 import { centerOfMass, dot, length, scale, sub, add } from './vector';
@@ -70,7 +71,11 @@ export function readEscapeCandidates(
   bodies: readonly Body[],
   config: PhysicsConfig,
 ): EscapeEvidence[] {
+  if (cageConfines(config)) return [];
   const policy = { ...DEFAULT_ESCAPE_POLICY, ...config.escapePolicy };
+  const galaxyScale = config.galaxyScale ?? 1;
+  const regularDistance = config.escapeDistance * galaxyScale;
+  const earlyDistance = policy.earlyDistance * galaxyScale;
   const results: EscapeEvidence[] = [];
   for (const body of bodies) {
     const others = bodies.filter((b) => b !== body);
@@ -82,8 +87,7 @@ export function readEscapeCandidates(
       v = sub(body.velocity, drift);
     const distance = length(r),
       speed = length(v);
-    if (!(distance > Math.min(policy.earlyDistance, config.escapeDistance)) || speed === 0)
-      continue;
+    if (!(distance > Math.min(earlyDistance, regularDistance)) || speed === 0) continue;
     const radial = dot(r, v) / distance;
     if (!(radial > 0)) continue;
     let potential = 0,
@@ -113,12 +117,12 @@ export function readEscapeCandidates(
       Math.max(distance - extent, distance * 0.01) ** 3;
     if (!separating || !(energy > multipoleAllowance)) continue;
     const early =
-      distance > policy.earlyDistance &&
+      distance > earlyDistance &&
       isolation >= policy.earlyIsolation &&
       margin >= policy.earlyEnergyMargin &&
       radial / speed >= policy.earlyRadialFraction;
     const regular =
-      distance > config.escapeDistance &&
+      distance > regularDistance &&
       isolation >= policy.regularIsolation &&
       margin >= policy.regularEnergyMargin;
     if (early || regular)

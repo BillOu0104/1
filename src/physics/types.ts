@@ -1,3 +1,4 @@
+import type { GravityCageConfig } from './cage';
 export type Vec3 = [number, number, number];
 export interface Body {
   id: string;
@@ -29,6 +30,9 @@ export const DEFAULT_ESCAPE_POLICY: Readonly<EscapePolicy> = Object.freeze({
   earlyRadialFraction: 0.6,
 });
 export interface PhysicsConfig {
+  cage?: GravityCageConfig;
+  /** Initial similarity factor; does not alter astronomical time or body radii. */
+  galaxyScale?: number;
   gravitationalConstant: number;
   timeStep: number;
   softening: number;

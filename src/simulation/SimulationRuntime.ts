@@ -1,3 +1,4 @@
+import { cageFromSettings } from '../settings/physicsSettings';
 import { SimulationEngine, type SimulationSnapshot, type SessionHistory } from './SimulationEngine';
 import type { SettingsStore } from '../settings/SettingsStore';
 import type { SceneRenderer } from '../rendering/SceneRenderer';
@@ -31,6 +32,7 @@ export class SimulationRuntime {
   private workerLatencyMs = 0;
   private sentAt = 0;
   private renderer: SceneRenderer | null = null;
+  private sentPhysicsSignature = '';
   constructor(
     readonly settings: SettingsStore,
     private readonly options: RuntimeOptions = {},
@@ -38,6 +40,7 @@ export class SimulationRuntime {
     const config = settings.getSnapshot();
     this.engine = new SimulationEngine(config.seed, {
       generator: new RandomInitializer(this.masses()),
+      config: { galaxyScale: config.galaxyScale, cage: cageFromSettings(config) },
     });
     this.engine.setControls(config);
     this.current = this.engine.snapshot();
@@ -68,6 +71,7 @@ export class SimulationRuntime {
     }
     const seed = this.settings.getSnapshot().seed;
     if (this.options.synchronous) {
+      this.engine.setGalaxyScale(this.settings.getSnapshot().galaxyScale);
       this.engine.reset(
         seed,
         new RandomInitializer(this.masses()).generate(seed, this.engine.config),
@@ -82,7 +86,13 @@ export class SimulationRuntime {
       autoRestartBlocked: false,
     };
     this.publish();
-    if (this.port) this.send({ type: 'reset', seed, masses: this.masses() });
+    if (this.port)
+      this.send({
+        type: 'reset',
+        seed,
+        masses: this.masses(),
+        galaxyScale: this.settings.getSnapshot().galaxyScale,
+      });
     else if (this.attached) {
       this.current = { ...this.current, restartCount: this.current.restartCount + 1 };
       this.startWorker(seed, this.session());
@@ -129,8 +139,14 @@ export class SimulationRuntime {
         seed,
         masses: this.masses(),
         controls: this.settings.getSnapshot(),
+        galaxyScale: this.settings.getSnapshot().galaxyScale,
+        cage: cageFromSettings(this.settings.getSnapshot()),
         session,
       });
+      this.sentPhysicsSignature = JSON.stringify([
+        this.settings.getSnapshot().galaxyScale,
+        cageFromSettings(this.settings.getSnapshot()),
+      ]);
       this.send({ type: 'visibility', active: !this.hostPaused && !document.hidden });
     } catch {
       this.failed('浏览器无法启动物理 Worker，请检查浏览器支持或重试');
@@ -156,7 +172,8 @@ export class SimulationRuntime {
     if (
       performance.now() - this.lastUiPublish >= 100 ||
       this.current.phase !== this.uiSnapshot.phase ||
-      this.current.generation !== this.uiSnapshot.generation
+      this.current.generation !== this.uiSnapshot.generation ||
+      this.current.events[0]?.id !== this.uiSnapshot.events[0]?.id
     )
       this.publish();
   }
@@ -226,8 +243,10 @@ export class SimulationRuntime {
     if (!this.options.synchronous) this.startWorker(this.current.seed);
     const syncSettings = () => {
       const settings = this.settings.getSnapshot();
-      if (this.options.synchronous) this.engine.setControls(settings);
-      else {
+      if (this.options.synchronous) {
+        this.engine.setControls(settings);
+        this.engine.setCage(cageFromSettings(settings));
+      } else {
         this.current = {
           ...this.current,
           controls: {
@@ -237,6 +256,12 @@ export class SimulationRuntime {
           },
         };
         this.send({ type: 'controls', controls: settings });
+        const cage = cageFromSettings(settings),
+          signature = JSON.stringify([settings.galaxyScale, cage]);
+        if (signature !== this.sentPhysicsSignature) {
+          this.send({ type: 'configure', galaxyScale: settings.galaxyScale, cage });
+          this.sentPhysicsSignature = signature;
+        }
       }
       this.queuedTime = 0;
       this.publish();
@@ -285,6 +310,7 @@ export class SimulationRuntime {
             ) as [number, number, number],
           }));
         }
+        renderer.setSystemScale?.(snapshot.system?.galaxyScale ?? 1);
         renderer.setTermination?.(snapshot.reason);
         renderer.render(
           bodies,
