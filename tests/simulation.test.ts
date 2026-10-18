@@ -141,3 +141,16 @@ describe('fixed step simulation lifecycle', () => {
     expect(() => new SimulationEngine().setControls({ speed: NaN })).toThrow();
   });
 });
+
+it('galaxy scale preserves the physical clock and does not rescale radii or years', () => {
+  const a = new SimulationEngine('physical-year', { config: { galaxyScale: 1 } }),
+    b = new SimulationEngine('physical-year', { config: { galaxyScale: 5 } });
+  for (let i = 0; i < 100; i++) {
+    a.advance(0.01);
+    b.advance(0.01);
+  }
+  expect(a.getTime()).toBeCloseTo(0.6, 10);
+  expect(b.getTime()).toBeCloseTo(0.6, 10);
+  expect(a.snapshot().years).toBe(b.snapshot().years);
+  expect(a.getBodies().map((x) => x.radius)).toEqual(b.getBodies().map((x) => x.radius));
+});

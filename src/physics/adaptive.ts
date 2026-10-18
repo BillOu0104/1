@@ -1,5 +1,6 @@
+import { cageStepLimit } from './cage';
 import { derivative, pack, unpack } from './velocityVerlet';
-import type { Body, PhysicsConfig } from './types';
+import type { Body, PhysicsConfig, Vec3 } from './types';
 import { length, sub } from './vector';
 export interface AdaptiveConfig {
   relativeTolerance: number;
@@ -30,7 +31,7 @@ export function dynamicalStep(
       const dynamical = Math.sqrt(r ** 3 / (config.gravitationalConstant * (a.mass + b.mass)));
       dt = Math.min(dt, safety * dynamical, (safety * r) / Math.max(v, 1e-20));
     }
-  return dt;
+  return Math.min(dt, cageStepLimit(bodies, config, safety));
 }
 const A = [
   [],
@@ -61,6 +62,8 @@ export class AdaptiveDopri5 {
   private stages: Float64Array[] = [];
   private proposed = 0.01;
   rejected = 0;
+  externalWork = 0;
+  externalImpulse: Vec3 = [0, 0, 0];
   constructor(options: Partial<AdaptiveConfig> = {}) {
     this.options = { ...DEFAULT_ADAPTIVE, ...options };
     if (
@@ -76,6 +79,8 @@ export class AdaptiveDopri5 {
   reset(): void {
     this.proposed = 0.01;
     this.rejected = 0;
+    this.externalWork = 0;
+    this.externalImpulse = [0, 0, 0];
   }
   attempt(
     bodies: Body[],
@@ -83,7 +88,8 @@ export class AdaptiveDopri5 {
     config: PhysicsConfig,
     extraLimit = Infinity,
   ): { accepted: boolean; dt: number; error: number } {
-    const n = bodies.length * 6;
+    const extra = bodies.length * 6;
+    const n = extra + (config.cage?.enabled ? 4 : 0);
     if (this.state.length !== n) {
       this.state = new Float64Array(n);
       this.work = new Float64Array(n);
@@ -101,6 +107,10 @@ export class AdaptiveDopri5 {
     if (dt < this.options.minStep && limit >= this.options.minStep)
       throw new Error('Accuracy limit reached');
     pack(bodies, this.state);
+    if (n > extra) {
+      this.state[extra] = this.externalWork;
+      this.state.set(this.externalImpulse, extra + 1);
+    }
     derivative(this.state, this.stages[0]!, bodies, config);
     for (let stage = 1; stage < 7; stage++) {
       for (let q = 0; q < n; q++) {
@@ -126,9 +136,20 @@ export class AdaptiveDopri5 {
       error = Math.max(error, Math.abs(dt * estimate) / tolerance);
     }
     const accepted = Number.isFinite(error) && error <= 1;
-    this.proposed = dt * Math.max(0.15, Math.min(4, 0.9 * Math.max(error, 1e-16) ** -0.2));
-    if (accepted) unpack(this.next, bodies);
-    else {
+    const nextProposal = dt * Math.max(0.15, Math.min(4, 0.9 * Math.max(error, 1e-16) ** -0.2));
+    // A tiny final fragment of a scheduling macro step is not a physical accuracy limit.
+    // Retain the unconstrained proposal after accepting it, rather than poisoning the next macro.
+    this.proposed =
+      accepted && limit < this.options.minStep
+        ? Math.max(this.options.minStep, Math.min(this.proposed, this.options.maxStep))
+        : nextProposal;
+    if (accepted) {
+      unpack(this.next, bodies);
+      if (n > extra) {
+        this.externalWork = this.next[extra]!;
+        for (let k = 0; k < 3; k++) this.externalImpulse[k] = this.next[extra + 1 + k]!;
+      }
+    } else {
       this.rejected++;
       if (this.proposed < this.options.minStep)
         throw new Error('Unable to resolve close encounter');

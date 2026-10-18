@@ -1,3 +1,4 @@
+import { DEFAULT_CAGE, validateCage } from '../physics/cage';
 import { SimulationEngine, type SimulationControls } from '../simulation/SimulationEngine';
 import { RandomInitializer } from '../physics/initialConditions';
 import { TrajectoryRecorder } from '../physics/trajectory';
@@ -7,6 +8,7 @@ export class PhysicsWorkerController {
   private engine: SimulationEngine | null = null;
   private readonly trajectory = new TrajectoryRecorder();
   private masses: number[] = [];
+  private nextScale = 3;
   private controls: SimulationControls = { paused: false, speed: 1, autoRestart: true };
   private active = true;
   private disposed = false;
@@ -25,12 +27,17 @@ export class PhysicsWorkerController {
         )
           throw new Error('Invalid stellar masses');
         this.masses = [...message.masses];
+        if (message.galaxyScale !== undefined) this.setNextScale(message.galaxyScale);
         if (message.type === 'init') {
           this.controls = message.controls;
           this.engine = new SimulationEngine(message.seed, {
+            config: { galaxyScale: this.nextScale, cage: { ...(message.cage ?? DEFAULT_CAGE) } },
             generator: {
               mode: 'random',
-              generate: (seed, config) => new RandomInitializer(this.masses).generate(seed, config),
+              generate: (seed, config) => {
+                config.galaxyScale = this.nextScale;
+                return new RandomInitializer(this.masses).generate(seed, config);
+              },
             },
             session: message.session,
             onAcceptedState: (bodies, time, generation) =>
@@ -38,6 +45,11 @@ export class PhysicsWorkerController {
           });
         } else this.engine?.reset(message.seed);
         this.engine?.setControls(this.controls);
+        this.emit();
+      } else if (message.type === 'configure') {
+        validateCage(message.cage);
+        this.setNextScale(message.galaxyScale);
+        this.engine?.setCage(message.cage);
         this.emit();
       } else if (message.type === 'controls') {
         this.controls = message.controls;
@@ -58,6 +70,11 @@ export class PhysicsWorkerController {
         message: error instanceof Error ? error.message : 'Worker physics error',
       });
     }
+  }
+  private setNextScale(scale: number): void {
+    if (!Number.isFinite(scale) || scale < 1 || scale > 10)
+      throw new Error('Galaxy scale must be 1–10');
+    this.nextScale = scale;
   }
   private emit(sequence?: number, cpuMs = 0): void {
     if (!this.engine) return;

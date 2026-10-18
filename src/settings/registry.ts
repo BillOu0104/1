@@ -1,3 +1,5 @@
+import { CAGE_PARAMETER_RULES } from '../physics/cage';
+import { CAGE_SETTINGS } from './physicsSettings';
 import { MAX_TRAIL_YEARS } from '../physics/trajectory';
 import type { AppSettings } from './types';
 export type SettingDefinition = {
@@ -9,6 +11,7 @@ export type SettingDefinition = {
     min?: number;
     max?: number;
     step?: number;
+    description?: string;
     validate: (value: unknown) => value is AppSettings[K];
   };
 }[keyof AppSettings];
@@ -53,6 +56,16 @@ export const settingsRegistry = new SettingsRegistry()
     validate: (v): v is boolean => typeof v === 'boolean',
   })
   .register({
+    key: 'galaxyScale',
+    label: '星系尺度 Galaxy Scale',
+    category: '初始条件',
+    kind: 'number',
+    min: 1,
+    max: 10,
+    step: 1,
+    validate: (v): v is number => typeof v === 'number' && Number.isFinite(v) && v >= 1 && v <= 10,
+  })
+  .register({
     key: 'seed',
     label: '随机种子 Seed',
     category: '初始条件',
@@ -93,5 +106,40 @@ for (const [key, name] of [
     step: 0.01,
     validate: (v): v is number =>
       typeof v === 'number' && Number.isFinite(v) && v >= 0.08 && v <= 3,
+  });
+}
+
+for (const [key, label] of [
+  ['cageEnabled', '引力牢笼总开关'],
+  ['cageHard', '硬牢笼开关'],
+] as const)
+  settingsRegistry.register({
+    key,
+    label,
+    category: '引力牢笼',
+    kind: 'boolean',
+    validate: (v): v is boolean => typeof v === 'boolean',
+  });
+const cageLabels = {
+  cageMass: 'Mc 约束等效质量',
+  cageK1: 'k1 内区斥力强度',
+  cageRe: 're 内区斥力半径',
+  cageK2: 'k2 外区约束强度',
+  cageRc: 'rc 外区约束距离',
+  cageExponent: 'expc 软约束指数',
+  cageHardRadius: 'Rc 硬牢笼约束半径',
+};
+for (const key of Object.keys(CAGE_SETTINGS) as (keyof typeof CAGE_SETTINGS)[]) {
+  const rule = CAGE_PARAMETER_RULES[CAGE_SETTINGS[key]];
+  settingsRegistry.register({
+    key,
+    label: cageLabels[key],
+    category: '引力牢笼',
+    kind: 'number',
+    min: rule.min,
+    max: rule.max,
+    step: rule.step,
+    validate: (v): v is number =>
+      typeof v === 'number' && Number.isFinite(v) && v >= rule.min && v <= rule.max,
   });
 }

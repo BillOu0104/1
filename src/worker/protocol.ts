@@ -1,3 +1,4 @@
+import type { GravityCageConfig } from '../physics/cage';
 import type { TrailBatch } from '../physics/trajectory';
 import type {
   SimulationControls,
@@ -10,9 +11,12 @@ export type PhysicsRequest =
       seed: string;
       masses: number[];
       controls: SimulationControls;
+      galaxyScale?: number;
+      cage?: GravityCageConfig;
       session?: SessionHistory;
     }
-  | { type: 'reset'; seed: string; masses: number[] }
+  | { type: 'reset'; seed: string; masses: number[]; galaxyScale?: number }
+  | { type: 'configure'; galaxyScale: number; cage: GravityCageConfig }
   | { type: 'controls'; controls: SimulationControls }
   | { type: 'tick'; elapsed: number; sequence: number }
   | { type: 'visibility'; active: boolean };

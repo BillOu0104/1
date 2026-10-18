@@ -15,6 +15,18 @@ describe('settings state and persistence', () => {
     const store = new SettingsStore(persistence),
       listener = vi.fn(),
       unsubscribe = store.subscribe(listener);
+    store.set('galaxyScale', 5);
+    store.set('cageHard', true);
+    store.set('cageK1', 0.3);
+    store.set('cageEnabled', false);
+    expect(new SettingsStore(persistence).getSnapshot()).toMatchObject({
+      galaxyScale: 5,
+      cageHard: true,
+      cageK1: 0.3,
+      cageEnabled: false,
+    });
+    expect(() => store.set('galaxyScale', 11)).toThrow();
+    expect(() => store.set('cageRe', 0)).toThrow();
     store.set('trailLengthYears', 4.5);
     expect(new SettingsStore(persistence).getSnapshot().trailLengthYears).toBe(4.5);
     expect(() => store.set('trailLengthYears', 100)).toThrow();

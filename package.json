@@ -1,7 +1,7 @@
 {
   "name": "three-body-wallpaper",
   "private": true,
-  "version": "0.2.1",
+  "version": "0.3.0",
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
@@ -17,7 +17,9 @@
     "benchmark:browser": "node benchmarks/browser.mjs",
     "benchmark:report": "node benchmarks/report.mjs",
     "benchmark:fixes": "node benchmarks/fixes.mjs",
-    "benchmark:browser:fixes": "node benchmarks/browser-fixes.mjs"
+    "benchmark:browser:fixes": "node benchmarks/browser-fixes.mjs",
+    "benchmark:lifetime": "node benchmarks/lifetime.mjs",
+    "benchmark:browser:v03": "node benchmarks/browser-v03.mjs"
   },
   "dependencies": {
     "react": "^19.2.0",

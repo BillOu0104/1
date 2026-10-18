@@ -23,6 +23,19 @@ export class SceneRenderer {
   private disposed = false;
   private dirty = true;
   private interactionUntil = 0;
+  private systemScale = 1;
+  setSystemScale(scale: number): void {
+    if (scale === this.systemScale) return;
+    this.camera.position
+      .sub(this.controls.target)
+      .multiplyScalar(scale / this.systemScale)
+      .add(this.controls.target);
+    this.controls.maxDistance = 100 * scale;
+    this.camera.far = 1000 * scale;
+    this.camera.updateProjectionMatrix();
+    this.systemScale = scale;
+    this.dirty = true;
+  }
   getFrameInterval(): number {
     return performance.now() < this.interactionUntil ? 1000 / 60 : 1000 / 30;
   }

@@ -91,3 +91,16 @@ it('does not turn a resolved curved grazing pass into a false chord collision', 
   expect(engine.snapshot().reason).toBeNull();
   expect(Math.abs(engine.snapshot().relativeEnergyError)).toBeLessThan(1e-5);
 });
+
+it('does not mistake an accepted tiny macro-boundary remainder for an unresolved physical encounter', () => {
+  const bodies = [body('a', -0.5), body('b', 0.5)];
+  bodies[0]!.velocity = [0, -Math.sqrt(0.5), 0];
+  bodies[1]!.velocity = [0, Math.sqrt(0.5), 0];
+  const solver = new AdaptiveDopri5();
+  const tiny = solver.attempt(bodies, 1e-10, config);
+  expect(tiny.accepted).toBe(true);
+  expect(tiny.dt).toBe(1e-10);
+  const next = solver.attempt(bodies, 0.06, config);
+  expect(next.accepted).toBe(true);
+  expect(next.dt).toBeGreaterThan(0.001);
+});

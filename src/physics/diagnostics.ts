@@ -33,11 +33,20 @@ export function invariants(bodies: readonly Body[], config: PhysicsConfig): Inva
     angularScale,
   };
 }
-export function errors(initial: Invariants, bodies: readonly Body[], config: PhysicsConfig) {
+export function errors(
+  initial: Invariants,
+  bodies: readonly Body[],
+  config: PhysicsConfig,
+  externalWork = 0,
+  externalImpulse: Vec3 = [0, 0, 0],
+) {
   const now = invariants(bodies, config);
   return {
-    energy: (now.energy - initial.energy) / Math.max(Math.abs(initial.energy), 1e-15),
-    momentum: length(sub(now.momentum, initial.momentum)) / Math.max(initial.momentumScale, 1e-15),
+    energy:
+      (now.energy - initial.energy - externalWork) / Math.max(Math.abs(initial.energy), 1e-15),
+    momentum:
+      length(sub(sub(now.momentum, initial.momentum), externalImpulse)) /
+      Math.max(initial.momentumScale, 1e-15),
     angularMomentum:
       length(sub(now.angularMomentum, initial.angularMomentum)) /
       Math.max(length(initial.angularMomentum), initial.angularScale * 1e-8, 1e-15),

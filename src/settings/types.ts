@@ -1,5 +1,15 @@
 import type { GeneratorMode, Vec3 } from '../physics/types';
 export interface AppSettings {
+  galaxyScale: number;
+  cageEnabled: boolean;
+  cageHard: boolean;
+  cageMass: number;
+  cageK1: number;
+  cageRe: number;
+  cageK2: number;
+  cageRc: number;
+  cageExponent: number;
+  cageHardRadius: number;
   massA: number;
   massB: number;
   massC: number;
@@ -41,3 +51,10 @@ export interface FutureFeatureConfig {
   wallpaper: { pauseWhenHidden: boolean; propertyMapping: Record<string, string> };
   loading: { restartDelay: number; showStatus: boolean };
 }
+
+export type NumericSettingKey = {
+  [K in keyof AppSettings]: AppSettings[K] extends number ? K : never;
+}[keyof AppSettings];
+export type BooleanSettingKey = {
+  [K in keyof AppSettings]: AppSettings[K] extends boolean ? K : never;
+}[keyof AppSettings];

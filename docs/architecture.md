@@ -1,11 +1,12 @@
-# V0.2.1 架构
+# V0.3 架构
 
 ```mermaid
 flowchart LR
   Store[Settings Store / Registry / Persistence] --> Runtime[Main thread Runtime]
   Runtime -->|controls / one tick in flight| Worker[Module Worker]
   Worker --> Engine[SimulationEngine]
-  Engine --> Random[RandomInitializer / Seed]
+  Engine --> Random[Four-body Random / Seed / Galaxy Scale]
+  Engine --> Cage[Stage COM gravity cage / external work and impulse]
   Engine -->|accepted physical states| Recorder[Bounded trajectory recorder]
   Recorder -->|transferable deltas| Runtime
   Runtime -->|timestamped history| Trails[GPU trail ring buffers]
@@ -20,7 +21,7 @@ flowchart LR
 
 Worker 协议定义 init、reset、controls、tick、visibility 及 snapshot/error。主线程最多一条物理请求未确认，积压只保留0.25秒活跃时间；隐藏/宿主暂停丢弃积压。Worker 时间预算1–4ms、最多256次尝试，预算不降低数值精度；不是硬实时保证，一次完整积分尝试可以略微超时。
 
-初始化和自动重启直接调用 RandomInitializer，不创建筛选任务、候选队列或定时器。质量参考值在重置时读取，自动重启沿用本轮参考值。StructuredChaos / ScreeningJob 只供离线历史实验，不被生产入口导入；模式描述标为未启用。
+初始化和自动重启直接调用四体 RandomInitializer，以有界代数拒绝采样约束初态，不创建预积分筛选任务、候选队列或定时器。质量参考值在重置时读取，自动重启沿用本轮参考值。StructuredChaos / ScreeningJob 只供离线历史实验，不被生产入口导入；模式描述标为未启用。
 
 每个接受且通过守恒检查的真实状态进入 TrajectoryRecorder。按弦偏差、速度方向/大小变化与0.5T₀时间上限压缩近直线段，弯曲/近掠保留更密集的积分端点；不制造样条点，不修改积分步长。每次请求将本批最新端点一起发送，Float64 的 `[bodyIndex,time,x,y,z]` 通过 transferable buffer 转移，无需反复复制整段历史。Worker 固定4096点暂存，每次最多256步、4天体，正常最多约1032点；主线程立即写入每体8192点镜像环形缓冲。时间戳二分选择0.1–10模拟年的可见范围，GPU仅批量上传脏区间。四体历史CPU约1MiB、GPU位置约0.75MiB，加上约160KiB Worker暂存；持续运行不扩容。点数上限优先，极高采样密度下实际保留时间可能更短。generation切换同时清空Worker批次和GPU有效范围，旧Worker由epoch隔离。
 
@@ -40,3 +41,9 @@ Worker 协议定义 init、reset、controls、tick、visibility 及 snapshot/err
 ## 复现
 
 `benchmarks/baseline/` 是提交83acfeb的原始物理与引擎快照，不用于生产，不随V0.2重构改写。数值基准可离线执行；浏览器基准需要该提交的Git历史，从临时目录构建原版并在两个本地端口测量，结束后释放进程与临时文件。基准数据不是跨硬件性能保证。
+
+## V0.3 尺度与牢笼
+
+SettingsRegistry定义Galaxy Scale和原版确认的9个牢笼控件，沿用现有设置持久化及分类布局。Runtime仅在配置改变时发送configure；Worker保存待生效尺度，下一轮生成时应用。牢笼通过Engine.setCage热更新并重建诊断基准，不清空轨道或重建Renderer。
+
+DOPRI5每个阶段用阶段状态计算全四体COM，叠加独立牢笼力。开启时追加4维状态（外力做功和三维冲量），使用同一嵌入误差控制；关闭后移除这4维及额外力。角动量使用COM系。弦检查回退与辅助状态一起回滚；宏步末尾极小补齐步不会污染下一宏步的建议步长。完整公式、来源、边界差异及测试见[V0.3说明](v0.3.md)。尾迹Recorder、Trail和CSS布局未修改；Renderer只为尺度增加相机距离/远裁面适配。
