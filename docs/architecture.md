@@ -21,6 +21,8 @@ flowchart LR
 
 Worker 协议定义 init、reset、controls、tick、visibility 及 snapshot/error。主线程最多一条物理请求未确认，积压只保留0.25秒活跃时间；隐藏/宿主暂停丢弃积压。Worker 时间预算1–4ms、最多256次尝试，预算不降低数值精度；不是硬实时保证，一次完整积分尝试可以略微超时。
 
+V0.3.1 的 tick 另带未截断 wallElapsed，用真实活跃时间计算近期实际倍速；目标可达100×，不改数值步长/容限。Seed 模式属于每场会话，自动重启额度在 Engine 与主线程故障恢复均执行；RunStatistics 与有界事件历史可随 Worker 恢复传递。referenceMasses/galaxyScale 初始化元数据区分本轮实际输入与 UI 待应用草稿，供当前 Seed 精确重跑。所有数值控件共用 NumericSetting 与 Store 步长校验。
+
 初始化和自动重启直接调用四体 RandomInitializer，以有界代数拒绝采样约束初态，不创建预积分筛选任务、候选队列或定时器。质量参考值在重置时读取，自动重启沿用本轮参考值。StructuredChaos / ScreeningJob 只供离线历史实验，不被生产入口导入；模式描述标为未启用。
 
 每个接受且通过守恒检查的真实状态进入 TrajectoryRecorder。按弦偏差、速度方向/大小变化与0.5T₀时间上限压缩近直线段，弯曲/近掠保留更密集的积分端点；不制造样条点，不修改积分步长。每次请求将本批最新端点一起发送，Float64 的 `[bodyIndex,time,x,y,z]` 通过 transferable buffer 转移，无需反复复制整段历史。Worker 固定4096点暂存，每次最多256步、4天体，正常最多约1032点；主线程立即写入每体8192点镜像环形缓冲。时间戳二分选择0.1–10模拟年的可见范围，GPU仅批量上传脏区间。四体历史CPU约1MiB、GPU位置约0.75MiB，加上约160KiB Worker暂存；持续运行不扩容。点数上限优先，极高采样密度下实际保留时间可能更短。generation切换同时清空Worker批次和GPU有效范围，旧Worker由epoch隔离。

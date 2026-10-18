@@ -1,4 +1,5 @@
 import type { GeneratorMode, Vec3 } from '../physics/types';
+import type { SeedMode } from '../simulation/seeds';
 export interface AppSettings {
   galaxyScale: number;
   cageEnabled: boolean;
@@ -16,6 +17,9 @@ export interface AppSettings {
   paused: boolean;
   speed: number;
   seed: string;
+  seedMode: SeedMode;
+  unlimitedRestarts: boolean;
+  maxRestarts: number;
   autoRestart: boolean;
   trails: boolean;
   trailLengthYears: number;

@@ -48,9 +48,10 @@ test('renders live WebGL, responds to controls, stays within viewport and retain
   const paused = await time.textContent();
   await page.waitForTimeout(300);
   expect(await time.textContent()).toBe(paused);
-  await page.getByLabel('模拟速度', { exact: false }).fill('3');
+  await page.getByRole('slider', { name: '模拟速度', exact: true }).fill('3');
   await page.getByLabel('显示轨迹').uncheck();
   await page.getByLabel('自动重启').uncheck();
+  await page.getByLabel('Seed 模式', { exact: true }).selectOption('fixed');
   await page.getByLabel('随机种子 Seed').fill('browser-seed');
   await page.getByRole('button', { name: '应用并重置' }).click();
   await expect(time).toHaveText('0.000');

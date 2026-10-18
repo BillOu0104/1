@@ -20,6 +20,7 @@ test('draws Worker integration histories at 20× and changes the persisted time 
           galaxyScale: 1,
           cageEnabled: false,
           seed: 'fix-bench-1',
+          seedMode: 'fixed',
           speed: 20,
           autoRestart: false,
           trails: true,

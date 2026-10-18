@@ -53,7 +53,7 @@ it('rejects malformed requests and transfers trajectory buffers rather than clon
     type: 'init',
     seed: 'same',
     masses: [1, 0.95, 0.9],
-    controls: { paused: false, speed: 20, autoRestart: true },
+    controls: { paused: false, speed: 100, autoRestart: true },
   });
   // Test transfer semantics independently of how many steps a loaded CI host fits in 4ms.
   const clock = vi.spyOn(performance, 'now').mockReturnValue(0);
@@ -84,7 +84,7 @@ it('keeps one controller through repeated collision restarts with clean batches 
     type: 'init',
     seed: 'restart-soak',
     masses: [1, 0.95, 0.9],
-    controls: { paused: false, speed: 20, autoRestart: true },
+    controls: { paused: false, speed: 100, autoRestart: true },
   });
   let generation = latest().snapshot.generation,
     restarts = 0;
@@ -103,8 +103,47 @@ it('keeps one controller through repeated collision restarts with clean batches 
   }
   expect(restarts).toBe(3);
   expect(latest().snapshot.restartCount).toBe(3);
+  expect(latest().snapshot.run.autoRestarts).toBe(3);
   spy.mockRestore();
   controller.dispose();
+});
+
+it('applies fixed competition controls atomically when resetting from random mode', () => {
+  const generate = RandomInitializer.prototype.generate;
+  const spy = vi.spyOn(RandomInitializer.prototype, 'generate').mockImplementation(function (
+    this: RandomInitializer,
+    seed,
+    config,
+  ) {
+    const bodies = generate.call(this, seed, config);
+    bodies[1]!.position = [...bodies[0]!.position];
+    return bodies;
+  });
+  try {
+    const { controller, latest } = setup();
+    controller.receive({
+      type: 'init',
+      seed: 'random-first',
+      seedMode: 'random',
+      masses: [1, 0.95, 0.9],
+      controls: { paused: false, speed: 100, autoRestart: true },
+    });
+    controller.receive({
+      type: 'reset',
+      seed: 'competition',
+      seedMode: 'fixed',
+      masses: [1, 0.95, 0.9],
+      controls: { paused: false, speed: 100, autoRestart: true, maxRestarts: 1 },
+    });
+    for (let i = 0; i < 200; i++) controller.receive({ type: 'tick', elapsed: 0.25, sequence: i });
+    expect(latest().snapshot.run.autoRestarts).toBe(1);
+    expect(latest().snapshot.run.round).toBe(2);
+    expect(latest().snapshot.restartLimitReached).toBe(true);
+    expect(latest().trails!.generation).toBe(latest().snapshot.generation);
+    controller.dispose();
+  } finally {
+    spy.mockRestore();
+  }
 });
 
 it('applies scale on reset and cage settings live, preserving years/generation and physical units', () => {

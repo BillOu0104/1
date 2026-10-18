@@ -1,0 +1,271 @@
+{
+  "version": "0.3.1",
+  "generatedAt": "2026-10-18T09:14:12.111Z",
+  "method": "8 Seeds, 100 physical years, equal .12 T0 requests; no wall-clock budget. Measures numerical equivalence, not achievable real-time speed.",
+  "rows": [
+    {
+      "seed": "v031-speed-0",
+      "targetSpeed": 1,
+      "observedYears": 100.00023384348668,
+      "cpuMs": 162.432589,
+      "steps": 10862,
+      "energyError": 1.5333836139929111e-9,
+      "angularMomentumError": 1.5428070940664147e-11,
+      "reason": null,
+      "identicalTo1x": true
+    },
+    {
+      "seed": "v031-speed-0",
+      "targetSpeed": 20,
+      "observedYears": 100.00023384348668,
+      "cpuMs": 131.639273,
+      "steps": 10862,
+      "energyError": 1.5333836139929111e-9,
+      "angularMomentumError": 1.5428070940664147e-11,
+      "reason": null,
+      "identicalTo1x": true
+    },
+    {
+      "seed": "v031-speed-0",
+      "targetSpeed": 100,
+      "observedYears": 100.00023384348668,
+      "cpuMs": 121.26637900000003,
+      "steps": 10862,
+      "energyError": 1.5333836139929111e-9,
+      "angularMomentumError": 1.5428070940664147e-11,
+      "reason": null,
+      "identicalTo1x": true
+    },
+    {
+      "seed": "v031-speed-1",
+      "targetSpeed": 1,
+      "observedYears": 100.00023384348557,
+      "cpuMs": 118.2872900000001,
+      "steps": 10905,
+      "energyError": 6.701700777186019e-9,
+      "angularMomentumError": 2.208265124861035e-11,
+      "reason": null,
+      "identicalTo1x": true
+    },
+    {
+      "seed": "v031-speed-1",
+      "targetSpeed": 20,
+      "observedYears": 100.00023384348557,
+      "cpuMs": 121.98202000000003,
+      "steps": 10905,
+      "energyError": 6.701700777186019e-9,
+      "angularMomentumError": 2.208265124861035e-11,
+      "reason": null,
+      "identicalTo1x": true
+    },
+    {
+      "seed": "v031-speed-1",
+      "targetSpeed": 100,
+      "observedYears": 100.00023384348557,
+      "cpuMs": 131.504952,
+      "steps": 10905,
+      "energyError": 6.701700777186019e-9,
+      "angularMomentumError": 2.208265124861035e-11,
+      "reason": null,
+      "identicalTo1x": true
+    },
+    {
+      "seed": "v031-speed-2",
+      "targetSpeed": 1,
+      "observedYears": 100.00023384348684,
+      "cpuMs": 127.16745900000001,
+      "steps": 11698,
+      "energyError": 4.4858966090276785e-8,
+      "angularMomentumError": 1.1002303752063338e-10,
+      "reason": null,
+      "identicalTo1x": true
+    },
+    {
+      "seed": "v031-speed-2",
+      "targetSpeed": 20,
+      "observedYears": 100.00023384348684,
+      "cpuMs": 126.03030899999999,
+      "steps": 11698,
+      "energyError": 4.4858966090276785e-8,
+      "angularMomentumError": 1.1002303752063338e-10,
+      "reason": null,
+      "identicalTo1x": true
+    },
+    {
+      "seed": "v031-speed-2",
+      "targetSpeed": 100,
+      "observedYears": 100.00023384348684,
+      "cpuMs": 125.72332899999992,
+      "steps": 11698,
+      "energyError": 4.4858966090276785e-8,
+      "angularMomentumError": 1.1002303752063338e-10,
+      "reason": null,
+      "identicalTo1x": true
+    },
+    {
+      "seed": "v031-speed-3",
+      "targetSpeed": 1,
+      "observedYears": 100.00023384348576,
+      "cpuMs": 112.33961900000008,
+      "steps": 10490,
+      "energyError": 4.0930312811175314e-11,
+      "angularMomentumError": 1.978693553635838e-12,
+      "reason": null,
+      "identicalTo1x": true
+    },
+    {
+      "seed": "v031-speed-3",
+      "targetSpeed": 20,
+      "observedYears": 100.00023384348576,
+      "cpuMs": 111.89449300000001,
+      "steps": 10490,
+      "energyError": 4.0930312811175314e-11,
+      "angularMomentumError": 1.978693553635838e-12,
+      "reason": null,
+      "identicalTo1x": true
+    },
+    {
+      "seed": "v031-speed-3",
+      "targetSpeed": 100,
+      "observedYears": 100.00023384348576,
+      "cpuMs": 112.57763499999987,
+      "steps": 10490,
+      "energyError": 4.0930312811175314e-11,
+      "angularMomentumError": 1.978693553635838e-12,
+      "reason": null,
+      "identicalTo1x": true
+    },
+    {
+      "seed": "v031-speed-4",
+      "targetSpeed": 1,
+      "observedYears": 100.00023384348569,
+      "cpuMs": 114.0462030000001,
+      "steps": 10494,
+      "energyError": 1.2628687595587303e-10,
+      "angularMomentumError": 3.499165765351732e-12,
+      "reason": null,
+      "identicalTo1x": true
+    },
+    {
+      "seed": "v031-speed-4",
+      "targetSpeed": 20,
+      "observedYears": 100.00023384348569,
+      "cpuMs": 113.12839900000017,
+      "steps": 10494,
+      "energyError": 1.2628687595587303e-10,
+      "angularMomentumError": 3.499165765351732e-12,
+      "reason": null,
+      "identicalTo1x": true
+    },
+    {
+      "seed": "v031-speed-4",
+      "targetSpeed": 100,
+      "observedYears": 100.00023384348569,
+      "cpuMs": 114.74963000000002,
+      "steps": 10494,
+      "energyError": 1.2628687595587303e-10,
+      "angularMomentumError": 3.499165765351732e-12,
+      "reason": null,
+      "identicalTo1x": true
+    },
+    {
+      "seed": "v031-speed-5",
+      "targetSpeed": 1,
+      "observedYears": 100.00023384348557,
+      "cpuMs": 122.26243999999997,
+      "steps": 11124,
+      "energyError": 4.84862528425318e-9,
+      "angularMomentumError": 7.163975880594652e-11,
+      "reason": null,
+      "identicalTo1x": true
+    },
+    {
+      "seed": "v031-speed-5",
+      "targetSpeed": 20,
+      "observedYears": 100.00023384348557,
+      "cpuMs": 120.3210339999996,
+      "steps": 11124,
+      "energyError": 4.84862528425318e-9,
+      "angularMomentumError": 7.163975880594652e-11,
+      "reason": null,
+      "identicalTo1x": true
+    },
+    {
+      "seed": "v031-speed-5",
+      "targetSpeed": 100,
+      "observedYears": 100.00023384348557,
+      "cpuMs": 120.06568200000038,
+      "steps": 11124,
+      "energyError": 4.84862528425318e-9,
+      "angularMomentumError": 7.163975880594652e-11,
+      "reason": null,
+      "identicalTo1x": true
+    },
+    {
+      "seed": "v031-speed-6",
+      "targetSpeed": 1,
+      "observedYears": 100.00023384348601,
+      "cpuMs": 115.41765499999974,
+      "steps": 10510,
+      "energyError": 2.8684366118953156e-10,
+      "angularMomentumError": 4.91856308147074e-12,
+      "reason": null,
+      "identicalTo1x": true
+    },
+    {
+      "seed": "v031-speed-6",
+      "targetSpeed": 20,
+      "observedYears": 100.00023384348601,
+      "cpuMs": 114.29387300000008,
+      "steps": 10510,
+      "energyError": 2.8684366118953156e-10,
+      "angularMomentumError": 4.91856308147074e-12,
+      "reason": null,
+      "identicalTo1x": true
+    },
+    {
+      "seed": "v031-speed-6",
+      "targetSpeed": 100,
+      "observedYears": 100.00023384348601,
+      "cpuMs": 113.77825200000007,
+      "steps": 10510,
+      "energyError": 2.8684366118953156e-10,
+      "angularMomentumError": 4.91856308147074e-12,
+      "reason": null,
+      "identicalTo1x": true
+    },
+    {
+      "seed": "v031-speed-7",
+      "targetSpeed": 1,
+      "observedYears": 100.00023384348604,
+      "cpuMs": 113.87874299999976,
+      "steps": 10526,
+      "energyError": 5.820699441765489e-10,
+      "angularMomentumError": 1.138692277208179e-11,
+      "reason": null,
+      "identicalTo1x": true
+    },
+    {
+      "seed": "v031-speed-7",
+      "targetSpeed": 20,
+      "observedYears": 100.00023384348604,
+      "cpuMs": 115.76709899999969,
+      "steps": 10526,
+      "energyError": 5.820699441765489e-10,
+      "angularMomentumError": 1.138692277208179e-11,
+      "reason": null,
+      "identicalTo1x": true
+    },
+    {
+      "seed": "v031-speed-7",
+      "targetSpeed": 100,
+      "observedYears": 100.00023384348604,
+      "cpuMs": 113.73087099999975,
+      "steps": 10526,
+      "energyError": 5.820699441765489e-10,
+      "angularMomentumError": 1.138692277208179e-11,
+      "reason": null,
+      "identicalTo1x": true
+    }
+  ]
+}

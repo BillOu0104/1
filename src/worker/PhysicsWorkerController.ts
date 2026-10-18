@@ -31,6 +31,7 @@ export class PhysicsWorkerController {
         if (message.type === 'init') {
           this.controls = message.controls;
           this.engine = new SimulationEngine(message.seed, {
+            seedMode: message.seedMode,
             config: { galaxyScale: this.nextScale, cage: { ...(message.cage ?? DEFAULT_CAGE) } },
             generator: {
               mode: 'random',
@@ -43,7 +44,11 @@ export class PhysicsWorkerController {
             onAcceptedState: (bodies, time, generation) =>
               this.trajectory.capture(bodies, time, generation),
           });
-        } else this.engine?.reset(message.seed);
+        } else {
+          if (message.controls) this.controls = message.controls;
+          this.engine?.setControls(this.controls);
+          this.engine?.reset(message.seed, undefined, message.seedMode);
+        }
         this.engine?.setControls(this.controls);
         this.emit();
       } else if (message.type === 'configure') {
@@ -58,7 +63,7 @@ export class PhysicsWorkerController {
       } else if (message.type === 'visibility') this.active = message.active;
       else if (message.type === 'tick') {
         const before = performance.now();
-        if (this.active) this.engine?.advance(message.elapsed, this.budgetMs);
+        if (this.active) this.engine?.advance(message.elapsed, this.budgetMs, message.wallElapsed);
         const cpuMs = performance.now() - before;
         // Reduce wall-time budget under load, never weaken numerical error tolerances.
         this.budgetMs = Math.max(1, Math.min(4, this.budgetMs + (cpuMs > 5 ? -0.4 : 0.05)));
@@ -79,6 +84,10 @@ export class PhysicsWorkerController {
   private emit(sequence?: number, cpuMs = 0): void {
     if (!this.engine) return;
     const snapshot = this.engine.snapshot();
+    snapshot.initialization = {
+      referenceMasses: [...this.masses],
+      galaxyScale: snapshot.system!.galaxyScale,
+    };
     const eventId = snapshot.events[0]?.id ?? 0;
     const eventsUnchanged = eventId === this.lastEventId;
     this.lastEventId = eventId;

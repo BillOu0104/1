@@ -1,4 +1,4 @@
-name: Validate V0.3
+name: Validate V0.3.1
 on:
   push:
   pull_request:
@@ -28,6 +28,10 @@ jobs:
           BENCH_SEEDS: 4
           BENCH_YEARS: 30
           BENCH_OUTPUT: test-results/benchmark-smoke.json
+      - name: Compare 1x, 20x and 100x numerical results
+        run: npm run benchmark:speed
+        env:
+          SPEED_BENCH_OUTPUT: test-results/speed-benchmark.json
       - run: npm run build
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e

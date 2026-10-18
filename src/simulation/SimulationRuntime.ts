@@ -1,10 +1,16 @@
 import { cageFromSettings } from '../settings/physicsSettings';
-import { SimulationEngine, type SimulationSnapshot, type SessionHistory } from './SimulationEngine';
+import {
+  SimulationEngine,
+  newRunStatistics,
+  type SimulationSnapshot,
+  type SessionHistory,
+} from './SimulationEngine';
 import type { SettingsStore } from '../settings/SettingsStore';
 import type { SceneRenderer } from '../rendering/SceneRenderer';
 import type { PhysicsPort, PhysicsRequest, PhysicsResponse } from '../worker/protocol';
 import { RandomInitializer } from '../physics/initialConditions';
-import { hashSeed } from '../physics/random';
+import { createRandomSeed, nextRoundSeed } from './seeds';
+import { controlsFromSettings } from '../settings/simulationSettings';
 export interface RuntimeOptions {
   workerFactory?: () => PhysicsPort;
   synchronous?: boolean;
@@ -23,6 +29,7 @@ export class SimulationRuntime {
   private port: PhysicsPort | null = null;
   private inFlight = false;
   private queuedTime = 0;
+  private queuedWallTime = 0;
   private sequence = 0;
   private lastSequence = 0;
   private faultTimes: number[] = [];
@@ -33,17 +40,27 @@ export class SimulationRuntime {
   private sentAt = 0;
   private renderer: SceneRenderer | null = null;
   private sentPhysicsSignature = '';
+  private activeMasses: number[] = [];
   constructor(
     readonly settings: SettingsStore,
     private readonly options: RuntimeOptions = {},
   ) {
     const config = settings.getSnapshot();
-    this.engine = new SimulationEngine(config.seed, {
-      generator: new RandomInitializer(this.masses()),
-      config: { galaxyScale: config.galaxyScale, cage: cageFromSettings(config) },
-    });
-    this.engine.setControls(config);
+    this.activeMasses = this.masses();
+    this.engine = new SimulationEngine(
+      config.seedMode === 'random' ? createRandomSeed() : config.seed,
+      {
+        seedMode: config.seedMode,
+        generator: new RandomInitializer(this.masses()),
+        config: { galaxyScale: config.galaxyScale, cage: cageFromSettings(config) },
+      },
+    );
+    this.engine.setControls(controlsFromSettings(config));
     this.current = this.engine.snapshot();
+    this.current.initialization = {
+      referenceMasses: [...this.activeMasses],
+      galaxyScale: config.galaxyScale,
+    };
     this.uiSnapshot = this.current;
   }
   private masses(): number[] {
@@ -58,23 +75,47 @@ export class SimulationRuntime {
     };
   };
   publish = (): void => {
-    if (this.options.synchronous) this.current = this.engine.snapshot();
+    if (this.options.synchronous) {
+      this.current = this.engine.snapshot();
+      this.current.initialization = {
+        referenceMasses: [...this.activeMasses],
+        galaxyScale: this.engine.config.galaxyScale ?? 1,
+      };
+    }
     this.uiSnapshot = this.current;
     this.lastUiPublish = performance.now();
     this.listeners.forEach((listener) => listener());
   };
   reset = (): void => {
+    const settings = this.settings.getSnapshot();
+    this.startMatch(settings.seedMode === 'random' ? createRandomSeed() : settings.seed);
+  };
+  rerunCurrentSeed = (): void => {
+    const initialization = this.current.initialization;
+    if (initialization) {
+      this.settings.set('galaxyScale', initialization.galaxyScale);
+      for (const [i, key] of ['massA', 'massB', 'massC'].entries())
+        this.settings.set(key as 'massA' | 'massB' | 'massC', initialization.referenceMasses[i]!);
+    }
+    this.settings.set('seedMode', 'fixed');
+    this.settings.set('seed', this.current.seed);
+    this.startMatch(this.current.seed);
+  };
+  private startMatch(seed: string): void {
+    this.activeMasses = this.masses();
     this.faultTimes = [];
     if (this.retry !== null) {
       clearTimeout(this.retry);
       this.retry = null;
     }
-    const seed = this.settings.getSnapshot().seed;
+    const settings = this.settings.getSnapshot();
     if (this.options.synchronous) {
       this.engine.setGalaxyScale(this.settings.getSnapshot().galaxyScale);
+      this.engine.setControls(controlsFromSettings(settings));
       this.engine.reset(
         seed,
         new RandomInitializer(this.masses()).generate(seed, this.engine.config),
+        settings.seedMode,
       );
       this.publish();
       return;
@@ -82,7 +123,15 @@ export class SimulationRuntime {
     this.current = {
       ...this.current,
       phase: 'initializing',
-      controls: { ...this.settings.getSnapshot() },
+      seed,
+      time: 0,
+      years: 0,
+      reason: null,
+      steps: 0,
+      controls: controlsFromSettings(settings),
+      run: newRunStatistics(seed, settings.seedMode),
+      restartLimitReached:
+        settings.seedMode === 'fixed' && !settings.unlimitedRestarts && settings.maxRestarts === 0,
       autoRestartBlocked: false,
     };
     this.publish();
@@ -90,6 +139,8 @@ export class SimulationRuntime {
       this.send({
         type: 'reset',
         seed,
+        controls: controlsFromSettings(settings),
+        seedMode: settings.seedMode,
         masses: this.masses(),
         galaxyScale: this.settings.getSnapshot().galaxyScale,
       });
@@ -97,17 +148,19 @@ export class SimulationRuntime {
       this.current = { ...this.current, restartCount: this.current.restartCount + 1 };
       this.startWorker(seed, this.session());
     }
-  };
+  }
   private session(): SessionHistory {
     return {
       events: this.current.events,
       restartCount: this.current.restartCount,
       generation: this.current.generation,
+      run: this.current.run,
     };
   }
   setHostPaused(paused: boolean): void {
     this.hostPaused = paused;
     this.queuedTime = 0;
+    this.queuedWallTime = 0;
     this.send({ type: 'visibility', active: !paused && !document.hidden });
     if (!paused) this.scheduleRecovery();
   }
@@ -115,11 +168,14 @@ export class SimulationRuntime {
     this.port?.postMessage(message);
   }
   private startWorker(seed: string, session?: SessionHistory): void {
+    // A failed worker construction still consumes this attempted round and its Seed.
+    this.current = { ...this.current, seed, time: 0, years: 0, reason: null, steps: 0 };
     const epoch = ++this.epoch;
     this.port?.terminate();
     this.port = null;
     this.inFlight = false;
     this.queuedTime = 0;
+    this.queuedWallTime = 0;
     this.lastSequence = 0;
     try {
       this.port =
@@ -137,8 +193,9 @@ export class SimulationRuntime {
       this.send({
         type: 'init',
         seed,
+        seedMode: this.current.run.seedMode,
         masses: this.masses(),
-        controls: this.settings.getSnapshot(),
+        controls: controlsFromSettings(this.settings.getSnapshot(), this.current.run.seedMode),
         galaxyScale: this.settings.getSnapshot().galaxyScale,
         cage: cageFromSettings(this.settings.getSnapshot()),
         session,
@@ -173,7 +230,8 @@ export class SimulationRuntime {
       performance.now() - this.lastUiPublish >= 100 ||
       this.current.phase !== this.uiSnapshot.phase ||
       this.current.generation !== this.uiSnapshot.generation ||
-      this.current.events[0]?.id !== this.uiSnapshot.events[0]?.id
+      this.current.events[0]?.id !== this.uiSnapshot.events[0]?.id ||
+      this.current.restartLimitReached !== this.uiSnapshot.restartLimitReached
     )
       this.publish();
   }
@@ -183,15 +241,23 @@ export class SimulationRuntime {
     this.port = null;
     this.inFlight = false;
     this.queuedTime = 0;
+    this.queuedWallTime = 0;
     const now = Date.now();
     this.faultTimes = this.faultTimes.filter((t) => now - t < 30000);
     this.faultTimes.push(now);
     const blocked = this.faultTimes.length >= 3;
     const reason = { type: 'numerical' as const, message, bodyIds: [], year: this.current.years };
+    const run = { ...this.current.run, lastEndReason: reason };
+    if (this.current.years > run.longestYears) {
+      run.longestYears = this.current.years;
+      run.longestSeed = this.current.seed;
+    }
     this.current = {
       ...this.current,
       phase: 'ended',
       reason,
+      run,
+      restartLimitReached: this.limitReached(),
       autoRestartBlocked: blocked,
       events: [
         {
@@ -208,12 +274,20 @@ export class SimulationRuntime {
     this.publish();
     this.scheduleRecovery();
   }
+  private limitReached(): boolean {
+    const limit = controlsFromSettings(
+      this.settings.getSnapshot(),
+      this.current.run.seedMode,
+    ).maxRestarts;
+    return limit != null && this.current.run.autoRestarts >= limit;
+  }
   private scheduleRecovery(): void {
     if (
       !this.port &&
       this.retry === null &&
       this.current.phase === 'ended' &&
       !this.current.autoRestartBlocked &&
+      !this.limitReached() &&
       this.settings.getSnapshot().autoRestart &&
       !this.settings.getSnapshot().paused &&
       this.attached
@@ -225,11 +299,21 @@ export class SimulationRuntime {
           document.hidden ||
           this.hostPaused ||
           this.settings.getSnapshot().paused ||
-          !this.settings.getSnapshot().autoRestart
+          !this.settings.getSnapshot().autoRestart ||
+          this.limitReached()
         )
           return;
-        this.current = { ...this.current, restartCount: this.current.restartCount + 1 };
-        this.startWorker(String(hashSeed(`${this.current.seed}:worker-retry`)), this.session());
+        const seed = nextRoundSeed(this.current.seed, this.current.run.seedMode);
+        this.current = {
+          ...this.current,
+          restartCount: this.current.restartCount + 1,
+          run: {
+            ...this.current.run,
+            autoRestarts: this.current.run.autoRestarts + 1,
+            round: this.current.run.round + 1,
+          },
+        };
+        this.startWorker(seed, this.session());
       }, 2000);
     }
   }
@@ -240,22 +324,22 @@ export class SimulationRuntime {
       lastRendered = 0;
     this.attached = true;
     this.renderer = renderer;
-    if (!this.options.synchronous) this.startWorker(this.current.seed);
+    if (!this.options.synchronous) this.startWorker(this.current.seed, this.session());
     const syncSettings = () => {
       const settings = this.settings.getSnapshot();
       if (this.options.synchronous) {
-        this.engine.setControls(settings);
+        this.engine.setControls(controlsFromSettings(settings, this.current.run.seedMode));
         this.engine.setCage(cageFromSettings(settings));
       } else {
         this.current = {
           ...this.current,
-          controls: {
-            paused: settings.paused,
-            speed: settings.speed,
-            autoRestart: settings.autoRestart,
-          },
+          controls: controlsFromSettings(settings, this.current.run.seedMode),
+          restartLimitReached: this.limitReached(),
         };
-        this.send({ type: 'controls', controls: settings });
+        this.send({
+          type: 'controls',
+          controls: controlsFromSettings(settings, this.current.run.seedMode),
+        });
         const cage = cageFromSettings(settings),
           signature = JSON.stringify([settings.galaxyScale, cage]);
         if (signature !== this.sentPhysicsSignature) {
@@ -264,6 +348,7 @@ export class SimulationRuntime {
         }
       }
       this.queuedTime = 0;
+      this.queuedWallTime = 0;
       this.publish();
       this.scheduleRecovery();
     };
@@ -277,11 +362,18 @@ export class SimulationRuntime {
         if (!this.hostPaused) this.engine.advance(elapsed);
       } else if (!this.hostPaused && !this.settings.getSnapshot().paused) {
         this.queuedTime = Math.min(0.25, this.queuedTime + elapsed);
+        this.queuedWallTime += elapsed;
         if (!this.inFlight && this.queuedTime >= 1 / 30) {
           this.inFlight = true;
           this.sentAt = performance.now();
-          this.send({ type: 'tick', elapsed: this.queuedTime, sequence: ++this.sequence });
+          this.send({
+            type: 'tick',
+            elapsed: this.queuedTime,
+            wallElapsed: this.queuedWallTime,
+            sequence: ++this.sequence,
+          });
           this.queuedTime = 0;
+          this.queuedWallTime = 0;
         }
       }
       const interval =
@@ -332,6 +424,7 @@ export class SimulationRuntime {
       cancelAnimationFrame(frameId);
       previous = null;
       this.queuedTime = 0;
+      this.queuedWallTime = 0;
       this.send({ type: 'visibility', active: !document.hidden && !this.hostPaused });
       if (!document.hidden) this.scheduleRecovery();
       if (!document.hidden) frameId = requestAnimationFrame(tick);

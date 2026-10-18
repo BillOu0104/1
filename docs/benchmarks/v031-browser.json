@@ -1,0 +1,64 @@
+{
+  "version": "0.3.1",
+  "browser": "Chromium / SwiftShader software WebGL",
+  "method": "One approx 6s sample per viewport, 100x target, fixed v031-browser Seed, 3x scale, reference masses 0.99/0.94/0.12, default soft cage. Full-window speed includes unpause startup; displayed speed is a recent exponential mean. Worker timings include scheduling/GC; not hard deadlines.",
+  "rows": [
+    {
+      "viewport": {
+        "width": 2520,
+        "height": 1080
+      },
+      "targetSpeed": 100,
+      "sampleMs": 6152.10000000149,
+      "achievedSpeed": 88.68516441538434,
+      "displayedAchievedSpeed": 98.78482149956326,
+      "workerCpuP95": 5.300000000745058,
+      "workerCpuMax": 7.5,
+      "longTasks": [],
+      "maxPending": 1,
+      "workers": 1,
+      "maxBatch": 54,
+      "energyError": 2.6565272883139513e-15,
+      "angularMomentumError": 1.9322257469098826e-15,
+      "errors": []
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "targetSpeed": 100,
+      "sampleMs": 6210.5,
+      "achievedSpeed": 87.83511794541795,
+      "displayedAchievedSpeed": 98.49478325221035,
+      "workerCpuP95": 5.599999999627471,
+      "workerCpuMax": 7,
+      "longTasks": [],
+      "maxPending": 1,
+      "workers": 1,
+      "maxBatch": 60,
+      "energyError": 2.4133829677040756e-15,
+      "angularMomentumError": 2.030803640603629e-15,
+      "errors": []
+    },
+    {
+      "viewport": {
+        "width": 640,
+        "height": 800
+      },
+      "targetSpeed": 100,
+      "sampleMs": 6110,
+      "achievedSpeed": 94.35351882160708,
+      "displayedAchievedSpeed": 99.45211954050339,
+      "workerCpuP95": 4,
+      "workerCpuMax": 33.09999999962747,
+      "longTasks": [],
+      "maxPending": 1,
+      "workers": 1,
+      "maxBatch": 52,
+      "energyError": 4.1441558138610314e-15,
+      "angularMomentumError": 2.2441465658867126e-15,
+      "errors": []
+    }
+  ]
+}

@@ -33,7 +33,36 @@ export function InformationPanels({
           </div>
           <div>
             <dt>运行轮次</dt>
-            <dd>{String(snapshot.generation).padStart(3, '0')}</dd>
+            <dd>{String(snapshot.run.round).padStart(3, '0')}</dd>
+          </div>
+          <div>
+            <dt>当前 Seed</dt>
+            <dd className="seed-value">{snapshot.seed}</dd>
+          </div>
+          <div>
+            <dt>已自动重启</dt>
+            <dd>
+              {snapshot.run.autoRestarts}
+              {snapshot.run.seedMode === 'fixed' && snapshot.controls.maxRestarts != null
+                ? ` / ${snapshot.controls.maxRestarts}`
+                : ' / 不限制'}
+            </dd>
+          </div>
+          <div>
+            <dt>当前宇宙</dt>
+            <dd>{snapshot.years.toFixed(3)} 年</dd>
+          </div>
+          <div>
+            <dt>最长单轮</dt>
+            <dd>{snapshot.run.longestYears.toFixed(3)} 年</dd>
+          </div>
+          <div>
+            <dt>最长轮 Seed</dt>
+            <dd className="seed-value">{snapshot.run.longestSeed}</dd>
+          </div>
+          <div>
+            <dt>最后结束原因</dt>
+            <dd>{snapshot.run.lastEndReason?.message ?? '—'}</dd>
           </div>
         </dl>
         <div className="panel-section-title">
@@ -149,6 +178,17 @@ export function InformationPanels({
             </dd>
             <dt>初始条件</dt>
             <dd>四体 Random · Seed</dd>
+          </div>
+          <div>
+            <dt>目标 / 近期实际倍速</dt>
+            <dd>
+              {snapshot.controls.speed.toFixed(1)}× /{' '}
+              {(snapshot.controls.paused || snapshot.phase !== 'running'
+                ? 0
+                : snapshot.diagnostics.achievedSpeed
+              ).toFixed(1)}
+              ×
+            </dd>
           </div>
           <div>
             <dt>累计重启</dt>

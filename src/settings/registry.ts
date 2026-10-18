@@ -2,12 +2,13 @@ import { CAGE_PARAMETER_RULES } from '../physics/cage';
 import { CAGE_SETTINGS } from './physicsSettings';
 import { MAX_TRAIL_YEARS } from '../physics/trajectory';
 import type { AppSettings } from './types';
+import type { SeedMode } from '../simulation/seeds';
 export type SettingDefinition = {
   [K in keyof AppSettings]: {
     key: K;
     label: string;
     category: string;
-    kind: 'boolean' | 'number' | 'seed';
+    kind: 'boolean' | 'number' | 'seed' | 'seed-mode';
     min?: number;
     max?: number;
     step?: number;
@@ -43,10 +44,10 @@ export const settingsRegistry = new SettingsRegistry()
     category: '运行控制',
     kind: 'number',
     min: 0.1,
-    max: 20,
+    max: 100,
     step: 0.1,
     validate: (v): v is number =>
-      typeof v === 'number' && Number.isFinite(v) && v >= 0.1 && v <= 20,
+      typeof v === 'number' && Number.isFinite(v) && v >= 0.1 && v <= 100,
   })
   .register({
     key: 'autoRestart',
@@ -64,6 +65,30 @@ export const settingsRegistry = new SettingsRegistry()
     max: 10,
     step: 1,
     validate: (v): v is number => typeof v === 'number' && Number.isFinite(v) && v >= 1 && v <= 10,
+  })
+  .register({
+    key: 'seedMode',
+    label: 'Seed 模式',
+    category: '初始条件',
+    kind: 'seed-mode',
+    validate: (v): v is SeedMode => v === 'random' || v === 'fixed',
+  })
+  .register({
+    key: 'unlimitedRestarts',
+    label: '自动重置次数不限制',
+    category: '初始条件',
+    kind: 'boolean',
+    validate: (v): v is boolean => typeof v === 'boolean',
+  })
+  .register({
+    key: 'maxRestarts',
+    label: '最大自动重置次数 Max Restarts',
+    category: '初始条件',
+    kind: 'number',
+    min: 0,
+    max: Number.MAX_SAFE_INTEGER,
+    step: 1,
+    validate: (v): v is number => typeof v === 'number' && Number.isSafeInteger(v) && v >= 0,
   })
   .register({
     key: 'seed',
