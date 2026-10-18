@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, render, screen, fireEvent } from '@testing-library/react';
+import { act, cleanup, render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { SettingsStore } from '../src/settings/SettingsStore';
 import { SimulationRuntime } from '../src/simulation/SimulationRuntime';
@@ -13,6 +13,51 @@ afterEach(() => {
   vi.useRealTimers();
 });
 describe('observatory UI', () => {
+  it('shows the retained final result instead of a restart countdown at the competition limit', async () => {
+    const store = new SettingsStore();
+    store.set('seedMode', 'fixed');
+    store.set('unlimitedRestarts', false);
+    store.set('maxRestarts', 0);
+    const runtime = new SimulationRuntime(store, { synchronous: true });
+    render(<App runtime={runtime} />);
+    act(() => {
+      const bodies = runtime.engine.getBodies();
+      bodies[1]!.position = [...bodies[0]!.position];
+      runtime.engine.advance(0.1);
+      runtime.publish();
+    });
+    expect(screen.getByText('已达到最大自动重置次数，本场已结束；结果已保留')).toBeVisible();
+    expect(screen.queryByText(/下一轮将在/)).not.toBeInTheDocument();
+    expect(runtime.getSnapshot().run.lastEndReason?.type).toBe('collision');
+  });
+  it('uses fresh startup/reset Seeds by default and can replay the recorded Seed', async () => {
+    const settings = new SettingsStore();
+    const runtime = new SimulationRuntime(settings, { synchronous: true });
+    const first = runtime.getSnapshot();
+    expect(new SimulationRuntime(settings, { synchronous: true }).getSnapshot().seed).not.toBe(
+      first.seed,
+    );
+    render(<App runtime={runtime} />);
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('button', { name: '切换设置面板' }));
+    expect(screen.queryByLabelText('随机种子 Seed')).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /手动重置/ }));
+    const second = runtime.getSnapshot();
+    expect(second.seed).not.toBe(first.seed);
+    expect(second.bodies).not.toEqual(first.bodies);
+    await user.selectOptions(screen.getByLabelText('Seed 模式'), 'fixed');
+    fireEvent.change(screen.getByRole('slider', { name: /星系尺度 Galaxy Scale/ }), {
+      target: { value: '7' },
+    });
+    fireEvent.change(screen.getByRole('slider', { name: /恒星 A 参考质量/ }), {
+      target: { value: '2.5' },
+    });
+    await user.click(screen.getByRole('button', { name: '重新运行当前 Seed' }));
+    expect(runtime.getSnapshot().seed).toBe(second.seed);
+    expect(runtime.getSnapshot().bodies).toEqual(second.bodies);
+    expect(settings.getSnapshot().seed).toBe(second.seed);
+    expect(runtime.getSnapshot().run.autoRestarts).toBe(0);
+  });
   it('hides both info panels initially, toggles them together without changing physics', async () => {
     const runtime = new SimulationRuntime(new SettingsStore(), { synchronous: true }),
       user = userEvent.setup();
@@ -56,6 +101,7 @@ describe('observatory UI', () => {
     });
     expect(settings.getSnapshot().trailLengthYears).toBe(0.4);
     expect(runtime.engine.getGeneration()).toBe(scaledGeneration);
+    await user.selectOptions(screen.getByLabelText('Seed 模式'), 'fixed');
     const seed = screen.getByLabelText('随机种子 Seed');
     await user.clear(seed);
     await user.type(seed, 'kepler-test');

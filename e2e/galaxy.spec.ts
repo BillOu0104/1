@@ -30,6 +30,7 @@ test('persists galaxy/cage controls, applies similarity on reset and toggles rea
   await expect.poll(async () => (await page.evaluate(read)).snapshot?.time ?? 0).toBeGreaterThan(0);
   await page.getByRole('button', { name: '切换设置面板' }).click();
   await page.getByLabel('暂停模拟', { exact: true }).check();
+  await page.getByLabel('Seed 模式', { exact: true }).selectOption('fixed');
   await page.getByLabel('随机种子 Seed').fill('browser-v03-cage');
   await page.getByRole('button', { name: '应用并重置' }).click();
   await expect.poll(async () => (await page.evaluate(read)).snapshot?.time).toBe(0);

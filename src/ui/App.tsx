@@ -31,15 +31,17 @@ export function App({ runtime }: { runtime: SimulationRuntime }) {
           <>
             <strong>{snapshot.reason?.message}</strong>
             <span>
-              {snapshot.autoRestartBlocked
-                ? '自动重启已保护性停止，请手动重置'
-                : settings.paused
-                  ? '已暂停，重启倒计时冻结'
-                  : settings.autoRestart
-                    ? snapshot.waitingForInitial
-                      ? '正在等待初始条件…'
-                      : `下一轮将在 ${Math.ceil(snapshot.restartIn)} 秒后开始`
-                    : '自动重启已关闭，请手动重置'}
+              {snapshot.restartLimitReached
+                ? '已达到最大自动重置次数，本场已结束；结果已保留'
+                : snapshot.autoRestartBlocked
+                  ? '自动重启已保护性停止，请手动重置'
+                  : settings.paused
+                    ? '已暂停，重启倒计时冻结'
+                    : settings.autoRestart
+                      ? snapshot.waitingForInitial
+                        ? '正在等待初始条件…'
+                        : `下一轮将在 ${Math.ceil(snapshot.restartIn)} 秒后开始`
+                      : '自动重启已关闭，请手动重置'}
             </span>
           </>
         ) : settings.paused ? (
@@ -52,6 +54,7 @@ export function App({ runtime }: { runtime: SimulationRuntime }) {
           store={runtime.settings}
           snapshot={snapshot}
           onReset={runtime.reset}
+          onRerun={runtime.rerunCurrentSeed}
           onClose={closeSettings}
         />
       )}

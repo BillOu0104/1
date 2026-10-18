@@ -67,6 +67,7 @@ const setup = () => {
 it('keeps physics off the UI thread, bounds in-flight requests, resets through the same port and drops hidden time', () => {
   const s = setup(),
     p = s.ports[0]!;
+  s.store.set('speed', 100);
   const trails = { generation: 1, bodyIds: ['planet'], points: new Float64Array([0, 0, 1, 2, 3]) };
   p.emit({ type: 'snapshot', snapshot: s.runtime.engine.snapshot(), workerCpuMs: 0.1, trails });
   expect(s.renderer.appendTrails).toHaveBeenCalledWith(trails, expect.any(Array));
@@ -107,6 +108,43 @@ it('keeps physics off the UI thread, bounds in-flight requests, resets through t
   s.detach();
   expect(p.terminate).toHaveBeenCalled();
 });
+
+it.each([0, 1])(
+  'enforces a fixed Seed restart limit of %i even when the Worker crashes',
+  (limit) => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'Date'] });
+    const s = setup();
+    s.store.set('seedMode', 'fixed');
+    s.store.set('seed', 'fault-race');
+    s.store.set('unlimitedRestarts', false);
+    s.store.set('maxRestarts', limit);
+    s.runtime.reset();
+    s.ports[0]!.fail();
+    vi.advanceTimersByTime(2000);
+    expect(s.ports).toHaveLength(limit + 1);
+    if (limit) s.ports[1]!.fail();
+    vi.advanceTimersByTime(10000);
+    expect(s.ports).toHaveLength(limit + 1);
+    expect(s.runtime.getSnapshot().run.autoRestarts).toBe(limit);
+    expect(s.runtime.getSnapshot().restartLimitReached).toBe(true);
+    s.runtime.reset();
+    expect(s.runtime.getSnapshot().run.autoRestarts).toBe(0);
+    s.detach();
+  },
+);
+
+it('rechecks a lowered restart limit before an already scheduled Worker recovery', () => {
+  vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'Date'] });
+  const s = setup();
+  s.store.set('seedMode', 'fixed');
+  s.runtime.reset();
+  s.ports[0]!.fail();
+  s.store.set('unlimitedRestarts', false);
+  s.store.set('maxRestarts', 0);
+  vi.advanceTimersByTime(10000);
+  expect(s.ports).toHaveLength(1);
+  s.detach();
+});
 it('does not let an unsequenced controls acknowledgment release an in-flight physics tick', () => {
   const s = setup(),
     p = s.ports[0]!;
@@ -118,6 +156,31 @@ it('does not let an unsequenced controls acknowledgment release an in-flight phy
   s.frame(80);
   s.frame(120);
   expect(p.sent.filter((m) => m.type === 'tick')).toHaveLength(1);
+  s.detach();
+});
+
+it('sends uncapped active wall time alongside capped work requests when a Worker is slow', () => {
+  const s = setup(),
+    p = s.ports[0]!;
+  s.store.set('speed', 100);
+  s.frame(0);
+  s.frame(40);
+  s.frame(1000);
+  const first = p.sent.find(
+    (m): m is Extract<PhysicsRequest, { type: 'tick' }> => m.type === 'tick',
+  )!;
+  p.emit({
+    type: 'snapshot',
+    snapshot: s.runtime.engine.snapshot(),
+    sequence: first.sequence,
+    workerCpuMs: 4,
+  });
+  s.frame(1040);
+  const last = p.sent
+    .filter((m): m is Extract<PhysicsRequest, { type: 'tick' }> => m.type === 'tick')
+    .at(-1)!;
+  expect(last.elapsed).toBe(0.25);
+  expect(last.wallElapsed).toBeCloseTo(1, 10);
   s.detach();
 });
 it('recovers Worker faults with history, ignores stale messages, and circuit-breaks repeated failures', () => {

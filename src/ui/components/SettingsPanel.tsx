@@ -4,20 +4,24 @@ import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import type { SettingsStore } from '../../settings/SettingsStore';
 import { features } from '../../features/FeatureRegistry';
 import type { SimulationSnapshot } from '../../simulation/SimulationEngine';
+import { NumericSetting } from './NumericSetting';
 export function SettingsPanel({
   store,
   snapshot,
   onReset,
+  onRerun,
   onClose,
 }: {
   store: SettingsStore;
   snapshot: SimulationSnapshot;
   onReset: () => void;
+  onRerun: () => void;
   onClose: () => void;
 }) {
   const settings = useSyncExternalStore(store.subscribe, store.getSnapshot);
   const [draftSeed, setDraftSeed] = useState(settings.seed);
   const [seedError, setSeedError] = useState('');
+  useEffect(() => setDraftSeed(settings.seed), [settings.seed]);
   const panelRef = useRef<HTMLElement>(null);
   useEffect(() => {
     panelRef.current?.focus();
@@ -42,7 +46,10 @@ export function SettingsPanel({
           ? ' M☉'
           : '';
   const help = (key: NumericSettingKey): string => {
-    if (key === 'speed') return '1× ≈ 0.095 模拟年/秒；高负载时放慢推进。';
+    if (key === 'speed')
+      return `目标 ${settings.speed.toFixed(1)}×；近期实际 ${(settings.paused || snapshot.phase !== 'running' ? 0 : snapshot.diagnostics.achievedSpeed).toFixed(1)}×。1× ≈ 0.095 模拟年/秒；高负载时保留精度、放慢推进。`;
+    if (key === 'maxRestarts')
+      return '0 仅运行最初一轮；只计自动重启。重新开始比赛会清零。滑块常用范围 0–100，可输入更大的安全整数。';
     if (key === 'trailLengthYears') return '按模拟时间保留，立即生效；每颗天体最多 8192 点。';
     if (key === 'galaxyScale')
       return `位置×k，速度÷√k；下一次重置生效，当前 ${snapshot.system?.galaxyScale ?? 1}×。物理年份不变。`;
@@ -69,7 +76,7 @@ export function SettingsPanel({
         <div>
           <span className="eyebrow">CONTROL CENTER</span>
           <h2>
-            模拟设置 <small>V0.3</small>
+            模拟设置 <small>V0.3.1</small>
           </h2>
         </div>
         <button onClick={onClose} aria-label="关闭设置">
@@ -85,6 +92,31 @@ export function SettingsPanel({
                 .filter((d) => d.category === category)
                 .map((definition) => {
                   const id = `setting-${definition.key}`;
+                  if (
+                    ['seed', 'unlimitedRestarts', 'maxRestarts'].includes(definition.key) &&
+                    settings.seedMode !== 'fixed'
+                  )
+                    return null;
+                  if (definition.key === 'seedMode')
+                    return (
+                      <div className="seed-mode-field" key={id}>
+                        <label htmlFor={id}>Seed 模式</label>
+                        <select
+                          id={id}
+                          value={settings.seedMode}
+                          onChange={(event) =>
+                            store.set('seedMode', event.target.value as 'random' | 'fixed')
+                          }
+                        >
+                          <option value="random">随机模式（默认）</option>
+                          <option value="fixed">固定 Seed 模式</option>
+                        </select>
+                        <small>
+                          下一次手动重置生效。随机模式每轮使用新
+                          Seed；固定模式自动轮次使用确定性序列。
+                        </small>
+                      </div>
+                    );
                   if (definition.kind === 'seed')
                     return (
                       <div className="seed-field" key={id}>
@@ -114,50 +146,32 @@ export function SettingsPanel({
                           <button type="submit">应用并重置</button>
                         </form>
                         {seedError && <small role="alert">{seedError}</small>}
-                        <small>
-                          当前运行 Seed：<code>{snapshot.seed}</code>
-                        </small>
                       </div>
                     );
                   if (definition.kind === 'number' && numeric(definition.key))
                     return (
-                      <div className="range-field" key={id}>
-                        <label htmlFor={id}>
-                          {definition.label}
-                          <output>
-                            {settings[definition.key].toFixed(
-                              definition.key === 'galaxyScale' || definition.key === 'cageMass'
-                                ? 0
-                                : definition.key.startsWith('cage')
-                                  ? 3
-                                  : definition.key === 'speed' ||
-                                      definition.key === 'trailLengthYears'
-                                    ? 1
-                                    : 2,
-                            )}
-                            {unit(definition.key)}
-                          </output>
-                        </label>
-                        <input
-                          id={id}
-                          type="range"
-                          disabled={
-                            (definition.key === 'cageHardRadius' && !settings.cageHard) ||
-                            (definition.key === 'cageExponent' && settings.cageHard)
-                          }
-                          min={definition.min}
-                          max={definition.max}
-                          step={definition.step}
-                          value={settings[definition.key]}
-                          onChange={(event) =>
-                            store.set(
-                              definition.key as NumericSettingKey,
-                              Number(event.target.value),
-                            )
-                          }
-                        />
-                        <small>{help(definition.key)}</small>
-                      </div>
+                      <NumericSetting
+                        key={id}
+                        id={id}
+                        label={definition.label}
+                        unit={unit(definition.key)}
+                        description={help(definition.key)}
+                        sliderMax={
+                          definition.key === 'maxRestarts'
+                            ? Math.max(100, settings.maxRestarts)
+                            : undefined
+                        }
+                        disabled={
+                          (definition.key === 'maxRestarts' && settings.unlimitedRestarts) ||
+                          (definition.key === 'cageHardRadius' && !settings.cageHard) ||
+                          (definition.key === 'cageExponent' && settings.cageHard)
+                        }
+                        min={definition.min!}
+                        max={definition.max!}
+                        step={definition.step!}
+                        value={settings[definition.key]}
+                        onChange={(value) => store.set(definition.key as NumericSettingKey, value)}
+                      />
                     );
                   if (definition.kind === 'boolean' && boolean(definition.key)) {
                     const key = definition.key;
@@ -184,9 +198,28 @@ export function SettingsPanel({
                 </small>
               )}
               {category === '初始条件' && (
-                <button className="reset-button" onClick={onReset}>
-                  应用尺度并重置
-                </button>
+                <>
+                  <small className="current-seed">
+                    当前运行 Seed：<code>{snapshot.seed}</code>
+                  </small>
+                  <small>
+                    当前第 {snapshot.run.round} 轮 · 已自动重启 {snapshot.run.autoRestarts} 次（
+                    {snapshot.run.seedMode === 'fixed' ? '固定' : '随机'}模式）
+                  </small>
+                  <button className="reset-button" onClick={onReset}>
+                    应用尺度并重置
+                  </button>
+                  {settings.seedMode === 'fixed' && (
+                    <>
+                      <button className="reset-button" onClick={onRerun}>
+                        重新运行当前 Seed
+                      </button>
+                      <small>
+                        恢复本轮实际使用的尺度和参考质量，从第 0 年开始；新比赛计数清零。
+                      </small>
+                    </>
+                  )}
+                </>
               )}
               {category === '天体参数' && (
                 <>
@@ -209,7 +242,8 @@ export function SettingsPanel({
               )}
               {category === '运行控制' && (
                 <button className="reset-button" onClick={onReset}>
-                  ↻ 手动重置 <span>使用已保存 Seed</span>
+                  ↻ 手动重置{' '}
+                  <span>{settings.seedMode === 'random' ? '全新随机宇宙' : '重新开始比赛'}</span>
                 </button>
               )}
             </div>

@@ -10,7 +10,7 @@ import {
 import { totalEnergy } from '../physics/gravity';
 import { RandomInitializer } from '../physics/initialConditions';
 import { DEFAULT_MASSES } from '../physics/parameters';
-import { hashSeed } from '../physics/random';
+import { nextRoundSeed, type SeedMode } from './seeds';
 import {
   copyBodies,
   DEFAULT_PHYSICS,
@@ -35,6 +35,27 @@ export interface SimulationControls {
   paused: boolean;
   speed: number;
   autoRestart: boolean;
+  maxRestarts?: number | null;
+}
+export interface RunStatistics {
+  seedMode: SeedMode;
+  rootSeed: string;
+  round: number;
+  autoRestarts: number;
+  longestYears: number;
+  longestSeed: string;
+  lastEndReason: EndReason | null;
+}
+export function newRunStatistics(seed: string, seedMode: SeedMode): RunStatistics {
+  return {
+    seedMode,
+    rootSeed: seed,
+    round: 1,
+    autoRestarts: 0,
+    longestYears: 0,
+    longestSeed: seed,
+    lastEndReason: null,
+  };
 }
 export interface ScreeningSummary {
   mode: string;
@@ -51,8 +72,11 @@ export interface SessionHistory {
   events: readonly SimulationEvent[];
   restartCount: number;
   generation: number;
+  run?: RunStatistics;
 }
 export interface SimulationSnapshot {
+  /** Reference inputs that generated this round, distinct from unapplied UI drafts. */
+  initialization?: { referenceMasses: number[]; galaxyScale: number };
   bodies: Body[];
   seed: string;
   time: number;
@@ -69,6 +93,8 @@ export interface SimulationSnapshot {
   relativeEnergyError: number;
   events: readonly SimulationEvent[];
   controls: SimulationControls;
+  run: RunStatistics;
+  restartLimitReached: boolean;
   diagnostics: {
     momentumError: number;
     angularMomentumError: number;
@@ -79,6 +105,7 @@ export interface SimulationSnapshot {
     exchanges: number;
     cpuMs: number;
     limited: boolean;
+    achievedSpeed: number;
   };
   integrator: string;
   tidal: TidalReading | null;
@@ -93,6 +120,7 @@ export interface SimulationSnapshot {
   };
 }
 export interface EngineOptions {
+  seedMode?: SeedMode;
   config?: Partial<PhysicsConfig>;
   /** Only accepted, conservation-checked states; never rejected stages or display interpolation. */
   onAcceptedState?: (bodies: readonly Body[], time: number, generation: number) => void;
@@ -116,6 +144,8 @@ export class SimulationEngine {
   private wallTime = 0;
   private generation = 0;
   private restartCount = 0;
+  private run: RunStatistics;
+  private achievedSpeed = 0;
   private steps = 0;
   private droppedTime = 0;
   private initial!: Invariants;
@@ -127,7 +157,12 @@ export class SimulationEngine {
   private readonly escaping = new EscapeMonitor();
   private history: SimulationEvent[] = [];
   private eventId = 0;
-  private controls: SimulationControls = { paused: false, speed: 1, autoRestart: true };
+  private controls: SimulationControls = {
+    paused: false,
+    speed: 1,
+    autoRestart: true,
+    maxRestarts: null,
+  };
   private readonly generator: InitialConditionGenerator;
   private readonly integrator: Integrator;
   private readonly adaptive: AdaptiveDopri5 | null;
@@ -144,6 +179,9 @@ export class SimulationEngine {
     seed = 'TRISOLARIS-001',
     private readonly options: EngineOptions = {},
   ) {
+    this.run = options.session?.run
+      ? { ...options.session.run }
+      : newRunStatistics(seed, options.seedMode ?? 'fixed');
     this.config = { ...DEFAULT_PHYSICS, ...options.config };
     const c = this.config;
     if (
@@ -199,7 +237,14 @@ export class SimulationEngine {
     return this.reason;
   }
   nextSeed(): string {
-    return String(hashSeed(`${this.seed}:next`));
+    return nextRoundSeed(this.seed, this.run.seedMode);
+  }
+  private get restartLimitReached(): boolean {
+    return (
+      this.run.seedMode === 'fixed' &&
+      this.controls.maxRestarts != null &&
+      this.run.autoRestarts >= this.controls.maxRestarts
+    );
   }
   getInterpolationAlpha(): number {
     return this.accumulator / (this.adaptive?.options.maxStep ?? this.config.timeStep);
@@ -207,17 +252,24 @@ export class SimulationEngine {
   setControls(patch: Partial<SimulationControls>): void {
     if (
       patch.speed !== undefined &&
-      (!Number.isFinite(patch.speed) || patch.speed < 0.1 || patch.speed > 20)
+      (!Number.isFinite(patch.speed) || patch.speed < 0.1 || patch.speed > 100)
     )
-      throw new Error('Speed must be 0.1–20');
+      throw new Error('Speed must be 0.1–100');
+    if (
+      patch.maxRestarts != null &&
+      (!Number.isSafeInteger(patch.maxRestarts) || patch.maxRestarts < 0)
+    )
+      throw new Error('Max restarts must be a nonnegative safe integer or null');
     if (patch.paused !== undefined && patch.paused !== this.controls.paused) {
       this.accumulator = 0;
       this.macroRemaining = 0;
+      this.achievedSpeed = 0;
     }
     this.controls = {
       paused: patch.paused ?? this.controls.paused,
       speed: patch.speed ?? this.controls.speed,
       autoRestart: patch.autoRestart ?? this.controls.autoRestart,
+      maxRestarts: patch.maxRestarts === undefined ? this.controls.maxRestarts : patch.maxRestarts,
     };
   }
   setGalaxyScale(scale: number): void {
@@ -239,7 +291,9 @@ export class SimulationEngine {
       `引力牢笼${cage.enabled ? '开启：额外约束，非纯牛顿系统' : '关闭：纯牛顿引力'}；诊断基准已更新`,
     );
   }
-  reset(seed = this.seed, bodies?: Body[]): void {
+  reset(seed?: string, bodies?: Body[], seedMode = this.run.seedMode): void {
+    seed ??= seedMode === 'random' ? nextRoundSeed(this.seed, seedMode) : this.seed;
+    this.run = newRunStatistics(seed, seedMode);
     this.autoRestartBlocked = false;
     this.recentRestarts = [];
     this.restartCount++;
@@ -270,6 +324,7 @@ export class SimulationEngine {
     this.minStep = Infinity;
     this.lastStep = 0;
     this.cpuMs = 0;
+    this.achievedSpeed = 0;
     this.reason = null;
     this.escaping.reset();
     this.generation++;
@@ -291,6 +346,8 @@ export class SimulationEngine {
   private end(reason: EndReason): void {
     if (this.reason) return;
     this.reason = { ...reason, year: this.time / UNITS_PER_YEAR };
+    this.updateLongest();
+    this.run.lastEndReason = { ...this.reason };
     this.endedAt = this.wallTime;
     this.nextRestartAt = Math.max(this.wallTime + 2, (this.recentRestarts.at(-1) ?? -Infinity) + 8);
     this.record('ended', reason.message);
@@ -325,15 +382,19 @@ export class SimulationEngine {
     }
   }
   /** Foreground Worker budget is optional; tests/benchmarks use deterministic step limits. */
-  advance(elapsed: number, budgetMs = Infinity): void {
+  advance(elapsed: number, budgetMs = Infinity, wallElapsed = elapsed): void {
     if (!Number.isFinite(elapsed) || elapsed <= 0 || this.controls.paused) return;
+    if (!Number.isFinite(wallElapsed) || wallElapsed <= 0)
+      throw new Error('Invalid active wall time');
     const started = performance.now(),
       frame = Math.min(elapsed, 0.25);
+    const beforeTime = this.time;
     this.wallTime += frame;
     this.limited = false;
     if (this.reason) {
       if (
         this.controls.autoRestart &&
+        !this.restartLimitReached &&
         !this.autoRestartBlocked &&
         this.wallTime >= this.nextRestartAt
       ) {
@@ -350,9 +411,12 @@ export class SimulationEngine {
           }
           this.recentRestarts.push(this.wallTime);
           this.restartCount++;
+          this.run.autoRestarts++;
+          this.run.round++;
           this.start(seed, 'started', prepared ?? undefined);
         }
       }
+      this.measureSpeed(0, wallElapsed);
       return;
     }
     this.accumulator += frame * this.config.unitsPerSecond * this.controls.speed;
@@ -480,6 +544,21 @@ export class SimulationEngine {
       this.accumulator = keep;
     }
     this.cpuMs = performance.now() - started;
+    this.updateLongest();
+    this.measureSpeed(this.time - beforeTime, wallElapsed);
+  }
+  private updateLongest(): void {
+    const years = this.time / UNITS_PER_YEAR;
+    if (years > this.run.longestYears) {
+      this.run.longestYears = years;
+      this.run.longestSeed = this.seed;
+    }
+  }
+  /** Recent physical progress / actual active wall time, including time dropped by backpressure. */
+  private measureSpeed(progress: number, elapsed: number): void {
+    const alpha = 1 - Math.exp(-elapsed);
+    this.achievedSpeed +=
+      alpha * (progress / (elapsed * this.config.unitsPerSecond) - this.achievedSpeed);
   }
   snapshot(): SimulationSnapshot {
     const energy = totalEnergy(this.bodies, this.config),
@@ -507,6 +586,11 @@ export class SimulationEngine {
       relativeEnergyError: error.energy,
       events: this.history,
       controls: { ...this.controls },
+      run: {
+        ...this.run,
+        lastEndReason: this.run.lastEndReason ? { ...this.run.lastEndReason } : null,
+      },
+      restartLimitReached: this.restartLimitReached,
       diagnostics: {
         momentumError: error.momentum,
         angularMomentumError: error.angularMomentum,
@@ -517,6 +601,7 @@ export class SimulationEngine {
         exchanges: this.encounters.exchanges,
         cpuMs: this.cpuMs,
         limited: this.limited,
+        achievedSpeed: this.controls.paused ? 0 : this.achievedSpeed,
       },
       integrator: this.adaptive?.id ?? this.integrator.id,
       tidal: this.tidal,

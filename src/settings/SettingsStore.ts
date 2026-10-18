@@ -2,6 +2,7 @@ import { settingsDefaults, type DefaultsProvider } from './defaults';
 import { settingsRegistry, type SettingsRegistry } from './registry';
 import type { SettingsPersistence } from './persistence';
 import type { AppSettings } from './types';
+import { validNumeric } from './numeric';
 export class SettingsStore {
   private state: AppSettings;
   private listeners = new Set<() => void>();
@@ -24,7 +25,8 @@ export class SettingsStore {
     ) {
       for (const definition of registry.getDefinitions()) {
         const value = (saved.settings as Record<string, unknown>)[definition.key];
-        if (definition.validate(value)) this.state = { ...this.state, [definition.key]: value };
+        if (this.valid(definition.key, value))
+          this.state = { ...this.state, [definition.key]: value };
       }
     }
   }
@@ -36,10 +38,18 @@ export class SettingsStore {
     };
   };
   set<K extends keyof AppSettings>(key: K, value: AppSettings[K]): void {
-    if (!this.registry.get(key)?.validate(value)) throw new Error(`Invalid setting ${key}`);
+    if (!this.valid(key, value)) throw new Error(`Invalid setting ${key}`);
     this.state = { ...this.state, [key]: value };
     if (this.persistence)
       this.persistenceAvailable = this.persistence.save({ version: 1, settings: this.state });
     this.listeners.forEach((listener) => listener());
+  }
+  private valid(key: keyof AppSettings, value: unknown): boolean {
+    const d = this.registry.get(key);
+    return (
+      !!d &&
+      d.validate(value) &&
+      (d.kind !== 'number' || validNumeric(value, d.min!, d.max!, d.step!))
+    );
   }
 }

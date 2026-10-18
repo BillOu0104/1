@@ -482,15 +482,66 @@ p {
   justify-content: space-between;
   color: #97afc0;
 }
-.range-field output {
+.numeric-value {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
   color: #c3dbe5;
   font-variant-numeric: tabular-nums;
 }
-.range-field input {
+.numeric-controls {
+  display: grid;
+  grid-template-columns: minmax(40px, 1fr) minmax(125px, 1.2fr);
+  align-items: center;
+  gap: 12px;
+  margin: 10px 0 8px;
+}
+.range-field input[type='range'] {
   width: 100%;
-  margin: 14px 0 8px;
+  min-width: 0;
+  margin: 0;
   accent-color: #80aaba;
   height: 3px;
+}
+.numeric-value input {
+  min-width: 0;
+  width: 100%;
+  padding: 6px 3px 6px 6px;
+  border: 1px solid #6e97b442;
+  background: #08111c;
+  border-radius: 2px;
+  color: inherit;
+  font: inherit;
+  font-size: 11px;
+}
+.numeric-unit {
+  white-space: nowrap;
+  font-size: 10px;
+}
+.numeric-value input[aria-invalid='true'] {
+  border-color: #c7957b;
+}
+.numeric-value input:disabled {
+  opacity: 0.45;
+}
+.seed-mode-field label {
+  display: block;
+  font-size: 11px;
+  color: #97afc0;
+}
+.seed-mode-field select {
+  width: 100%;
+  margin: 10px 0 8px;
+  padding: 7px;
+  color: #afc8d8;
+  background: #08111c;
+  border: 1px solid #6e97b442;
+}
+.current-seed code,
+.data-list .seed-value {
+  overflow-wrap: anywhere;
+  font: inherit;
 }
 .settings-group small {
   display: block;
