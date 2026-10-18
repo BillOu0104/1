@@ -55,7 +55,13 @@ it('rejects malformed requests and transfers trajectory buffers rather than clon
     masses: [1, 0.95, 0.9],
     controls: { paused: false, speed: 20, autoRestart: true },
   });
-  controller.receive({ type: 'tick', elapsed: 0.1, sequence: 1 });
+  // Test transfer semantics independently of how many steps a loaded CI host fits in 4ms.
+  const clock = vi.spyOn(performance, 'now').mockReturnValue(0);
+  try {
+    controller.receive({ type: 'tick', elapsed: 0.1, sequence: 1 });
+  } finally {
+    clock.mockRestore();
+  }
   const [message, transfers] = send.mock.calls.at(-1)!;
   expect(message.trails.points.length).toBeGreaterThan(20);
   expect(transfers).toEqual([message.trails.points.buffer]);
