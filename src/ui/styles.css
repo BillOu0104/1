@@ -483,7 +483,8 @@ p {
   color: #97afc0;
 }
 .numeric-value {
-  display: flex;
+  display: grid;
+  grid-template-columns: 98px 30px;
   align-items: center;
   gap: 5px;
   min-width: 0;
@@ -492,7 +493,7 @@ p {
 }
 .numeric-controls {
   display: grid;
-  grid-template-columns: minmax(40px, 1fr) minmax(125px, 1.2fr);
+  grid-template-columns: minmax(40px, 1fr) auto;
   align-items: center;
   gap: 12px;
   margin: 10px 0 8px;
@@ -506,7 +507,10 @@ p {
 }
 .numeric-value input {
   min-width: 0;
-  width: 100%;
+  width: 98px;
+  box-sizing: border-box;
+  appearance: textfield;
+  -moz-appearance: textfield;
   padding: 6px 3px 6px 6px;
   border: 1px solid #6e97b442;
   background: #08111c;
@@ -514,6 +518,14 @@ p {
   color: inherit;
   font: inherit;
   font-size: 11px;
+}
+.numeric-value input::-webkit-inner-spin-button,
+.numeric-value input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.numeric-value input.numeric-long-value {
+  font-size: 9px;
 }
 .numeric-unit {
   white-space: nowrap;

@@ -20,7 +20,8 @@
     "benchmark:browser:fixes": "node benchmarks/browser-fixes.mjs",
     "benchmark:lifetime": "node benchmarks/lifetime.mjs",
     "benchmark:browser:v03": "node benchmarks/browser-v03.mjs",
-    "benchmark:speed": "vite-node benchmarks/speed.ts"
+    "benchmark:speed": "vite-node benchmarks/speed.ts",
+    "benchmark:planet": "node benchmarks/planet-overlap.mjs"
   },
   "dependencies": {
     "react": "^19.2.0",

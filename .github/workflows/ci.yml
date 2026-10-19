@@ -32,6 +32,13 @@ jobs:
         run: npm run benchmark:speed
         env:
           SPEED_BENCH_OUTPUT: test-results/speed-benchmark.json
+      - name: Compare planetary initial distributions
+        run: npm run benchmark:planet
+        env:
+          PLANET_INITIAL_SEEDS: 64
+          PLANET_BENCH_SEEDS: 4
+          PLANET_BENCH_YEARS: 10
+          PLANET_BENCH_OUTPUT: test-results/planet-benchmark.json
       - run: npm run build
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
