@@ -2,7 +2,7 @@ import { expect, it, vi } from 'vitest';
 import { RandomInitializer } from '../src/physics/initialConditions';
 import * as random from '../src/physics/random';
 import { DEFAULT_PHYSICS } from '../src/physics/types';
-import { centerOfMass, length, sub } from '../src/physics/vector';
+import { centerOfMass, dot, length, sub } from '../src/physics/vector';
 import { totalEnergy, accelerations } from '../src/physics/gravity';
 import { readPlanetTides } from '../src/physics/tides';
 import { invariants } from '../src/physics/diagnostics';
@@ -74,4 +74,40 @@ it('supports unequal and extreme existing stellar reference mass settings withou
       const bodies = new RandomInitializer(masses).generate(`mass-range-${seed}`, DEFAULT_PHYSICS);
       for (let i = 0; i < 3; i++) expect(bodies[i]!.mass / masses[i]!).toBeGreaterThanOrEqual(0.97);
     }
+});
+
+it('overlaps the stellar activity region with independent crossing velocities while preserving the safe gap', () => {
+  let inside = 0,
+    inward = 0,
+    outward = 0;
+  const generator = new RandomInitializer();
+  for (let i = 0; i < 500; i++) {
+    const bodies = generator.generate(`planet-overlap-${i}`, DEFAULT_PHYSICS);
+    const stars = bodies.slice(0, 3),
+      planet = bodies[3]!;
+    const position = sub(planet.position, centerOfMass(stars));
+    const velocity = sub(planet.velocity, centerOfMass(stars, 'velocity'));
+    const radius = length(position);
+    const stellarRadius = Math.max(
+      ...stars.map((s) => length(sub(s.position, centerOfMass(stars)))),
+    );
+    expect(radius).toBeGreaterThanOrEqual(0.8 - 1e-12);
+    expect(radius).toBeLessThanOrEqual(3.2 + 1e-12);
+    if (radius < stellarRadius) inside++;
+    const radial = dot(position, velocity) / (radius * length(velocity));
+    if (radial < -0.45) inward++;
+    if (radial > 0.45) outward++;
+    const binding = stars.reduce(
+      (sum, s) =>
+        sum +
+        s.mass / Math.hypot(length(sub(planet.position, s.position)), DEFAULT_PHYSICS.softening),
+      0,
+    );
+    const speed = length(velocity) / Math.sqrt(2 * binding);
+    expect(speed).toBeGreaterThanOrEqual(0.35 - 1e-12);
+    expect(speed).toBeLessThanOrEqual(0.7 + 1e-12);
+  }
+  expect(inside).toBeGreaterThan(300);
+  expect(inward).toBeGreaterThan(100);
+  expect(outward).toBeGreaterThan(100);
 });

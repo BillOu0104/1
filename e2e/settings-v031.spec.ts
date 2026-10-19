@@ -107,6 +107,8 @@ test('random/fixed Seed, precise numeric inputs, aligned masses and bounded 100Ã
       });
     });
     expect(layout).toHaveLength(2);
+    expect(layout[0]!.right - layout[0]!.left).toBeGreaterThanOrEqual(90);
+    expect(layout[0]!.right - layout[0]!.left).toBeLessThanOrEqual(100);
     expect(layout[0]!.right).toBeLessThanOrEqual(layout[1]!.left);
     for (const r of layout) {
       expect(r.left).toBeGreaterThanOrEqual(r.parentLeft);
@@ -122,6 +124,30 @@ test('random/fixed Seed, precise numeric inputs, aligned masses and bounded 100Ã
   );
   await mass.blur();
   await expect(mass).toHaveValue('0.99');
+  const numericLayout = await page.locator('.numeric-controls').evaluateAll((fields) =>
+    fields.map((field) => {
+      const number = field.querySelector<HTMLInputElement>('input[type=number]')!;
+      const slider = field.querySelector<HTMLInputElement>('input[type=range]')!;
+      const style = getComputedStyle(number);
+      const context = document.createElement('canvas').getContext('2d')!;
+      context.font = style.font;
+      return {
+        width: number.getBoundingClientRect().width,
+        right: number.getBoundingClientRect().right,
+        sliderWidth: slider.getBoundingClientRect().width,
+        textWidth: context.measureText(number.value).width,
+        textSpace:
+          number.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight),
+      };
+    }),
+  );
+  expect(numericLayout.length).toBeGreaterThan(10);
+  for (const field of numericLayout) {
+    expect(field.width).toBe(98);
+    expect(field.right).toBeCloseTo(numericLayout[0]!.right, 1);
+    expect(field.sliderWidth).toBeGreaterThan(90);
+    expect(field.textWidth).toBeLessThanOrEqual(field.textSpace);
+  }
   await mass.scrollIntoViewIfNeeded();
   await mass.evaluate((el) => {
     const scroll = document.querySelector('.settings-scroll')!;

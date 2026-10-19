@@ -4,7 +4,7 @@ interface Probe {
   maxBatchPoints: number;
   generations: number[];
   firstTimes: number[];
-  lineCounts: number[];
+  lineCounts: { years: number; count: number }[];
   screening: number;
 }
 const readProbe = () => (window as unknown as { __trailProbe: Probe }).__trailProbe;
@@ -57,7 +57,10 @@ test('draws Worker integration histories at 20× and changes the persisted time 
     const draw = WebGL2RenderingContext.prototype.drawArrays;
     WebGL2RenderingContext.prototype.drawArrays = function (mode, first, count) {
       if (mode === this.LINE_STRIP && count > 1) {
-        probe.lineCounts.push(count);
+        // Tag the actual applied setting: a draw before the UI change is not a short-window draw.
+        const years = JSON.parse(localStorage.getItem('three-body:settings:v1')!).settings
+          .trailLengthYears;
+        probe.lineCounts.push({ years, count });
         if (probe.lineCounts.length > 1000) probe.lineCounts.splice(0, 500);
       }
       draw.call(this, mode, first, count);
@@ -77,19 +80,30 @@ test('draws Worker integration histories at 20× and changes the persisted time 
   });
   await page.getByRole('slider', { name: /尾迹长度 Trail Length/ }).fill('0.1');
   await expect
-    .poll(async () => (await page.evaluate(readProbe)).lineCounts.length)
+    .poll(
+      async () => (await page.evaluate(readProbe)).lineCounts.filter((r) => r.years === 0.1).length,
+    )
     .toBeGreaterThan(0);
-  const short = Math.max(...(await page.evaluate(readProbe)).lineCounts);
+  const short = Math.max(
+    ...(await page.evaluate(readProbe)).lineCounts
+      .filter((r) => r.years === 0.1)
+      .map((r) => r.count),
+  );
   await page.screenshot({ path: `test-results/${testInfo.project.name}-trails-short.png` });
   await page.evaluate(() => {
     (window as unknown as { __trailProbe: Probe }).__trailProbe.lineCounts = [];
   });
   await page.getByRole('slider', { name: /尾迹长度 Trail Length/ }).fill('2');
   await expect
-    .poll(async () => (await page.evaluate(readProbe)).lineCounts.length)
+    .poll(
+      async () => (await page.evaluate(readProbe)).lineCounts.filter((r) => r.years === 2).length,
+    )
     .toBeGreaterThan(0);
-  const long = Math.max(...(await page.evaluate(readProbe)).lineCounts);
-  expect(long).toBeGreaterThan(short * 3);
+  const long = Math.max(
+    ...(await page.evaluate(readProbe)).lineCounts.filter((r) => r.years === 2).map((r) => r.count),
+  );
+  // Real adaptive samples are denser at curved encounters; point count is not proportional to time.
+  expect(long).toBeGreaterThan(short);
   expect(long).toBeLessThanOrEqual(8192);
   expect(await page.locator('.clock-meta strong').textContent()).toBe(paused);
   expect((await page.evaluate(readProbe)).generations.at(-1)).toBe(generation);

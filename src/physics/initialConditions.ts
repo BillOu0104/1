@@ -102,11 +102,11 @@ export class RandomInitializer implements InitialConditionGenerator {
         })
       )
         continue;
-      const position = scale(direction(), range(3.5, 7));
+      // Overlap the stellar activity region instead of starting in an exterior shell.
+      const position = scale(direction(), range(0.8, 3.2));
       if (bodies.some((b) => length(sub(position, b.position)) < 1.2)) continue;
       let velocity = direction();
-      // Random tangential bias about the whole system, never a prescribed circular host orbit.
-      if (Math.abs(dot(velocity, position)) > 0.45 * length(position)) continue;
+      // Isotropic independent directions: allow inward/outward crossings, with no host orbit.
       const binding = bodies.reduce(
         (s, b) =>
           s +
@@ -114,7 +114,7 @@ export class RandomInitializer implements InitialConditionGenerator {
             Math.hypot(length(sub(position, b.position)), config.softening),
         0,
       );
-      velocity = scale(velocity, range(0.55, 0.8) * Math.sqrt(2 * binding));
+      velocity = scale(velocity, range(0.35, 0.7) * Math.sqrt(2 * binding));
       bodies.push({
         id: 'planet',
         name: '行星 01 · PEREGRINE',

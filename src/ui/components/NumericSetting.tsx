@@ -68,6 +68,7 @@ export function NumericSetting({
         <div className="numeric-value">
           <input
             type="number"
+            className={draft.length > 13 ? 'numeric-long-value' : undefined}
             aria-label={`${label} 数值`}
             min={min}
             max={max}
