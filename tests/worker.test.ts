@@ -1,5 +1,5 @@
 import { DEFAULT_CAGE } from '../src/physics/cage';
-import { RandomInitializer } from '../src/physics/initialConditions';
+import { OriginalRandomInitializer as RandomInitializer } from '../src/physics/originalInitializer';
 import { expect, it, vi } from 'vitest';
 import { PhysicsWorkerController } from '../src/worker/PhysicsWorkerController';
 import type { PhysicsResponse } from '../src/worker/protocol';

@@ -23,7 +23,7 @@ export function App({ runtime }: { runtime: SimulationRuntime }) {
         expanded={panelsVisible}
         onToggle={() => setPanelsVisible((v) => !v)}
       />
-      <InformationPanels snapshot={snapshot} visible={panelsVisible} />
+      <InformationPanels snapshot={snapshot} visible={panelsVisible} settings={settings} />
       <div className="status-notice" role="status" aria-live="polite">
         {snapshot.phase === 'initializing' ? (
           <strong>正在初始化物理系统…</strong>

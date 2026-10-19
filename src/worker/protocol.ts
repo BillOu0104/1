@@ -1,3 +1,4 @@
+import type { V04Settings } from '../environment/config';
 import type { GravityCageConfig } from '../physics/cage';
 import type { SeedMode } from '../simulation/seeds';
 import type { TrailBatch } from '../physics/trajectory';
@@ -9,6 +10,7 @@ import type {
 export type PhysicsRequest =
   | {
       type: 'init';
+      environment?: V04Settings;
       seed: string;
       seedMode?: SeedMode;
       masses: number[];
@@ -19,13 +21,14 @@ export type PhysicsRequest =
     }
   | {
       type: 'reset';
+      environment?: V04Settings;
       seed: string;
       seedMode?: SeedMode;
       controls?: SimulationControls;
       masses: number[];
       galaxyScale?: number;
     }
-  | { type: 'configure'; galaxyScale: number; cage: GravityCageConfig }
+  | { type: 'configure'; galaxyScale: number; cage: GravityCageConfig; environment?: V04Settings }
   | { type: 'controls'; controls: SimulationControls }
   | { type: 'tick'; elapsed: number; wallElapsed?: number; sequence: number }
   | { type: 'visibility'; active: boolean };
@@ -36,6 +39,7 @@ export type PhysicsResponse =
       sequence?: number;
       workerCpuMs: number;
       eventsUnchanged?: boolean;
+      environmentHistoryUnchanged?: boolean;
       trails?: TrailBatch;
     }
   | { type: 'error'; message: string };

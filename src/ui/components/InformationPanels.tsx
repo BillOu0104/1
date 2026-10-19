@@ -1,11 +1,15 @@
+import { V04_DEFAULTS, type V04Settings } from '../../environment/config';
+import { CivilizationStatus, CivilizationRanking } from './CivilizationPanels';
 import type { SimulationSnapshot } from '../../simulation/SimulationEngine';
 import { length } from '../../physics/vector';
 export function InformationPanels({
   snapshot,
   visible,
+  settings = V04_DEFAULTS,
 }: {
   snapshot: SimulationSnapshot;
   visible: boolean;
+  settings?: V04Settings;
 }) {
   return (
     <div id="information-panels" className="information-panels" hidden={!visible}>
@@ -18,15 +22,10 @@ export function InformationPanels({
         <h1>
           PEREGRINE<span>行星 01 · 逐星者</span>
         </h1>
+        {snapshot.environment && (
+          <CivilizationStatus state={snapshot.environment} settings={settings} />
+        )}
         <dl className="data-list">
-          <div>
-            <dt>文明状态</dt>
-            <dd className="muted">待开发</dd>
-          </div>
-          <div>
-            <dt>行星温度</dt>
-            <dd className="muted">尚无估算模型</dd>
-          </div>
           <div>
             <dt>行星质量</dt>
             <dd>{snapshot.bodies.find((b) => b.kind === 'planet')?.mass.toExponential(3)} M☉</dd>
@@ -79,11 +78,6 @@ export function InformationPanels({
             </li>
           ))}
         </ol>
-        <p className="panel-footnote">
-          文明事件与排行模块待开发。
-          <br />
-          当前仅记录真实模拟事件。
-        </p>
       </aside>
       <aside className="info-panel right-panel" aria-label="天体与物理统计">
         <header>
@@ -93,6 +87,32 @@ export function InformationPanels({
         <h2>
           引力遥测<span>GRAVITATIONAL SYSTEM</span>
         </h2>
+        {snapshot.environment && (
+          <>
+            <CivilizationRanking state={snapshot.environment} settings={settings} />
+            <dl className="data-list">
+              <div>
+                <dt>辐射通量</dt>
+                <dd>
+                  {snapshot.environment.reading.model === 'radiative'
+                    ? `${snapshot.environment.reading.flux.toFixed(2)} W/m²`
+                    : '旧经验温度模型'}
+                </dd>
+              </div>
+              <div>
+                <dt>本轮 / 会话已结束文明</dt>
+                <dd>
+                  {snapshot.environment.totalCivilizations} /{' '}
+                  {snapshot.environment.sessionCivilizations}
+                </dd>
+              </div>
+              <div>
+                <dt>本轮已结束纪元</dt>
+                <dd>{snapshot.environment.eras.length}（最近 256 段）</dd>
+              </div>
+            </dl>
+          </>
+        )}
         <div className="body-list">
           {snapshot.bodies.map((body) => (
             <article key={body.id} className="body-row">
@@ -177,7 +197,7 @@ export function InformationPanels({
               {snapshot.system?.galaxyScale ?? 1}×
             </dd>
             <dt>初始条件</dt>
-            <dd>四体 Random · Seed</dd>
+            <dd>原版四体立方体随机 / Custom Seed</dd>
           </div>
           <div>
             <dt>目标 / 近期实际倍速</dt>
@@ -195,7 +215,6 @@ export function InformationPanels({
             <dd>{snapshot.restartCount}</dd>
           </div>
         </dl>
-        <div className="chart-placeholder">轨道与文明状态图表 · 待开发</div>
       </aside>
     </div>
   );

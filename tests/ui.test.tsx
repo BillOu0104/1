@@ -122,3 +122,45 @@ describe('observatory UI', () => {
     expect(screen.queryByLabelText('模拟设置')).not.toBeInTheDocument();
   });
 });
+it('keeps settings accessible with invalid persisted overlapping Custom Seed vectors and recovers after correction', async () => {
+  const store = new SettingsStore();
+  store.set('customInitial', true);
+  store.set('initial0X', 0.05);
+  store.set('initial0Y', -0.05);
+  const runtime = new SimulationRuntime(store, { synchronous: true });
+  render(<App runtime={runtime} />);
+  expect(runtime.getSnapshot().phase).toBe('ended');
+  expect(runtime.getSnapshot().bodies).toHaveLength(0);
+  const user = userEvent.setup();
+  await user.click(screen.getByRole('button', { name: '切换设置面板' }));
+  expect(screen.getByLabelText('模拟设置')).toBeVisible();
+  act(() => store.set('customInitial', false));
+  act(() => runtime.reset());
+  expect(runtime.getSnapshot().phase).toBe('running');
+  expect(runtime.getSnapshot().bodies).toHaveLength(4);
+});
+it('applies all signed log/rank layout offsets, language, visibility and opacity controls to real data', async () => {
+  const store = new SettingsStore(),
+    runtime = new SimulationRuntime(store, { synchronous: true }),
+    user = userEvent.setup();
+  render(<App runtime={runtime} />);
+  await user.click(screen.getByRole('button', { name: '切换左右信息面板' }));
+  act(() => {
+    store.set('logX', -4);
+    store.set('logY', -3);
+    store.set('rankX', 5);
+    store.set('rankY', -3);
+    store.set('showRank', true);
+    store.set('civilizationEnglish', true);
+    store.set('statusOpacity', 0.75);
+  });
+  const log = screen.getByLabelText('文明实时状态');
+  expect(log).toHaveStyle({ transform: 'translate(-8px, -6.72px)' });
+  expect(log.querySelector('.data-list')).toHaveStyle({ opacity: 0.75 });
+  expect(screen.getByText('Temperature')).toBeVisible();
+  expect(screen.getByLabelText('文明历史排行')).toHaveStyle({
+    transform: 'translate(10px, -9.6px)',
+  });
+  act(() => store.set('showCivilization', false));
+  expect(log).not.toBeVisible();
+});

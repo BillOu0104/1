@@ -71,7 +71,7 @@ const definitions: FeatureModule[] = [
     id: 'initial',
     label: '初始条件',
     status: 'partial',
-    description: '四体 Random + Seed + 星系尺度已启用；不做预模拟筛选',
+    description: '原版立方体随机 / 24 分量 Custom Seed + PRNG Seed + 星系尺度；不做预模拟筛选',
   },
   {
     id: 'camera',
@@ -96,11 +96,21 @@ const definitions: FeatureModule[] = [
   {
     id: 'temperature',
     label: '温度与宜居性',
-    status: 'planned',
-    description: '待开发 · 无温度估算数据',
+    status: 'implemented',
+    description: '多星辐射、冰雪反照率、温度距离倍数与独立旧经验模型',
   },
-  { id: 'civilization', label: '文明演化', status: 'planned', description: '待开发 · 无文明模型' },
-  { id: 'civilizationLog', label: '文明日志与排行', status: 'planned', description: '待开发' },
+  {
+    id: 'civilization',
+    label: '文明演化',
+    status: 'implemented',
+    description: '纪元、天象、连续适宜诞生、多代生灭与脱水/复苏；物理时间驱动',
+  },
+  {
+    id: 'civilizationLog',
+    label: '文明日志与排行',
+    status: 'implemented',
+    description: '有界事件/文明/纪元历史、本轮排行与独立会话前六名',
+  },
   {
     id: 'widgets',
     label: '时钟与界面',

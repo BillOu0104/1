@@ -18,33 +18,28 @@ it('synchronizes every registered numeric control, respects step/range, rejects 
     },
   };
   const store = new SettingsStore(persistence);
-  function Controls() {
+  const definitions = settingsRegistry.getDefinitions().filter((d) => d.kind === 'number');
+  function Control({ definition: d }: { definition: (typeof definitions)[number] }) {
     const settings = useSyncExternalStore(store.subscribe, store.getSnapshot);
     return (
-      <>
-        {settingsRegistry
-          .getDefinitions()
-          .filter((d) => d.kind === 'number')
-          .map((d) => (
-            <NumericSetting
-              key={d.key}
-              id={d.key}
-              label={d.label}
-              value={settings[d.key as NumericSettingKey]}
-              min={d.min!}
-              max={d.max!}
-              step={d.step!}
-              onChange={(v) => store.set(d.key as NumericSettingKey, v)}
-            />
-          ))}
-      </>
+      <NumericSetting
+        key={d.key}
+        id={d.key}
+        label={d.label}
+        value={settings[d.key as NumericSettingKey]}
+        min={d.min!}
+        max={d.max!}
+        step={d.step!}
+        onChange={(v) => store.set(d.key as NumericSettingKey, v)}
+      />
     );
   }
-  render(<Controls />);
-  for (const d of settingsRegistry.getDefinitions().filter((d) => d.kind === 'number')) {
+  const view = render(<Control definition={definitions[0]!} />);
+  for (const d of definitions) {
+    view.rerender(<Control definition={d} />);
     const key = d.key as NumericSettingKey;
-    const slider = screen.getByRole('slider', { name: d.label });
-    const input = screen.getByRole('spinbutton', { name: `${d.label} 数值` });
+    const slider = document.getElementById(d.key)!;
+    const input = screen.getByLabelText(`${d.label} 数值`);
     const value = Number((d.min! + d.step! * 2).toFixed(3));
     fireEvent.change(input, { target: { value: String(value) } });
     expect(store.getSnapshot()[key]).toBe(value);

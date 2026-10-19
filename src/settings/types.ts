@@ -1,6 +1,7 @@
 import type { GeneratorMode, Vec3 } from '../physics/types';
 import type { SeedMode } from '../simulation/seeds';
-export interface AppSettings {
+import type { V04Settings } from '../environment/config';
+export interface AppSettings extends V04Settings {
   galaxyScale: number;
   cageEnabled: boolean;
   cageHard: boolean;
