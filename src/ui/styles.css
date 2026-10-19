@@ -901,3 +901,32 @@ p {
   color: #86a4b8;
   text-align: center;
 }
+
+.civilization-status,
+.civil-rank-list {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.civil-rank-list {
+  margin: 0;
+  padding-left: 1.3em;
+}
+.civil-rank-list li {
+  padding: 8px 0;
+  border-bottom: 1px solid #a5cadd14;
+}
+.civil-rank-list small {
+  display: block;
+  color: var(--muted);
+  margin-top: 4px;
+}
+.civilization-status .data-list {
+  font-size: inherit;
+}
+
+.civilization-status .event-list p {
+  font-size: 0.86em;
+}
+.civilization-status .event-list > li > span {
+  font-size: 0.7em;
+}

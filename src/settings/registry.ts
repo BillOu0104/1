@@ -1,3 +1,4 @@
+import { V04_RULES } from '../environment/config';
 import { CAGE_PARAMETER_RULES } from '../physics/cage';
 import { CAGE_SETTINGS } from './physicsSettings';
 import { MAX_TRAIL_YEARS } from '../physics/trajectory';
@@ -167,4 +168,24 @@ for (const key of Object.keys(CAGE_SETTINGS) as (keyof typeof CAGE_SETTINGS)[]) 
     validate: (v): v is number =>
       typeof v === 'number' && Number.isFinite(v) && v >= rule.min && v <= rule.max,
   });
+}
+
+for (const [key, rule] of Object.entries(V04_RULES)) {
+  const numeric = 'min' in rule;
+  settingsRegistry.register({
+    key,
+    label: rule.label,
+    category: rule.category,
+    kind: numeric ? 'number' : 'boolean',
+    ...('min' in rule ? { min: rule.min, max: rule.max, step: rule.step } : {}),
+    description: rule.description,
+    validate: (v: unknown) =>
+      numeric
+        ? typeof v === 'number' &&
+          Number.isFinite(v) &&
+          'min' in rule &&
+          v >= rule.min &&
+          v <= rule.max
+        : typeof v === 'boolean',
+  } as SettingDefinition);
 }

@@ -1,3 +1,4 @@
+import { interruptCivilization } from '../environment/interrupted';
 import { cageFromSettings } from '../settings/physicsSettings';
 import {
   SimulationEngine,
@@ -8,7 +9,9 @@ import {
 import type { SettingsStore } from '../settings/SettingsStore';
 import type { SceneRenderer } from '../rendering/SceneRenderer';
 import type { PhysicsPort, PhysicsRequest, PhysicsResponse } from '../worker/protocol';
-import { RandomInitializer } from '../physics/initialConditions';
+import { OriginalRandomInitializer } from '../physics/originalInitializer';
+import { v04FromSettings, evolutionInputs } from '../environment/config';
+import type { AppSettings } from '../settings/types';
 import { createRandomSeed, nextRoundSeed } from './seeds';
 import { controlsFromSettings } from '../settings/simulationSettings';
 export interface RuntimeOptions {
@@ -47,18 +50,25 @@ export class SimulationRuntime {
   ) {
     const config = settings.getSnapshot();
     this.activeMasses = this.masses();
-    this.engine = new SimulationEngine(
-      config.seedMode === 'random' ? createRandomSeed() : config.seed,
-      {
-        seedMode: config.seedMode,
-        generator: new RandomInitializer(this.masses()),
-        config: { galaxyScale: config.galaxyScale, cage: cageFromSettings(config) },
-      },
-    );
+    const seed = config.seedMode === 'random' ? createRandomSeed() : config.seed;
+    const engineOptions = {
+      seedMode: config.seedMode,
+      generator: new OriginalRandomInitializer(this.masses(), v04FromSettings(config)),
+      environment: v04FromSettings(config),
+      config: { galaxyScale: config.galaxyScale, cage: cageFromSettings(config) },
+    };
+    try {
+      this.engine = new SimulationEngine(seed, engineOptions);
+    } catch (error) {
+      // Keep settings accessible after a persisted Custom Seed with overlapping bodies.
+      this.engine = new SimulationEngine(seed, { ...engineOptions, initialBodies: [] });
+      this.engine.warn(error instanceof Error ? error.message : '初始条件无效');
+    }
     this.engine.setControls(controlsFromSettings(config));
     this.current = this.engine.snapshot();
     this.current.initialization = {
       referenceMasses: [...this.activeMasses],
+      environment: v04FromSettings(config),
       galaxyScale: config.galaxyScale,
     };
     this.uiSnapshot = this.current;
@@ -79,6 +89,7 @@ export class SimulationRuntime {
       this.current = this.engine.snapshot();
       this.current.initialization = {
         referenceMasses: [...this.activeMasses],
+        environment: this.current.initialization?.environment,
         galaxyScale: this.engine.config.galaxyScale ?? 1,
       };
     }
@@ -93,6 +104,10 @@ export class SimulationRuntime {
   rerunCurrentSeed = (): void => {
     const initialization = this.current.initialization;
     if (initialization) {
+      if (initialization.environment) {
+        for (const [key, value] of Object.entries(evolutionInputs(initialization.environment)))
+          this.settings.set(key as keyof AppSettings, value);
+      }
       this.settings.set('galaxyScale', initialization.galaxyScale);
       for (const [i, key] of ['massA', 'massB', 'massC'].entries())
         this.settings.set(key as 'massA' | 'massB' | 'massC', initialization.referenceMasses[i]!);
@@ -112,11 +127,22 @@ export class SimulationRuntime {
     if (this.options.synchronous) {
       this.engine.setGalaxyScale(this.settings.getSnapshot().galaxyScale);
       this.engine.setControls(controlsFromSettings(settings));
-      this.engine.reset(
-        seed,
-        new RandomInitializer(this.masses()).generate(seed, this.engine.config),
-        settings.seedMode,
-      );
+      this.engine.environment.configure(v04FromSettings(settings), settings.cageEnabled);
+      try {
+        const bodies = new OriginalRandomInitializer(
+          this.masses(),
+          v04FromSettings(settings),
+        ).generate(seed, this.engine.config);
+        this.engine.reset(seed, bodies, settings.seedMode);
+      } catch (error) {
+        this.engine.reset(seed, [], settings.seedMode);
+        this.engine.warn(error instanceof Error ? error.message : '初始条件无效');
+      }
+      this.current.initialization = {
+        referenceMasses: [...this.activeMasses],
+        galaxyScale: settings.galaxyScale,
+        environment: v04FromSettings(settings),
+      };
       this.publish();
       return;
     }
@@ -138,6 +164,7 @@ export class SimulationRuntime {
     if (this.port)
       this.send({
         type: 'reset',
+        environment: v04FromSettings(settings),
         seed,
         controls: controlsFromSettings(settings),
         seedMode: settings.seedMode,
@@ -151,6 +178,12 @@ export class SimulationRuntime {
   }
   private session(): SessionHistory {
     return {
+      environment: this.current.environment
+        ? {
+            ranking: this.current.environment.sessionRanking,
+            total: this.current.environment.sessionCivilizations,
+          }
+        : undefined,
       events: this.current.events,
       restartCount: this.current.restartCount,
       generation: this.current.generation,
@@ -192,6 +225,7 @@ export class SimulationRuntime {
       this.publish();
       this.send({
         type: 'init',
+        environment: v04FromSettings(this.settings.getSnapshot()),
         seed,
         seedMode: this.current.run.seedMode,
         masses: this.masses(),
@@ -203,6 +237,7 @@ export class SimulationRuntime {
       this.sentPhysicsSignature = JSON.stringify([
         this.settings.getSnapshot().galaxyScale,
         cageFromSettings(this.settings.getSnapshot()),
+        v04FromSettings(this.settings.getSnapshot()),
       ]);
       this.send({ type: 'visibility', active: !this.hostPaused && !document.hidden });
     } catch {
@@ -222,6 +257,21 @@ export class SimulationRuntime {
     }
     this.previous = this.current;
     if (message.eventsUnchanged) message.snapshot.events = this.current.events;
+    if (
+      message.environmentHistoryUnchanged &&
+      message.snapshot.environment &&
+      this.current.environment
+    ) {
+      const old = this.current.environment;
+      message.snapshot.environment = {
+        ...message.snapshot.environment,
+        events: old.events,
+        records: old.records,
+        eras: old.eras,
+        ranking: old.ranking,
+        sessionRanking: old.sessionRanking,
+      };
+    }
     this.current = message.snapshot;
     if (message.trails) this.renderer?.appendTrails?.(message.trails, message.snapshot.bodies);
     this.receivedAt = performance.now();
@@ -255,6 +305,9 @@ export class SimulationRuntime {
     this.current = {
       ...this.current,
       phase: 'ended',
+      environment: this.current.environment
+        ? interruptCivilization(this.current.environment, message)
+        : undefined,
       reason,
       run,
       restartLimitReached: this.limitReached(),
@@ -330,6 +383,7 @@ export class SimulationRuntime {
       if (this.options.synchronous) {
         this.engine.setControls(controlsFromSettings(settings, this.current.run.seedMode));
         this.engine.setCage(cageFromSettings(settings));
+        this.engine.environment.configure(v04FromSettings(settings), settings.cageEnabled);
       } else {
         this.current = {
           ...this.current,
@@ -341,9 +395,14 @@ export class SimulationRuntime {
           controls: controlsFromSettings(settings, this.current.run.seedMode),
         });
         const cage = cageFromSettings(settings),
-          signature = JSON.stringify([settings.galaxyScale, cage]);
+          signature = JSON.stringify([settings.galaxyScale, cage, v04FromSettings(settings)]);
         if (signature !== this.sentPhysicsSignature) {
-          this.send({ type: 'configure', galaxyScale: settings.galaxyScale, cage });
+          this.send({
+            type: 'configure',
+            galaxyScale: settings.galaxyScale,
+            cage,
+            environment: v04FromSettings(settings),
+          });
           this.sentPhysicsSignature = signature;
         }
       }

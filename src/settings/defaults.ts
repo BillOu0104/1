@@ -1,3 +1,4 @@
+import { V04_DEFAULTS } from '../environment/config';
 import { DEFAULT_CAGE } from '../physics/cage';
 import type { AppSettings } from './types';
 export interface DefaultsProvider<T> {
@@ -5,6 +6,7 @@ export interface DefaultsProvider<T> {
 }
 export const settingsDefaults: DefaultsProvider<AppSettings> = {
   getDefaults: () => ({
+    ...V04_DEFAULTS,
     galaxyScale: 3,
     cageEnabled: DEFAULT_CAGE.enabled,
     cageHard: DEFAULT_CAGE.hard,

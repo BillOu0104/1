@@ -1,0 +1,83 @@
+{
+  "method": "4 fixed Seeds, 1000 physical year observation window, 5s CPU budget per Seed, scale3 soft cage, automatic restart disabled; censored observations are lower bounds. Serialized state size is not a JS heap leak measurement.",
+  "rows": [
+    {
+      "seed": "v04-soak-0",
+      "years": 1000.0118877332827,
+      "censored": true,
+      "cpuMs": 2296.139447,
+      "steps": 119984,
+      "reason": null,
+      "maxEvents": 512,
+      "maxRecords": 28,
+      "maxEras": 212,
+      "maxSnapshotBytes": 91861,
+      "civilizations": 28,
+      "energyError": 1.7494912266213201e-7,
+      "angularError": 1.2880727457428822e-9
+    },
+    {
+      "seed": "v04-soak-1",
+      "years": 1.0511080115427913,
+      "censored": false,
+      "cpuMs": 7.804653000000144,
+      "steps": 262,
+      "reason": {
+        "type": "collision",
+        "collisionKind": "stellar",
+        "message": "恒星 A 与 恒星 B 碰撞",
+        "bodyIds": ["star-0", "star-1"],
+        "year": 1.0511080115427913
+      },
+      "maxEvents": 0,
+      "maxRecords": 0,
+      "maxEras": 0,
+      "maxSnapshotBytes": 0,
+      "civilizations": 0,
+      "energyError": -1.8693199380527402e-8,
+      "angularError": 2.9083324298097453e-11
+    },
+    {
+      "seed": "v04-soak-2",
+      "years": 121.15673776412162,
+      "censored": false,
+      "cpuMs": 394.9299920000003,
+      "steps": 21002,
+      "reason": {
+        "type": "collision",
+        "collisionKind": "stellar",
+        "message": "恒星 A 与 恒星 B 碰撞",
+        "bodyIds": ["star-0", "star-1"],
+        "year": 121.15673776412162
+      },
+      "maxEvents": 106,
+      "maxRecords": 8,
+      "maxEras": 41,
+      "maxSnapshotBytes": 22930,
+      "civilizations": 10,
+      "energyError": 2.538602897636264e-8,
+      "angularError": 3.1972661593147995e-9
+    },
+    {
+      "seed": "v04-soak-3",
+      "years": 400.943728613642,
+      "censored": false,
+      "cpuMs": 1340.5627339999996,
+      "steps": 73609,
+      "reason": {
+        "type": "collision",
+        "collisionKind": "stellar",
+        "message": "恒星 A 与 恒星 C 碰撞",
+        "bodyIds": ["star-0", "star-2"],
+        "year": 400.943728613642
+      },
+      "maxEvents": 492,
+      "maxRecords": 51,
+      "maxEras": 173,
+      "maxSnapshotBytes": 94148,
+      "civilizations": 51,
+      "energyError": 1.3078923135157165e-7,
+      "angularError": 1.79096967717147e-8
+    }
+  ]
+}

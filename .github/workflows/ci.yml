@@ -1,4 +1,4 @@
-name: Validate V0.3.1
+name: Validate V0.4
 on:
   push:
   pull_request:
@@ -39,6 +39,8 @@ jobs:
           PLANET_BENCH_SEEDS: 4
           PLANET_BENCH_YEARS: 10
           PLANET_BENCH_OUTPUT: test-results/planet-benchmark.json
+      - name: Original initialization and civilization comparison
+        run: npm run benchmark:civilization
       - run: npm run build
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e

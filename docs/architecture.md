@@ -1,4 +1,4 @@
-# V0.3 架构
+# V0.4 架构
 
 ```mermaid
 flowchart LR
@@ -49,3 +49,15 @@ V0.3.1 的 tick 另带未截断 wallElapsed，用真实活跃时间计算近期�
 SettingsRegistry定义Galaxy Scale和原版确认的9个牢笼控件，沿用现有设置持久化及分类布局。Runtime仅在配置改变时发送configure；Worker保存待生效尺度，下一轮生成时应用。牢笼通过Engine.setCage热更新并重建诊断基准，不清空轨道或重建Renderer。
 
 DOPRI5每个阶段用阶段状态计算全四体COM，叠加独立牢笼力。开启时追加4维状态（外力做功和三维冲量），使用同一嵌入误差控制；关闭后移除这4维及额外力。角动量使用COM系。弦检查回退与辅助状态一起回滚；宏步末尾极小补齐步不会污染下一宏步的建议步长。完整公式、来源、边界差异及测试见[V0.3说明](v0.3.md)。尾迹Recorder、Trail和CSS布局未修改；Renderer只为尺度增加相机距离/远裁面适配。
+
+## V0.4 环境与文明
+
+`OriginalRandomInitializer` 为生产初值提供器；旧 `RandomInitializer` 供历史基准。初值设置与运行设置分离：Worker 保存生成本轮的实际输入，修改后在下一轮采用，当前 Seed 重跑恢复该输入。
+
+`SimulationEngine.environment` 管理独立的 `CivilizationSimulation`，只读取接受且通过守恒检查的物理状态，不写位置、速度或重启控制。`temperature.ts` 计算物理读数，`eras.ts` 管理判定与确认，文明类管理虚拟计数、生命周期和有界历史。`end` 直接通知文明，避免原版共享 rst 信号竞争；`start` 先结束旧宇宙再创建第零年的新环境。新 Worker 的历史会话交接与已有活跃宇宙的重置分开处理。
+
+物理年 = T₀/2π；虚拟文明回调 60 次/物理年；文明年增量 = 物理年增量×(Kt/10)²。温度正弦相位也取物理时间，不使用 React 或墙钟。临界灾难每个接受步检查，不等待下一虚拟回调或信息面板刷新。
+
+Worker 每次只传有界当前读数；环境历史 revision 未变化时省略重复数组，Runtime 恢复前次数组。原有轨迹传输与渲染缓冲未修改。会话榜仅六条，通过 Worker 故障恢复交接；故障在最后确认状态结束文明，不伪造未收到的时间。全部新增设置由 `V04_RULES` 统一定义类型、默认值、范围和描述，沿用持久化 schema v1。设置分类折叠时不挂载内部控件。
+
+完整映射、平台适配及原版缺陷修复见 [V0.4机制文档](civilization-v0.4.md) 与 [功能覆盖清单](civilization-v0.4-coverage.md)。

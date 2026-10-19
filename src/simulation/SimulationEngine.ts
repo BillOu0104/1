@@ -1,3 +1,8 @@
+import {
+  CivilizationSimulation,
+  type CivilizationSnapshot,
+} from '../environment/CivilizationSimulation';
+import { V04_DEFAULTS, type V04Settings } from '../environment/config';
 import { validateCage, type GravityCageConfig } from '../physics/cage';
 import { EventBus, type AppEvents, type SimulationEvent } from '../events/EventBus';
 import {
@@ -69,6 +74,7 @@ export interface ScreeningSummary {
   cpuMs: number;
 }
 export interface SessionHistory {
+  environment?: { ranking: CivilizationSnapshot['sessionRanking']; total: number };
   events: readonly SimulationEvent[];
   restartCount: number;
   generation: number;
@@ -76,7 +82,8 @@ export interface SessionHistory {
 }
 export interface SimulationSnapshot {
   /** Reference inputs that generated this round, distinct from unapplied UI drafts. */
-  initialization?: { referenceMasses: number[]; galaxyScale: number };
+  initialization?: { referenceMasses: number[]; galaxyScale: number; environment?: V04Settings };
+  environment?: CivilizationSnapshot;
   bodies: Body[];
   seed: string;
   time: number;
@@ -120,6 +127,7 @@ export interface SimulationSnapshot {
   };
 }
 export interface EngineOptions {
+  environment?: V04Settings;
   seedMode?: SeedMode;
   config?: Partial<PhysicsConfig>;
   /** Only accepted, conservation-checked states; never rejected stages or display interpolation. */
@@ -134,6 +142,7 @@ export interface EngineOptions {
   session?: SessionHistory;
 }
 export class SimulationEngine {
+  readonly environment: CivilizationSimulation;
   readonly config: PhysicsConfig;
   readonly events: EventBus<AppEvents>;
   private bodies: Body[] = [];
@@ -222,6 +231,10 @@ export class SimulationEngine {
       this.generation = options.session.generation;
       this.eventId = Math.max(0, ...this.history.map((e) => e.id));
     }
+    this.environment = new CivilizationSimulation(
+      options.environment ?? V04_DEFAULTS,
+      options.session?.environment,
+    );
     this.start(seed, 'started', options.initialBodies);
   }
   getBodies(): readonly Body[] {
@@ -315,6 +328,8 @@ export class SimulationEngine {
     this.events.emit('simulation', event);
   }
   private start(seed: string, type: 'started' | 'reset', prepared?: Body[]): void {
+    if (this.bodies.length > 0 && this.generation > 0)
+      this.environment.terminate({ type: 'manual', message: '手动重置宇宙' });
     this.seed = seed;
     this.time = 0;
     this.steps = 0;
@@ -338,6 +353,7 @@ export class SimulationEngine {
     this.tidal = this.tideModel.enabled
       ? readPlanetTides(this.bodies, this.config, this.tideModel)
       : null;
+    this.environment.reset(this.bodies, this.generation, seed, this.config.cage?.enabled ?? false);
     this.record(type, type === 'started' ? '新一轮引力模拟已开始' : '已重置初始条件');
     this.checkSystem();
     if (isValidSystem(this.bodies))
@@ -346,6 +362,7 @@ export class SimulationEngine {
   private end(reason: EndReason): void {
     if (this.reason) return;
     this.reason = { ...reason, year: this.time / UNITS_PER_YEAR };
+    this.environment.terminate(this.reason);
     this.updateLongest();
     this.run.lastEndReason = { ...this.reason };
     this.endedAt = this.wallTime;
@@ -493,6 +510,7 @@ export class SimulationEngine {
         this.accumulator = Math.max(0, this.accumulator - dt);
         this.macroRemaining = Math.max(0, this.macroRemaining - dt);
         this.encounters.update(this.bodies, this.config.galaxyScale ?? 1);
+        this.environment.observe(this.bodies, this.time);
         this.options.onAcceptedState?.(this.bodies, this.time, this.generation);
         if (endCollision || (!this.adaptive && swept)) {
           this.end((endCollision ?? swept)!);
@@ -570,6 +588,7 @@ export class SimulationEngine {
         this.adaptive?.externalImpulse ?? [0, 0, 0],
       );
     return {
+      environment: this.environment.snapshot(),
       bodies: copyBodies(this.bodies),
       seed: this.seed,
       time: this.time,
